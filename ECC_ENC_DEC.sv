@@ -1,8 +1,3 @@
-`define H_matrix_1  
-
-
-
-
 module ECC_ENC_DEC (
                 input   rst,
                         clk, 
@@ -22,9 +17,9 @@ module ECC_ENC_DEC (
                         DATA_WIDTH = 32;
 
 
-        parameter       [7:0][3:0]    H_matrix_1 = 32'hffe4_d2b1;
-        parameter       [15:0][4:0]   H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
-        parameter       [31:0][5:0]   H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+        parameter       [7:0][3:0]    H_MATRIX_1 = 32'hffe4_d2b1;
+        parameter       [15:0][4:0]   H_MATRIX_2 = 80'hffff_fe08_f1c4_cda2_ab61;
+        parameter       [31:0][5:0]   H_MATRIX_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
 
 
 
@@ -41,7 +36,10 @@ module ECC_ENC_DEC (
         reg                             operation_done;
         reg     [1:0]                   num_of_errors;
 
-        wire    [7:0][3:0]    H_matrix_1;
-        wire    [15:0][4:0]   H_matrix_2;
-        wire    [31:0][5:0]   H_matrix_3;
+        wire    [7:0][3:0]    H_matrix_1 = H_MATRIX_1;  //TBD this may not work
+        wire    [15:0][4:0]   H_matrix_2 = H_MATRIX_2;
+        wire    [31:0][5:0]   H_matrix_3 = H_MATRIX_3;
+
+
+
 endmodule
