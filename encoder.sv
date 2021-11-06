@@ -27,7 +27,7 @@ module ENC #(
     always_ff @( clk ) begin : stage_1_seq
         if (rst) begin
             c_vector_stage1 <= 8'b0;
-        else
+        end else begin
             c_vector_stage1 <= c_vector_stage1_wire;
         end
     end
@@ -49,7 +49,7 @@ module ENC #(
     always_ff @( clk ) begin : stage_2_seq
         if (rst) begin
             data_out <= 8'b0;
-        else
+        end else begin
             data_out <= c_vector_stage2_wire;
         end
     end
