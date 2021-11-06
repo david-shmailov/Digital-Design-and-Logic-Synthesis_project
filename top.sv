@@ -35,7 +35,7 @@ module  Encoder (
 
         wire                            clk;
         wire                            rst;
-        reg     [(DATA_WIDTH)/2-1:0]    data_out;      
+        reg     [(DATA_WIDTH)-1:0]    data_out;      
         reg                             valid;
 
         wire    [7:0][3:0]    H_matrix_1;
