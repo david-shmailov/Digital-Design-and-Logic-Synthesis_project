@@ -1,4 +1,4 @@
-module moduleName #(
+module ENC #(
     parameters //TBD
 ) (
     input   rst,
