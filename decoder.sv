@@ -28,7 +28,7 @@ module DEC #(
 
     end
 
-    always_ff @( clk ) begin 
+    always_ff @( posedge clk ) begin 
         if (rst) begin
             data_out <= 4'h0;
             num_of_errors <= 2'h0;
