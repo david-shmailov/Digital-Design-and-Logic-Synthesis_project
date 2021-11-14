@@ -4,12 +4,13 @@ module ENC #(
     input   rst,
             clk,
             data_in,
+            mod,
     output  data_out)
 );
     wire rst,clk;
     wire [3:0] data_in;
     reg  [7:0] data_out;
-
+    wire [1:0] mod;
     reg  [7:0] c_vector_stage1;
     //reg  [7:0] c_vector_stage2;
 
@@ -24,35 +25,24 @@ module ENC #(
     wire [3:0][3:0] left_side_H_1   = 16'hffe4;
     
     // Stage 1: computing all values of C except c[3] (C5 in the pdf)
-    always_ff @( clk ) begin : stage_1_seq
-        if (rst) begin
-            c_vector_stage1 <= 8'b0;
-        end else begin
-            c_vector_stage1 <= c_vector_stage1_wire;
-        end
-    end
-
-    always_comb begin : stage_1_comb
-        for(j=2;j>=0;j = j-1) begin
-            for(k =0 k<4; k= k+1)begin
-                c_vector_stage1_wire[j] = c_vector_stage1_wire[j] xor (left_side_H_1[j][k] and data_in[k]);
-            end
-        end
-        c_vector_stage1_wire[3] = 1'b0;
-        for(i=7; i>3; i=i-1) begin
-            c_vector_stage1_wire[i] = data_in[i-4];
-        end
-    end
+    
+    ENC_STAGE_1 s1  (
+                    .clk(clk),
+                    .rst(rst),
+                    .data_in(data_in),
+                    .mod(mod),
+                    .data_out(c_vector_stage1)
+    )
 
     // Stage 2: computing c[3] (C5 in the pdf) based on all other C values
 
-    always_ff @( clk ) begin : stage_2_seq
-        if (rst) begin
-            data_out <= 8'b0;
-        end else begin
-            data_out <= c_vector_stage2_wire;
-        end
-    end
+    ENC_STAGE_2 s2  (
+                    .clk(clk),
+                    .rst(rst),
+                    .data_in(c_vector_stage1),
+                    .mod(mod),
+                    .data_out(data_out)
+    )
 
 
     // in the following case all values of H_matrix_1[3] should be 1 with the given matricies.
@@ -65,27 +55,3 @@ module ENC #(
 
 
 endmodule
-
-// module vector_mult #(
-//     parameter size = 4;
-// ) (
-//     input A,B,
-//     output C
-// );
-//     logic [size-1:0] A;
-//     logic [size-1:0] B;
-//     logic  C;
-
-//     logic sum = 0;
-
-//     always_comb begin 
-//         for (i = 0; i<size ;i= i+1 ) begin
-//             sum = sum + A[i]*B[i]
-//         end
-//         C = sum;
-//     end
-
-
-// endmodule
-
-// mod_name instance_name (.*);
