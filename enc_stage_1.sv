@@ -25,8 +25,6 @@ module ENC_STAGE_1 #(
     wire [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
     wire [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
 
-    // wire [3:0][3:0] right_side_H_1  = 16'hd2b1;
-    // wire [3:0][3:0] left_side_H_1   = 16'hffe4;
 
     wire    rst,clk;
     wire    [MAX_INFO_WIDTH-1:0] data_in;
@@ -49,7 +47,7 @@ module ENC_STAGE_1 #(
                 .rst(rst),
                 // we take only the info_length left side of the matrix and also without the first row.
                 // because we calculate the last parity bit in stage 2.
-                .A_data_in(H_matrix_1[parity_mod_1-1:1][info_mod_1-1:0]), //todo test that this is the correct selelction
+                .A_data_in(H_matrix_1[parity_mod_1-1:1][info_mod_1-1:0]), //todo test that this is the correct selection
                 .B_data_in(data_in[info_mod_1-1:0]),
                 .C_data_out(temp1));
 
@@ -58,7 +56,7 @@ module ENC_STAGE_1 #(
                     parameter B_COLS = 1) m2
                 (.clk(clk),
                 .rst(rst),
-                .A_data_in(H_matrix_2[parity_mod_2-1:1][info_mod_2-1:0]), //todo test that this is the correct selelction
+                .A_data_in(H_matrix_2[parity_mod_2-1:1][info_mod_2-1:0]), //todo test that this is the correct selection
                 .B_data_in(data_in[info_mod_2-1:0]),
                 .C_data_out(temp2));
 
@@ -67,7 +65,7 @@ module ENC_STAGE_1 #(
                     parameter B_COLS = 1) m3
                 (.clk(clk),
                 .rst(rst),
-                .A_data_in(H_matrix_3[parity_mod_3-1:1][info_mod_3-1:0]), //todo test that this is the correct selelction
+                .A_data_in(H_matrix_3[parity_mod_3-1:1][info_mod_3-1:0]), //todo test that this is the correct selection
                 .B_data_in(data_in[info_mod_3-1:0]),
                 .C_data_out(temp3));
     
