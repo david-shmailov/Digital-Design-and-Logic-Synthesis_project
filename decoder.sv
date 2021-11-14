@@ -51,7 +51,7 @@ module DEC #(
 
     always_comb begin : check_correctness
         for (i = 0; i<8; i=i+1) begin
-            column_equality_array[i] = mult_result == H_matrix_1[i]; // each bit indicates whether mult_result equals to that column in H
+            //column_equality_array[i] = mult_result == H_matrix_1[i]; // each bit indicates whether mult_result equals to that column in H
             if (mult_result == 8'b0) begin //if no errors found
                 tmp_num_of_errors = 2'b0;
             end
