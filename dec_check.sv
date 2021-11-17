@@ -47,6 +47,9 @@ module DEC_CHK #(
     reg     [full_length_mod_2-1:0] temp2; 
     reg     [full_length_mod_3-1:0] temp3;
 
+    reg     reduced_data;
+    reg     reduced_cv;
+    reg     [MAX_CODEWORD_WIDTH-1:0]    temp_out;
 
     always_comb begin : compute_correction
         for (i=0;i<full_length_mod_1;i=i+1) begin
@@ -71,18 +74,48 @@ module DEC_CHK #(
             correction_vector_mod_3_sample <= correction_vector_mod_3;
         end
     end
+
+
+
+    always_comb begin : reduce
+        case(mod)
+            2'b00   :   begin
+                        reduced_cv = |correction_vector_mod_1_sample;
+                        temp_out   = data_in ^ {pad_zero_1{1'b0},
+                                                correction_vector_mod_1_sample}; //correct the data
+            end
+            2'b01   :   begin
+                        reduced_cv = |correction_vector_mod_2_sample;
+                        temp_out   = data_in ^ {pad_zero_2{1'b0},
+                                                correction_vector_mod_2_sample}; //correct the data
+            end
+            2'b10   :   begin
+                        reduced_cv = |correction_vector_mod_3_sample;
+                        temp_out   = data_in ^ {pad_zero_3{1'b0},
+                                                correction_vector_mod_3_sample}; //correct the data
+            end
+            default :   begin
+                        reduced_cv = 1'b0;
+                        temp_out   = data_in; 
+            end
+    end
+
     always_ff @( posedge clk ) begin
-
-
-        //this should OR all bits of the vector to see if there is atleast 1
-        if (|data_in) begin
+        if (rst) begin
             num_of_errors <= 2'b00;
-        end else if (|correction_vector_mod_1_sample) begin
-            num_of_errors <= 2'b01;
+            data_out <= MAX_CODEWORD_WIDTH{1'b0};
         end else begin
-            num_of_errors <= 2'b10;
+            if (data_in == MAX_CODEWORD_WIDTH{1'b0}) begin
+                num_of_errors <= 2'b00;
+            end else if (reduced_cv) begin
+                num_of_errors <= 2'b01;
+            end else if (!reduced_cv) begin
+                num_of_errors <= 2'b10;
+            end else begin
+                num_of_errors <= 2'b11; //this is not a correct state of the machine.
+            end
+            data_out < temp_out
         end
-        data_out < data_in ^ correction_vector_mod_1_sample; //correct the data
 
     end
         

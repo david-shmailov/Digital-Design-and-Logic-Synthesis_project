@@ -18,10 +18,12 @@ module DEC #(
     localparam parity_mod_1 = 4;
     localparam parity_mod_2 = 5;
     localparam parity_mod_3 = 6;
-
-    localparam pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1 - parity_mod_1;
-    localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
-    localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
+    localparam full_length_mod_1 = info_mod_1 + parity_mod_1;
+    localparam full_length_mod_2 = info_mod_2 + parity_mod_2;
+    localparam full_length_mod_3 = info_mod_3 + parity_mod_3;
+    localparam pad_zero_1 = MAX_INFO_WIDTH - info_mod_1;
+    localparam pad_zero_2 = MAX_INFO_WIDTH - info_mod_2;
+    localparam pad_zero_3 = MAX_INFO_WIDTH - info_mod_3;
 
 
     wire    rst,clk;
@@ -31,47 +33,47 @@ module DEC #(
     reg     [1:0]                       num_of_errors;
     
 
-    reg     [3:0]   tmp_data_out;
-    wire    [1:0]   tmp_num_of_errors;
-    wire    [7:0]   column_equality_array;
-
-    reg     [7:0]   mult_result;
+    reg     [MAX_CODEWORD_WIDTH-1:0]   mult_result;
     
-    
+    reg     [MAX_CODEWORD_WIDTH-1:0]   data_out_with_parity;
+    reg     [MAX_INFO_WIDTH-1:0]   data_out_without_parity;
+    DEC_MULT mult (
+        .rst(rst),
+        .clk(clk),
+        .data_in(data_in),
+        .mod(mod),
+        .data_out(mult_result)
+    );
 
+    DEC_CHK check (
+        .rst(rst),
+        .clk(clk),
+        .data_in(mult_result),
+        .mod(mod),
+        .data_out(data_out_with_parity),
+        .num_of_errors(num_of_errors)
+    );
 
+    always_comb begin : 
+        case (mod)
+            2'b00   :   data_out_without_parity = {pad_zero_1{1'b0},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
+            2'b01   :   data_out_without_parity = {pad_zero_2{1'b0},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
+            2'b10   :   data_out_without_parity = {pad_zero_3{1'b0},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
+            default :   data_out_without_parity = MAX_INFO_WIDTH{1'b0};
+        endcase
+    end
 
-    
-    
-
-    always_ff @( posedge clk ) begin 
+    always_ff @( posedge clk ) begin
         if (rst) begin
-            data_out <= 4'h0;
-            num_of_errors <= 2'h0;
+            data_out <= MAX_INFO_WIDTH{1'b0};
         end else begin
-            data_out <= tmp_data_out;
-            num_of_errors <= tmp_num_of_errors;
+            data_out <= data_out_without_parity;
         end
     end
-
-    assign tmp_data_out = data_in[7:4]; //strip the parity bits and output the input data.
 
 
     
+    
 
-    always_comb begin : check_correctness
-        for (i = 0; i<8; i=i+1) begin
-            //column_equality_array[i] = mult_result == H_matrix_1[i]; // each bit indicates whether mult_result equals to that column in H
-            if (mult_result == 8'b0) begin //if no errors found
-                tmp_num_of_errors = 2'b0;
-            end
-            else if (mult_result == H_matrix_1[i]) begin //if only one error then this is the condition
-                tmp_num_of_errors = 2'b01;
-                tmp_data_out[i] = !tmp_data_out[i]; //TBD maybe this needs a sequencial logic
-            end else begin
-                tmp_num_of_errors = 2'b10;
-            end
-        end
-    end
 
 endmodule
