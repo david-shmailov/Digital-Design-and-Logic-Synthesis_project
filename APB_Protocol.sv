@@ -1,58 +1,57 @@
-module APB_Bus #(rst,clk,PSEL,PADDR,PENABLE,PWDATA,PWRITE,PRDATA,
-data_out,operation_done,num_of_errors);
+module APB_Bus #(rst,clk,PSEL,PADDR,PENABLE,PWDATA,PWRITE,PRDATA);
 
+  parameter       AMBA_WORD = 32;
+  parameter       AMBA_ADDR_WIDTH = 20;
+  parameter       DATA_WIDTH = 32;) 
+  //input configration 
   input   wire  clk,rst;
-  input   wire  PADDR;
+  input   wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
   input   wire  PENABLE;
   input   wire  PSEL;
-  input   wire  PWDATA;
+  input   wire  [AMBA_WORD - 1:0]         PWDATA;
   input   wire  PWRITE;
 
-  output  reg   PRDATA;
+  //output configration
+  output  reg   [AMBA_WORD - 1:0]         PRDATA;
 
-
+  //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
   localparam  [1:0]     SETUP   = 2'b01;
   localparam  [1:0]     ACCESS  = 2'b10;
-  
-  state   <= IDLE;
 
-  always @ (posedge clk)
-    begin
-      if (rst == 1)  
-          state   <= IDLE;
-      else
-        begin
-          case (state)
-            IDLE: 
-              begin 
-                if (PSEL == 1)
-                  state  <= SETUP;
-                else 
-                  state  <= IDLE;
-              end
-            
-            SETUP: 
-              begin 
-                if (PSEL == 1)
-                  state  <= ACCESS;
-              end
-                
-            ACCESS: 
-              begin
-                if(PWRITE && PENABLE)
-                  PWDATA = PADDR;
-                else if (PENABLE)
-                  PRDATA = PADDR;
-                else
+  //state declaration of present and next 
+  reg [1:0] present_state,next_state;
 
-              end
-                
-            default: 
-              state <= IDLE;
+  //memory decleration
+  reg [15:0]mem[15:0];
 
-        endcase
-      end
-    end
+  always @(posedge clk) begin
+    if(rst) present_state <= IDLE;
+    else
+      present_state <= next_state;
+  end
+
+  always @ (*) begin
+    case (present_state)
+      IDLE: begin 
+        if (PSEL & !PENABLE)
+          next_state  <= SETUP;          
+      SETUP: begin
+        if (!PENABLE & !PSEL) 
+          next_state = IDLE; 
+        else begin
+          next_state = ACCESS;    
+          if(PWRITE == 1)
+            mem[PADDR] = PWDATA;
+          else
+            PRDATA = mem[PADDR];
+        end  
+      ACCESS:
+        if(!PSEL | !PENABLE) 
+          next_state = IDLE;
+      default: 
+        next_state <= IDLE;
+    endcase
+  end
  
 endmodule
