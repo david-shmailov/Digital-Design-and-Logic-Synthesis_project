@@ -1,22 +1,35 @@
 module DEC #(
-    parameters
+    parameter   MAX_CODEWORD_WIDTH = 32;
+    parameter   MAX_INFO_WIDTH=26;
 ) (
     input   rst,
             clk,
             data_in,
+            mod,
     output  data_out,
             num_of_errors
 );
 
-    wire    rst,clk;
-    wire    [7:0]   data_in;
-    reg     [3:0]   data_out;
-    reg     [1:0]   num_of_errors;
-    
+    localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
+    // check with TA if this is ok or we somehow need to generlize it further
+    localparam info_mod_1 = 4;
+    localparam info_mod_2 = 11;
+    localparam info_mod_3 = 26;
+    localparam parity_mod_1 = 4;
+    localparam parity_mod_2 = 5;
+    localparam parity_mod_3 = 6;
 
-    wire [7:0][3:0] H_matrix_1      = 32'hffe4_d2b1;
-    wire [3:0][3:0] right_side_H_1  = 16'hd2b1;
-    wire [3:0][3:0] left_side_H_1   = 16'hffe4;
+    localparam pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1 - parity_mod_1;
+    localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
+    localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
+
+
+    wire    rst,clk;
+    wire    [MAX_CODEWORD_WIDTH-1:0]    data_in;
+    wire    [1:0]                       mod;
+    reg     [MAX_INFO_WIDTH-1 :0]       data_out;
+    reg     [1:0]                       num_of_errors;
+    
 
     reg     [3:0]   tmp_data_out;
     wire    [1:0]   tmp_num_of_errors;
@@ -26,7 +39,10 @@ module DEC #(
     
     
 
-    end
+
+
+    
+    
 
     always_ff @( posedge clk ) begin 
         if (rst) begin
@@ -41,13 +57,7 @@ module DEC #(
     assign tmp_data_out = data_in[7:4]; //strip the parity bits and output the input data.
 
 
-    always_comb begin : multiply
-        for (i = 0;i<8 ;i=i+1 ) begin
-            for (j = 0 ;j<8 ;j=j+1 ) begin
-                mult_result[i] = mult_result[i] xor (H_matrix_1[i][j] and data_in[j]);
-            end
-        end //maybe seperate multiplication and checking to different stages?
-    end
+    
 
     always_comb begin : check_correctness
         for (i = 0; i<8; i=i+1) begin
