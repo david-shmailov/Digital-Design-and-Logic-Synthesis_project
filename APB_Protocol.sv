@@ -1,18 +1,33 @@
-module APB_Bus #(rst,clk,PSEL,PADDR,PENABLE,PWDATA,PWRITE,PRDATA);
-
+module APB_BUS #(
   parameter       AMBA_WORD = 32;
   parameter       AMBA_ADDR_WIDTH = 20;
-  parameter       DATA_WIDTH = 32;) 
-  //input configration 
-  input   wire  clk,rst;
-  input   wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
-  input   wire  PENABLE;
-  input   wire  PSEL;
-  input   wire  [AMBA_WORD - 1:0]         PWDATA;
-  input   wire  PWRITE;
+  parameter       DATA_WIDTH = 32; 
+)(
+  input         rst,
+                clk,
+                PSEL,
+                PADDR,
+                PENABLE,
+                PWDATA,
+                PWRITE,
+                direct_write,
+  output        PRDATA,
+                direct_read
+  );
 
+  
+  //input configration 
+  wire  clk,rst;
+  wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  wire  PENABLE;
+  wire  PSEL;
+  wire  [AMBA_WORD - 1:0]         PWDATA;
+  wire  PWRITE;
+
+  wire  [AMBA_WORD - 1:0]         direct_write;
   //output configration
-  output  reg   [AMBA_WORD - 1:0]         PRDATA;
+  reg   [AMBA_WORD - 1:0]         PRDATA;
+  reg   [AMBA_WORD - 1:0]         direct_read;
 
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;

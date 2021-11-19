@@ -27,7 +27,7 @@ module ENC_STAGE_2 #(
 
 
     wire    rst,clk;
-    wire    [MAX_INFO_WIDTH-1:0] data_in;
+    wire    [MAX_CODEWORD_WIDTH-1:0] data_in;
     wire    [1:0] mod;
     reg     [MAX_CODEWORD_WIDTH-1:0] data_out;
 

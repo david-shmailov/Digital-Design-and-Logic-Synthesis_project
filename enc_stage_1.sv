@@ -33,7 +33,7 @@ module ENC_STAGE_1 #(
 
 
 
-    reg     [parity_mod_1-2:0] temp1; //notice its -2, since we will put 0 where the last parity bit is to be,
+    reg     [parity_mod_1-2:0] temp1; // notice its -2, since we will put 0 where the last parity bit is to be,
     reg     [parity_mod_2-2:0] temp2; // it will be calculated in stage 2.
     reg     [parity_mod_3-2:0] temp3;
     
@@ -76,14 +76,17 @@ module ENC_STAGE_1 #(
                                         data_in[info_mod_1-1:0],
                                         1'b0, // this is the next parity bit to be calculated in stage 2. for now we put 0
                                         temp1};
+
             2'b01   :   final_temp =    {pad_zero_2{1'b0},
                                         data_in[info_mod_2-1:0],
                                         1'b0,
                                         temp2};
+
             2'b10   :   final_temp =    {pad_zero_3{1'b0},
                                         data_in[info_mod_3-1:0],
                                         1'b0,
                                         temp3};
+                                        
             default :   final_temp =    MAX_CODEWORD_WIDTH{1'b0};
     end
     
