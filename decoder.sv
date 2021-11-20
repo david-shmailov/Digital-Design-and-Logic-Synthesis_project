@@ -20,7 +20,7 @@ module DEC #(
     localparam parity_mod_3 = 6;
     localparam full_length_mod_1 = info_mod_1 + parity_mod_1;
     localparam full_length_mod_2 = info_mod_2 + parity_mod_2;
-    localparam full_length_mod_3 = info_mod_3 + parity_mod_3;
+    localparam full_lenvth_mod_3 = info_mod_3 + parity_mod_3;
     localparam pad_zero_1 = MAX_INFO_WIDTH - info_mod_1;
     localparam pad_zero_2 = MAX_INFO_WIDTH - info_mod_2;
     localparam pad_zero_3 = MAX_INFO_WIDTH - info_mod_3;
