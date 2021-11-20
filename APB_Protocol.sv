@@ -15,6 +15,7 @@ module APB_BUS #(
                 direct_read
   );
 
+
   
   //input configration 
   wire  clk,rst;
