@@ -25,6 +25,7 @@ module APB_BUS #(
   wire  PWRITE;
 
   wire  [AMBA_WORD - 1:0]         direct_write;
+  
   //output configration
   reg   [AMBA_WORD - 1:0]         PRDATA;
   reg   [AMBA_WORD - 1:0]         direct_read;
