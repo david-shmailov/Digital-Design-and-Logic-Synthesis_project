@@ -15,8 +15,6 @@ module APB_BUS #(
                 direct_read
   );
 
-
-  
   //input configration 
   wire  clk,rst;
   wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
