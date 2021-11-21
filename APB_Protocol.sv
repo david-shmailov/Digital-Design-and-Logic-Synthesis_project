@@ -15,7 +15,6 @@ module APB_BUS #(
                 direct_read
   );
 
-  
   //input configration 
   wire  clk,rst;
   wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
@@ -25,6 +24,7 @@ module APB_BUS #(
   wire  PWRITE;
 
   wire  [AMBA_WORD - 1:0]         direct_write;
+  
   //output configration
   reg   [AMBA_WORD - 1:0]         PRDATA;
   reg   [AMBA_WORD - 1:0]         direct_read;
