@@ -1,9 +1,4 @@
-module ECC_ENC_DEC 
-        #(
-        parameter       AMBA_WORD = 32;
-        parameter       AMBA_ADDR_WIDTH = 20;
-        parameter       DATA_WIDTH = 32;) 
-        (
+module ECC_ENC_DEC (
                 input   rst,
                         clk, 
                 output  data_out,
@@ -16,11 +11,15 @@ module ECC_ENC_DEC
                         PSEL,
                         PWRITE,
                 output  PRDATA);
-
+                
+        parameter       AMBA_WORD = 32;
+        parameter       AMBA_ADDR_WIDTH = 20;
+        parameter       DATA_WIDTH = 32;
+        
         APB_Bus register_bank (
 
         );
-
+      
 
         wire    [AMBA_ADDR_WIDTH-1:0]   PADDR;
         wire                            PENABLE;

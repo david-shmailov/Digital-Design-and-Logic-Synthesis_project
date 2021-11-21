@@ -1,14 +1,14 @@
-module ENC #(
-    parameter   MAX_CODEWORD_WIDTH = 32;
-    parameter   MAX_INFO_WIDTH=26;
-) (
+module ENC (
     input   rst,
             clk,
             data_in,
             mod,
-    output  data_out)
+    output  data_out
 );
-
+    
+    
+    parameter   MAX_CODEWORD_WIDTH = 32;
+    parameter   MAX_INFO_WIDTH=26;
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
     // check with TA if this is ok or we somehow need to generlize it further
     localparam info_mod_1 = 4;

@@ -1,14 +1,11 @@
-module ENC_STAGE_1 #(
-    parameter   MAX_CODEWORD_WIDTH = 32;
-    parameter   MAX_INFO_WIDTH=26;
-
-)(
+module ENC_STAGE_1 (
     input       clk,rst,
                 data_in,
                 mod,
     output      data_out
 );
-
+    parameter   MAX_CODEWORD_WIDTH = 32;
+    parameter   MAX_INFO_WIDTH=26;
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
@@ -21,28 +18,28 @@ module ENC_STAGE_1 #(
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
     
-    wire [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
-    wire [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
-    wire [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+    logic [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
+    logic [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
+    logic [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
 
 
-    wire    rst,clk;
-    wire    [MAX_INFO_WIDTH-1:0] data_in;
-    wire    [1:0] mod;
-    reg     [MAX_CODEWORD_WIDTH-1:0] data_out;
+    logic    rst,clk;
+    logic    [MAX_INFO_WIDTH-1:0] data_in;
+    logic    [1:0] mod;
+    logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
 
 
 
-    reg     [parity_mod_1-2:0] temp1; // notice its -2, since we will put 0 where the last parity bit is to be,
-    reg     [parity_mod_2-2:0] temp2; // it will be calculated in stage 2.
-    reg     [parity_mod_3-2:0] temp3;
+    logic     [parity_mod_1-2:0] temp1; // notice its -2, since we will put 0 where the last parity bit is to be,
+    logic     [parity_mod_2-2:0] temp2; // it will be calculated in stage 2.
+    logic     [parity_mod_3-2:0] temp3;
     
-    reg     [MAX_CODEWORD_WIDTH-1:0] final_temp;
+    logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 
     // multiply left_side matrix without the first row with data in
-    MAT_MULT    #(  parameter A_ROWS = parity_mod_1 -1,
-                    parameter A_COLS = info_mod_1,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(parity_mod_1 -1),
+                    .A_COLS(info_mod_1),
+                    .B_COLS(1) )m1
                 (.clk(clk),
                 .rst(rst),
                 // we take only the info_length left side of the matrix and also without the first row.
@@ -72,28 +69,29 @@ module ENC_STAGE_1 #(
     
     always_comb begin : output_mux
         case(mod)
-            2'b00   :   final_temp =    {pad_zero_1{1'b0},
+            2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
                                         data_in[info_mod_1-1:0],
                                         1'b0, // this is the next parity bit to be calculated in stage 2. for now we put 0
                                         temp1};
 
-            2'b01   :   final_temp =    {pad_zero_2{1'b0},
+            2'b01   :   final_temp =    {{pad_zero_2{1'b0}},
                                         data_in[info_mod_2-1:0],
                                         1'b0,
                                         temp2};
 
-            2'b10   :   final_temp =    {pad_zero_3{1'b0},
+            2'b10   :   final_temp =    {{pad_zero_3{1'b0}},
                                         data_in[info_mod_3-1:0],
                                         1'b0,
                                         temp3};
                                         
-            default :   final_temp =    MAX_CODEWORD_WIDTH{1'b0};
+            default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+          endcase
     end
     
     
     always_ff @( posedge clk ) begin 
         if (rst) begin
-            data_out <= MAX_CODEWORD_WIDTH{1'b0};
+            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin
             data_out <= final_temp;
         end

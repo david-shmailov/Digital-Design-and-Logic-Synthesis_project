@@ -1,14 +1,11 @@
-module ENC_STAGE_2 #(
-    parameter   MAX_CODEWORD_WIDTH = 32;
-    parameter   MAX_INFO_WIDTH=26;
-
-)(
+module ENC_STAGE_2 (
     input       clk,rst,
                 data_in,
                 mod,
     output      data_out
 );
-
+    parameter   MAX_CODEWORD_WIDTH = 32;
+    parameter   MAX_INFO_WIDTH=26;
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
@@ -40,27 +37,27 @@ module ENC_STAGE_2 #(
     reg     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 
     // multiply first row of matrix with codeword
-    MAT_MULT    #(  parameter A_ROWS = 1,
-                    parameter A_COLS = info_mod_1 + parity_mod_1,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(1),
+                    .A_COLS(info_mod_1 + parity_mod_1),
+                    .B_COLS(1)) m1
                 (.clk(clk),
                 .rst(rst),
                 .A_data_in(H_matrix_1[0]), //todo test that this is the correct selelction
                 .B_data_in(data_in[info_mod_1 + parity_mod_1 -1:0]),
                 .C_data_out(temp1));
 
-    MAT_MULT    #(  parameter A_ROWS = 1,
-                    parameter A_COLS = info_mod_2 + parity_mod_2,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(1),
+                    .A_COLS(info_mod_2 + parity_mod_2),
+                    .B_COLS(1)) m2
                 (.clk(clk),
                 .rst(rst),
                 .A_data_in(H_matrix_2[0]), //todo test that this is the correct selelction
                 .B_data_in(data_in[info_mod_2 + parity_mod_2 -1 :0]),
                 .C_data_out(temp2));
 
-    MAT_MULT    #(  parameter A_ROWS = 1,
-                    parameter A_COLS = info_mod_3 + parity_mod_3,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(1),
+                    .A_COLS(info_mod_3 + parity_mod_3),
+                    .B_COLS(1)) m3
                 (.clk(clk),
                 .rst(rst),
                 .A_data_in(H_matrix_3[0]), //todo test that this is the correct selelction
@@ -70,28 +67,28 @@ module ENC_STAGE_2 #(
     
     always_comb begin : output_mux
         case(mod)
-            2'b00   :   final_temp =    {pad_zero_1{1'b0},
-                                        data_in[info_mod_1-1 : parity_mod_1],
+            2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
+                                        data_in[info_mod_1-1:parity_mod_1],
                                         temp1,  // index parity_mod_1 -1
                                         data_in[parity_mod_1-2:0]};
                                         
-            2'b01   :   final_temp =    {pad_zero_2{1'b0},
-                                        data_in[info_mod_2-1 : parity_mod_2],
+            2'b01   :   final_temp =    {{pad_zero_2{1'b0}},
+                                        data_in[info_mod_2-1:parity_mod_2],
                                         temp2,  // index parity_mod_2 -1
                                         data_in[parity_mod_2-2:0]};
 
-            2'b10   :   final_temp =    {pad_zero_3{1'b0},
+            2'b10   :   final_temp =    {{pad_zero_3{1'b0}},
                                         data_in[info_mod_3-1 : parity_mod_3],
                                         temp3,  // index parity_mod_3 -1
                                         data_in[parity_mod_3-2:0]};
                                         
-            default :   final_temp =    MAX_CODEWORD_WIDTH{1'b0};
+            default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+        endcase
     end
-    
     
     always_ff @( posedge clk ) begin 
         if (rst) begin
-            data_out <= MAX_CODEWORD_WIDTH{1'b0};
+            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin
             data_out <= final_temp;
         end

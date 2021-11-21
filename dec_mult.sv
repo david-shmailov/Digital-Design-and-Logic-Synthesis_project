@@ -1,13 +1,13 @@
-module DEC_MULT #(
-    parameter   MAX_CODEWORD_WIDTH = 32;
-    parameter   MAX_INFO_WIDTH=26;
-) (
+module DEC_MULT (
     input   rst,
             clk,
             data_in,
             mod,
     output  data_out
 );
+    parameter   MAX_CODEWORD_WIDTH = 32;
+    parameter   MAX_INFO_WIDTH=26;
+    
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
     localparam info_mod_3 = 26;
@@ -39,9 +39,9 @@ module DEC_MULT #(
     
     reg     [MAX_CODEWORD_WIDTH-1 :0] mult_result;
 
-    MAT_MULT    #(  parameter A_ROWS = parity_mod_1 ,
-                    parameter A_COLS = full_length_mod_1,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(parity_mod_1),
+                    .A_COLS(full_length_mod_1),
+                    .B_COLS(1)) m1
                 (.clk(clk),
                 .rst(rst),
                 // we take only the info_length left side of the matrix and also without the first row.
@@ -50,9 +50,9 @@ module DEC_MULT #(
                 .B_data_in(data_in[full_length_mod_1 - 1]),
                 .C_data_out(temp1));
 
-    MAT_MULT    #(  parameter A_ROWS = parity_mod_2 ,
-                    parameter A_COLS = full_length_mod_2,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(parity_mod_2),
+                    .A_COLS(full_length_mod_2),
+                    .B_COLS(1)) m2
                 (.clk(clk),
                 .rst(rst),
                 // we take only the info_length left side of the matrix and also without the first row.
@@ -61,9 +61,9 @@ module DEC_MULT #(
                 .B_data_in(data_in[full_length_mod_2]),
                 .C_data_out(temp2));
 
-    MAT_MULT    #(  parameter A_ROWS = parity_mod_3 ,
-                    parameter A_COLS = full_length_mod_3,
-                    parameter B_COLS = 1) m1
+    MAT_MULT    #(  .A_ROWS(parity_mod_3),
+                    .A_COLS(full_length_mod_3),
+                    .B_COLS(1)) m3
                 (.clk(clk),
                 .rst(rst),
                 // we take only the info_length left side of the matrix and also without the first row.
@@ -74,16 +74,17 @@ module DEC_MULT #(
 
     always_comb begin : output_mux
         case(mod)
-            2'b00   :   mult_result =    {pad_zero_1{1'b0}, temp1};
-            2'b01   :   mult_result =    {pad_zero_2{1'b0}, temp2};
-            2'b10   :   mult_result =    {pad_zero_3{1'b0}, temp3};
+            2'b00   :   mult_result =    {{pad_zero_1{1'b0}}, temp1};
+            2'b01   :   mult_result =    {{pad_zero_2{1'b0}}, temp2};
+            2'b10   :   mult_result =    {{pad_zero_3{1'b0}}, temp3};
 
-            default :   mult_result =    MAX_CODEWORD_WIDTH{1'b0};
+            default :   mult_result =    {MAX_CODEWORD_WIDTH{1'b0}};
+          endcase
     end
 
     always_ff @( posedge clk ) begin : output_reg
         if (rst) begin
-            data_out <= MAX_CODEWORD_WIDTH{1'b0};
+            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin
             data_out <= mult_result;
         end

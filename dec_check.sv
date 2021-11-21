@@ -1,14 +1,13 @@
-module DEC_CHK #(
-    parameter   MAX_CODEWORD_WIDTH = 32;
-    parameter   MAX_INFO_WIDTH=26;
-) (
+module DEC_CHK (
     input   rst,
             clk,
             data_in,
             mod,
     output  data_out,
             num_of_errors
-);
+);  
+    parameter   MAX_CODEWORD_WIDTH = 32;
+    parameter   MAX_INFO_WIDTH=26;
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
     localparam info_mod_3 = 26;
@@ -91,7 +90,7 @@ module DEC_CHK #(
             end
             2'b10   :   begin
                         reduced_cv = |correction_vector_mod_3_sample;
-                        temp_out   = data_in ^ {pad_zero_3{1'b0},
+                        temp_out   = data_in ^ {{pad_zero_3{1'b0}},
                                                 correction_vector_mod_3_sample}; //correct the data
             end
             default :   begin
@@ -103,9 +102,9 @@ module DEC_CHK #(
     always_ff @( posedge clk ) begin
         if (rst) begin
             num_of_errors <= 2'b00;
-            data_out <= MAX_CODEWORD_WIDTH{1'b0};
+            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin
-            if (data_in == MAX_CODEWORD_WIDTH{1'b0}) begin
+            if (data_in == {MAX_CODEWORD_WIDTH{1'b0}}) begin
                 num_of_errors <= 2'b00;
             end else if (reduced_cv) begin
                 num_of_errors <= 2'b01;
