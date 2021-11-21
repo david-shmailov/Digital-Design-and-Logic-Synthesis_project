@@ -68,5 +68,6 @@ module APB_BUS #(
         next_state <= IDLE;
     endcase
   end
+  
  
 endmodule
