@@ -69,5 +69,4 @@ module APB_BUS #(
     endcase
   end
  
- 
 endmodule
