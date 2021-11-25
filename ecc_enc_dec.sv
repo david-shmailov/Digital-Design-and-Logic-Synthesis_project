@@ -58,16 +58,38 @@ module ECC_ENC_DEC
         
         always_ff @( posedge clk ) begin : CTRL_REG   
                 if (rst) opcode <= 2'b0;
-                else opcode <= [3:0]PADDR;
+                else opcode <= [1:0]PADDR;
         end
 
         always @ (*) begin
                 case (opcode)
-                        0 : begin 
+                        0 : begin //encoder mode
+                                ENC encoder (
+                                //input                       
+                                .rst(rst),
+                                .clk(clk),
+                                .data_in(data_in),
+                                .mod(mod),
+                                //output
+                                .data_out(data_out));
+
                         end
-                        1 : begin 
+                        1 : begin //decoder mode
+                                DEC decoder(
+                                //defparam
+                                .MAX_CODEWORD_WIDTH(MAX_CODEWORD_WIDTH),
+                                .MAX_INFO_WIDTH(MAX_INFO_WIDTH),
+                                //input   
+                                .rst(rst),
+                                .clk(clk),
+                                .data_in(data_in),
+                                .mod(mod),
+                                //output  
+                                .data_out(data_out),
+                                .num_of_errors(num_of_errors));
                         end
-                        2 : begin 
+                        2 : begin //full channel mode
+                        
                         end
 
                         default: opcode = 0;
