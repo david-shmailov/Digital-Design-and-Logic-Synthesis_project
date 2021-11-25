@@ -34,13 +34,14 @@ module ECC_ENC_DEC
 
 
 
-        APB_BUS register_bank (
+        APB_BUS  #(
 
                  //defparam       
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH),
-
+        )register_bank
+        (
                 //inputs
                 .rst(rst),
                 .clk(clk),
