@@ -12,8 +12,7 @@ module APB_BUS #(
                 PWRITE,
                 direct_write,
   output        PRDATA,
-                direct_read
-  );
+                direct_read);
 
   
   //input configration 
@@ -64,7 +63,7 @@ module APB_BUS #(
     endcase
   end
 
-  always_ff @( posedge clk ) begin : direct_access_check
+  always_ff @( posedge clk ) begin
       if (present_state == ACCESS)
         if(PWRITE == 1)
             mem[PADDR] <= PWDATA;
@@ -73,7 +72,7 @@ module APB_BUS #(
       end
   end
 
-  always_ff @( posedge clk ) begin : direct_access // not sure about it
+  always_ff @( posedge clk ) begin : direct_access
     if (rst) begin
       CTRL <= {AMBA_WORD{1'b0}};
       DATA_IN <= {AMBA_WORD{1'b0}};
