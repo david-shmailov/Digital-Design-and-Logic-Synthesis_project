@@ -12,7 +12,11 @@ module APB_BUS #(
                 PWRITE,
                 direct_write,
   output        PRDATA,
-                direct_read);
+                direct_read
+                CTRL 
+                DATA_IN
+                CODEWORD_WIDTH 
+                NOISE);
 
   
   //input configration 
@@ -27,6 +31,11 @@ module APB_BUS #(
   //output configration
   reg   [AMBA_WORD - 1:0]         PRDATA;
   reg   [AMBA_WORD - 1:0]         direct_read;
+  reg   [AMBA_WORD - 1:2]         CTRL 
+  reg   [AMBA_WORD - 1:0]         DATA_IN
+  reg   [AMBA_WORD - 1:2]         CODEWORD_WIDTH 
+  reg   [AMBA_WORD - 1:2]         NOISE
+
 
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
