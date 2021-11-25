@@ -1,1 +1,4 @@
 workspace.code-workspace
+*.sv.bak
+*.sv.lck
+

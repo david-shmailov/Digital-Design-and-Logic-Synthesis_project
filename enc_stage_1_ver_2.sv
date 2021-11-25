@@ -48,36 +48,6 @@ module ENC_STAGE_1_ver2 (
 
     // multiply left_side matrix without the first row with data in
 
-    for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
-        if (row <= MAX_PARITY_WIDTH - parity_mod_1) // it is less than or equal to not include the first row of the matrix
-            assign H1_stage1_1D_mat = {MAX_INFO_WIDTH{1'b0}};
-        else
-            assign H1_stage1_1D_mat = {{MAX_INFO_WIDTH-info_mod_1{1'b0}},H_matrix_1[row-MAX_PARITY_WIDTH-parity_mod_1][info_mod_1-1:0]};
-    end
-
-    for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
-        if (row <= MAX_PARITY_WIDTH - parity_mod_2) 
-            assign H2_stage1_1D_mat = {MAX_INFO_WIDTH{1'b0}};
-        else
-            assign H2_stage1_1D_mat = {{MAX_INFO_WIDTH-info_mod_2{1'b0}},H_matrix_2[row-MAX_PARITY_WIDTH-parity_mod_2][info_mod_2-1:0]};
-    end
-
-     for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
-        if (row <= MAX_PARITY_WIDTH - parity_mod_3) 
-            assign H3_stage1_1D_mat = {MAX_INFO_WIDTH{1'b0}};
-        else
-            assign H3_stage1_1D_mat = {{MAX_INFO_WIDTH-info_mod_3{1'b0}},H_matrix_3[row-MAX_PARITY_WIDTH-parity_mod_3][info_mod_3-1:0]};
-    end
-
-
-
-    case (mod)
-        2'b00: mat_for_mult = H1_stage1_1D_mat;
-        2'b01: mat_for_mult = H2_stage1_1D_mat;
-        2'b10: mat_for_mult = H3_stage1_1D_mat;
-        default: 'b0;
-    endcase
-
     MAT_MULT    #(  .A_ROWS(MAX_PARITY_WIDTH),
                     .A_COLS(MAX_INFO_WIDTH),
                     .B_COLS(1)
@@ -87,29 +57,65 @@ module ENC_STAGE_1_ver2 (
                 .A_data_in(mat_for_mult), //todo test that this is the correct selection
                 .B_data_in(data_in),
                 .C_data_out(parity_bits));
+
+    always_comb begin : build_flatten_matricies
+        for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
+            if (row <= MAX_PARITY_WIDTH - parity_mod_1) // it is less than or equal to not include the first row of the matrix
+                assign H1_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH] = {MAX_INFO_WIDTH{1'b0}};
+            else
+                assign H1_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {{MAX_INFO_WIDTH-info_mod_1{1'b0}},H_matrix_1[row-MAX_PARITY_WIDTH-parity_mod_1][info_mod_1-1:0]};
+        end
+
+        for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
+            if (row <= MAX_PARITY_WIDTH - parity_mod_2) 
+                assign H2_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {MAX_INFO_WIDTH{1'b0}};
+            else
+                assign H2_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {{MAX_INFO_WIDTH-info_mod_2{1'b0}},H_matrix_2[row-MAX_PARITY_WIDTH-parity_mod_2][info_mod_2-1:0]};
+        end
+
+        for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
+            if (row <= MAX_PARITY_WIDTH - parity_mod_3) 
+                assign H3_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {MAX_INFO_WIDTH{1'b0}};
+            else
+                assign H3_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {{MAX_INFO_WIDTH-info_mod_3{1'b0}},H_matrix_3[row-MAX_PARITY_WIDTH-parity_mod_3][info_mod_3-1:0]};
+        end
+    end
+
+    always_comb begin 
+        case (mod)
+            2'b00 : mat_for_mult = H1_stage1_1D_mat;
+            2'b01 : mat_for_mult = H2_stage1_1D_mat;
+            2'b10 : mat_for_mult = H3_stage1_1D_mat;
+            default: mat_for_mult = 0;
+        endcase
+    end
+    
+
+   
     
     
     always_comb begin : output_mux
         case(mod)
-            2'b00   :   final_temp =    {pad_zero_1{1'b0},
+            2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
                                         data_in[info_mod_1-1:0],
                                         parity_bits[parity_mod_1-1:0]};
 
-            2'b01   :   final_temp =    {pad_zero_2{1'b0},
+            2'b01   :   final_temp =    {{pad_zero_2{1'b0}},
                                         data_in[info_mod_2-1:0],
                                         parity_bits[parity_mod_2-1:0]};
 
-            2'b10   :   final_temp =    {pad_zero_3{1'b0},
+            2'b10   :   final_temp =    {{pad_zero_3{1'b0}},
                                         data_in[info_mod_3-1:0],
                                         parity_bits[parity_mod_3-1:0]};
 
-            default :   final_temp =    MAX_CODEWORD_WIDTH{1'b0};
+            default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+        endcase
     end
     
     
     always_ff @( posedge clk ) begin 
         if (rst) begin
-            data_out <= MAX_CODEWORD_WIDTH{1'b0};
+            data_out <= 0;
         end else begin
             data_out <= final_temp;
         end
