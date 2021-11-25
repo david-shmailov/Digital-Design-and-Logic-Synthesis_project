@@ -73,7 +73,7 @@ module APB_BUS #(
       end
   end
 
-  always_ff @( posedge clk ) begin : direct_access
+  always_ff @( posedge clk ) begin : direct_access // not sure about it
     if (rst) begin
       CTRL <= {AMBA_WORD{1'b0}};
       DATA_IN <= {AMBA_WORD{1'b0}};
