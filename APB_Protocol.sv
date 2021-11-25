@@ -49,24 +49,44 @@ module APB_BUS #(
   always @ (*) begin
     case (present_state)
       IDLE: begin 
-        if (PSEL & !PENABLE)
-          next_state  <= SETUP;          
+        if (PSEL && !PENABLE)
+          next_state  = SETUP;          
       SETUP: begin
-        if (!PENABLE & !PSEL) 
+        if (!PENABLE && !PSEL)
           next_state = IDLE; 
-        else begin
-          next_state = ACCESS;    
-          if(PWRITE == 1)
-            mem[PADDR] = PWDATA;
-          else
-            PRDATA = mem[PADDR];
-        end  
+        else if (PEANBLE && PSEL)
+          next_state = ACCESS; 
       ACCESS:
         if(!PSEL | !PENABLE) 
           next_state = IDLE;
       default: 
-        next_state <= IDLE;
+        next_state = IDLE;
     endcase
   end
- 
+
+  always_ff @( posedge clk ) begin : direct_access_check
+      if (present_state == ACCESS)
+        if(PWRITE == 1)
+            mem[PADDR] <= PWDATA;
+        else
+            PRDATA <= mem[PADDR];
+      end
+  end
+
+  always_ff @( posedge clk ) begin : direct_access // not sure about it
+    if (rst) begin
+      CTRL <= {AMBA_WORD{1'b0}};
+      DATA_IN <= {AMBA_WORD{1'b0}};
+      CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
+      NOISE <= {AMBA_WORD{1'b0}};
+    end 
+    else if begin
+      CTRL <= mem[0x00];
+      DATA_IN <= mem[0x04];
+      CODEWORD_WIDTH <= mem[0x08];
+      NOISE <= mem[0x0c];;
+    end
+  end
+
+
 endmodule
