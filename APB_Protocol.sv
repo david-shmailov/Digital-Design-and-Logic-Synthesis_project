@@ -12,6 +12,8 @@ module APB_BUS #(
                 PWRITE,
 
   output        
+                CTRL_op,
+                start,
                 PRDATA);
 
   
@@ -25,10 +27,12 @@ module APB_BUS #(
 
   //output configration
   logic   [AMBA_WORD - 1:0]         PRDATA;
-  logic   [AMBA_WORD - 1:2]         CTRL;
+  logic   [AMBA_WORD - 1:0]         CTRL;
   logic   [AMBA_WORD - 1:0]         DATA_IN;
-  logic   [AMBA_WORD - 1:2]         CODEWORD_WIDTH; 
-  logic   [AMBA_WORD - 1:2]         NOISE;
+  logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
+  logic   [AMBA_WORD - 1:0]         NOISE;
+  logic   [1:0]                     CTRL_op;
+  logic                             start;
 
 
   //state declaration
@@ -66,10 +70,15 @@ module APB_BUS #(
     endcase
   end
 
+  CTRL_op = CTRL;
+
   always_ff @( posedge clk ) begin
       if (present_state == ACCESS)
-        if(PWRITE == 1)
+        if(PWRITE == 1) begin
             mem[PADDR] <= PWDATA;
+            if(!start)
+              start <= 1'b1;
+        end
         else
             PRDATA <= mem[PADDR];
       end

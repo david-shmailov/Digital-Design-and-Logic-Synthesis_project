@@ -19,17 +19,19 @@ module ECC_ENC_DEC //top
                 output  PRDATA);
                 
              
-        wire    [AMBA_ADDR_WIDTH-1:0]   PADDR;
-        wire                            PENABLE;
-        wire                            PSEL;
-        wire    [AMBA_WORD-1:0]         PWDATA;
-        wire                            PWRITE;
-        wire                            clk;
-        wire                            rst;
-        reg     [AMBA_WORD-1:0]         PRDATA;
-        reg     [DATA_WIDTH-1:0]        data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
-        reg                             operation_done;
-        reg     [1:0]                   num_of_errors;
+        logic    [AMBA_ADDR_WIDTH-1:0]   PADDR;
+        logic                            PENABLE;
+        logic                            PSEL;
+        logic    [AMBA_WORD-1:0]         PWDATA;
+        logic                            PWRITE;
+        logic                            clk;
+        logic                            rst;
+        logic     [AMBA_WORD-1:0]        PRDATA;
+        logic     [DATA_WIDTH-1:0]       data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
+        logic                            operation_done;
+        logic     [1:0]                  num_of_errors;
+        logic     [1:0]                  CTRL_op;
+        logic                            start = 1'b0;
          
 
 
@@ -52,16 +54,14 @@ module ECC_ENC_DEC //top
                 .PWRITE(PWRITE),
 
                 //outputs
-                .CTRL_out(CTRL_flag),
-                .DATA_IN_out(DATA_IN_flag),
-                .CODEWORD_WIDTH_out(CODEWORD_WIDTH_flag),
-                .NOISE_out(NOISE_flag),
+                .start(start),
+                .CTRL_op(CTRL_op),
                 .PRDATA(PRDATA));
 
         
         always_ff @( posedge clk ) begin : CTRL_REG   
-                if (rst) opcode <= 2'b0;
-                else opcode <= [0:0]PADDR;
+                if (rst) CTRL_op <= 2'b0;
+                else CTRL_op <= PADDR[0x00];
         end
 
         ENC encoder (
@@ -86,5 +86,21 @@ module ECC_ENC_DEC //top
         //output  
         .data_out(data_out),
         .num_of_errors(num_of_errors));
+
+        always @ (*) begin
+                case (CTRL_op)
+                        0: begin //Encode
+                                 
+                        end
+                        1: begin //Decode
+                                  
+                        end                        
+                        2: begin //Full channel
+                                 
+                        end                        
+
+                        default: //Encode on defalut
+                endcase
+        end
 
 endmodule
