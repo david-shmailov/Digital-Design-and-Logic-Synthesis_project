@@ -10,23 +10,30 @@ module APB_BUS #(
                 PENABLE,
                 PWDATA,
                 PWRITE,
-                direct_write,
-  output        PRDATA,
-                direct_read);
+
+  output        
+                CTRL_op,
+                start,
+                PRDATA);
 
   
   //input configration 
-  wire  clk,rst;
-  wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
-  wire  PENABLE;
-  wire  PSEL;
-  wire  [AMBA_WORD - 1:0]         PWDATA;
-  wire  PWRITE;
+  logic  clk,rst;
+  logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  logic  PENABLE;
+  logic  PSEL;
+  logic  [AMBA_WORD - 1:0]         PWDATA;
+  logic  PWRITE;
 
-  wire  [AMBA_WORD - 1:0]         direct_write;
   //output configration
-  reg   [AMBA_WORD - 1:0]         PRDATA;
-  reg   [AMBA_WORD - 1:0]         direct_read;
+  logic   [AMBA_WORD - 1:0]         PRDATA;
+  logic   [AMBA_WORD - 1:0]         CTRL;
+  logic   [AMBA_WORD - 1:0]         DATA_IN;
+  logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
+  logic   [AMBA_WORD - 1:0]         NOISE;
+  logic   [1:0]                     CTRL_op;
+  logic                             start;
+
 
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
@@ -63,10 +70,15 @@ module APB_BUS #(
     endcase
   end
 
+  CTRL_op = CTRL;
+
   always_ff @( posedge clk ) begin
       if (present_state == ACCESS)
-        if(PWRITE == 1)
+        if(PWRITE == 1) begin
             mem[PADDR] <= PWDATA;
+            if(!start)
+              start <= 1'b1;
+        end
         else
             PRDATA <= mem[PADDR];
       end
@@ -83,9 +95,8 @@ module APB_BUS #(
       CTRL <= mem[0x00];
       DATA_IN <= mem[0x04];
       CODEWORD_WIDTH <= mem[0x08];
-      NOISE <= mem[0x0c];;
+      NOISE <= mem[0x0c];
     end
   end
-
 
 endmodule
