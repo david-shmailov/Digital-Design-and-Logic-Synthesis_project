@@ -72,7 +72,6 @@ module ENC_STAGE_2 (
     end
 
 endmodule
-192'hff00_0000_E400_0000
 
 // H1 matrix zero padded
 // 00000000000000000000000000000000

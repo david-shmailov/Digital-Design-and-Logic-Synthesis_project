@@ -1,4 +1,4 @@
-module ENC_STAGE_1_ver2 (
+module ENC_STAGE_1 (
     input       clk,rst,
                 data_in,
                 mod,
@@ -20,27 +20,29 @@ module ENC_STAGE_1_ver2 (
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
     
-    logic [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
-    logic [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
-    logic [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+    // logic [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
+    // logic [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
+    // logic [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
 
-    logic [4*8-1:0]      H1_MAT_D1 = 32'hffe4_d2b1;
-    logic [5*16-1:0]     H2_MAT_D1 = 80'hffff_fe08_f1c4_cda2_ab61;
-    logic [6*32-1:0]     H3_MAT_D1 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+    // logic [4*8-1:0]      H1_MAT_D1 = 32'hffe4_d2b1;
+    // logic [5*16-1:0]     H2_MAT_D1 = 80'hffff_fe08_f1c4_cda2_ab61;
+    // logic [6*32-1:0]     H3_MAT_D1 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
 
+    // logic   [MAX_INFO_WIDTH*MAX_PARITY_WIDTH-1:0]     H_matrix_1 = 192'h0000_0000_e400_0000_d200_0000_b100_0000; // i assume MSB bits will be zero padded
+    // logic   [6*32-1:0]     H_matrix_2 = 192'h0000_0000_fe08_0000_f1c4_0000_cda2_0000_ab61;
+    // logic   [6*32-1:0]     H_matrix_3 = 192'h0000_0000_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+    
     logic    rst,clk;
     logic    [MAX_INFO_WIDTH-1:0] data_in;
     logic    [1:0] mod;
     logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
 
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H2_stage1_1D_mat;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H3_stage1_1D_mat;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat = 156'hE0_0000_3400_000B;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
 
     logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] mat_for_mult;
-    logic     [parity_mod_1-2:0] temp1; //notice its -2, since we will put 0 where the last parity bit is to be,
-    logic     [parity_mod_2-2:0] temp2; // it will be calculated in stage 2.
-    logic     [parity_mod_3-2:0] temp3;
+
 
     logic     [MAX_PARITY_WIDTH-1:0] parity_bits;
     
@@ -57,29 +59,6 @@ module ENC_STAGE_1_ver2 (
                 .A_data_in(mat_for_mult), //todo test that this is the correct selection
                 .B_data_in(data_in),
                 .C_data_out(parity_bits));
-
-    always_comb begin : build_flatten_matricies
-        for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
-            if (row <= MAX_PARITY_WIDTH - parity_mod_1) // it is less than or equal to not include the first row of the matrix
-                assign H1_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH] = {MAX_INFO_WIDTH{1'b0}};
-            else
-                assign H1_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {{MAX_INFO_WIDTH-info_mod_1{1'b0}},H_matrix_1[row-MAX_PARITY_WIDTH-parity_mod_1][info_mod_1-1:0]};
-        end
-
-        for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
-            if (row <= MAX_PARITY_WIDTH - parity_mod_2) 
-                assign H2_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {MAX_INFO_WIDTH{1'b0}};
-            else
-                assign H2_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {{MAX_INFO_WIDTH-info_mod_2{1'b0}},H_matrix_2[row-MAX_PARITY_WIDTH-parity_mod_2][info_mod_2-1:0]};
-        end
-
-        for (row = 0; row < MAX_PARITY_WIDTH ; row = row+1 ) begin
-            if (row <= MAX_PARITY_WIDTH - parity_mod_3) 
-                assign H3_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {MAX_INFO_WIDTH{1'b0}};
-            else
-                assign H3_stage1_1D_mat[row *MAX_INFO_WIDTH+ MAX_INFO_WIDTH-1:row*MAX_INFO_WIDTH]  = {{MAX_INFO_WIDTH-info_mod_3{1'b0}},H_matrix_3[row-MAX_PARITY_WIDTH-parity_mod_3][info_mod_3-1:0]};
-        end
-    end
 
     always_comb begin 
         case (mod)
@@ -125,3 +104,21 @@ module ENC_STAGE_1_ver2 (
 
 endmodule
 
+// H1_info matrix zero padded
+// 00000000000000000000000000
+// 00000000000000000000000000
+// 00000000000000000000001110
+// 00000000000000000000001101
+// 00000000000000000000001011
+// H2_info matrix zero padded
+// 00000000000000000000000000
+// 00000000000000011111110000
+// 00000000000000011110001110
+// 00000000000000011001101101
+// 00000000000000010101011011
+// H3_info matrix 
+// 11111111111111100000000000
+// 11111111000000011111110000
+// 11110000111100011110001110
+// 11001100110011011001101101
+// 10101010101010110101011011
