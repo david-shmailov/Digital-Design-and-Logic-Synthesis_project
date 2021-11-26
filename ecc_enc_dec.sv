@@ -1,4 +1,4 @@
-module ECC_ENC_DEC 
+module ECC_ENC_DEC //top
                 (
                 parameter       AMBA_WORD = 32;
                 parameter       AMBA_ADDR_WIDTH = 20;
@@ -50,16 +50,18 @@ module ECC_ENC_DEC
                 .PENABLE(PENABLE),
                 .PWDATA(PWDATA),
                 .PWRITE(PWRITE),
-                .direct_write(direct_write),
 
                 //outputs
-                .PRDATA(PRDATA),
-                .direct_read(direct_read));
+                .CTRL_out(CTRL_flag),
+                .DATA_IN_out(DATA_IN_flag),
+                .CODEWORD_WIDTH_out(CODEWORD_WIDTH_flag),
+                .NOISE_out(NOISE_flag),
+                .PRDATA(PRDATA));
 
         
         always_ff @( posedge clk ) begin : CTRL_REG   
                 if (rst) opcode <= 2'b0;
-                else opcode <= [1:0]PADDR;
+                else opcode <= [0:0]PADDR;
         end
 
         ENC encoder (

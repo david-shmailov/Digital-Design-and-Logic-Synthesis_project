@@ -10,31 +10,25 @@ module APB_BUS #(
                 PENABLE,
                 PWDATA,
                 PWRITE,
-                direct_write,
-  output        PRDATA,
-                direct_read
-                CTRL 
-                DATA_IN
-                CODEWORD_WIDTH 
-                NOISE);
+
+  output        
+                PRDATA);
 
   
   //input configration 
-  wire  clk,rst;
-  wire  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
-  wire  PENABLE;
-  wire  PSEL;
-  wire  [AMBA_WORD - 1:0]         PWDATA;
-  wire  PWRITE;
+  logic  clk,rst;
+  logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  logic  PENABLE;
+  logic  PSEL;
+  logic  [AMBA_WORD - 1:0]         PWDATA;
+  logic  PWRITE;
 
-  wire  [AMBA_WORD - 1:0]         direct_write;
   //output configration
-  reg   [AMBA_WORD - 1:0]         PRDATA;
-  reg   [AMBA_WORD - 1:0]         direct_read;
-  reg   [AMBA_WORD - 1:2]         CTRL 
-  reg   [AMBA_WORD - 1:0]         DATA_IN
-  reg   [AMBA_WORD - 1:2]         CODEWORD_WIDTH 
-  reg   [AMBA_WORD - 1:2]         NOISE
+  logic   [AMBA_WORD - 1:0]         PRDATA;
+  logic   [AMBA_WORD - 1:2]         CTRL;
+  logic   [AMBA_WORD - 1:0]         DATA_IN;
+  logic   [AMBA_WORD - 1:2]         CODEWORD_WIDTH; 
+  logic   [AMBA_WORD - 1:2]         NOISE;
 
 
   //state declaration
@@ -92,9 +86,8 @@ module APB_BUS #(
       CTRL <= mem[0x00];
       DATA_IN <= mem[0x04];
       CODEWORD_WIDTH <= mem[0x08];
-      NOISE <= mem[0x0c];;
+      NOISE <= mem[0x0c];
     end
   end
-
 
 endmodule
