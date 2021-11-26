@@ -18,9 +18,9 @@ module ENC_STAGE_2 (
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
     
-    logic   [6*32-1:0]     H_matrix_1 = 192'hff00_0000_e400_0000_d200_0000_b100_0000; // i assume MSB bits will be zero padded
-    logic   [6*32-1:0]     H_matrix_2 = 192'hffff_0000_fe08_0000_f1c4_0000_cda2_0000_ab61;
-    logic   [6*32-1:0]     H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+    // logic   [6*32-1:0]     H_matrix_1 = 192'hff00_0000_e400_0000_d200_0000_b100_0000; // i assume MSB bits will be zero padded
+    // logic   [6*32-1:0]     H_matrix_2 = 192'hffff_0000_fe08_0000_f1c4_0000_cda2_0000_ab61;
+    // logic   [6*32-1:0]     H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
     logic   [MAX_CODEWORD_WIDTH-1:0]      One_vec = {MAX_CODEWORD_WIDTH{1'b1}};
 
     logic    rst,clk;
