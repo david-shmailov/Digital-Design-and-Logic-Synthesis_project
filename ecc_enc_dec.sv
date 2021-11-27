@@ -30,9 +30,16 @@ module ECC_ENC_DEC //top
         logic     [DATA_WIDTH-1:0]       data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
         logic                            operation_done;
         logic     [1:0]                  num_of_errors;
-        logic     [1:0]                  CTRL_op;
         logic                            start = 1'b0;
-         
+        logic     [DATA_WIDTH-1:0]       data_out_enc;
+        logic     [DATA_WIDTH-1:0]       data_out_dec;    
+        logic     [DATA_WIDTH-1:0]       data_in_noised;
+        logic     [AMBA_WORD - 1:0]      PRDATA;
+        logic     [AMBA_WORD - 1:0]      CTRL;
+        logic     [AMBA_WORD - 1:0]      DATA_IN;
+        logic     [AMBA_WORD - 1:0]      CODEWORD_WIDTH; 
+        logic     [AMBA_WORD - 1:0]      NOISE;          
+        logic     [AMBA_WORD - 1:0]      DATA_IN_DEC;
 
 
 
@@ -55,23 +62,21 @@ module ECC_ENC_DEC //top
 
                 //outputs
                 .start(start),
-                .CTRL_op(CTRL_op),
+                .NOISE(NOISE),
+                .CTRL(CTRL),
+                .CODEWORD_WIDTH(CODEWORD_WIDTH),
+                .DATA_IN(DATA_IN),
                 .PRDATA(PRDATA));
-
-        
-        always_ff @( posedge clk ) begin : CTRL_REG   
-                if (rst) CTRL_op <= 2'b0;
-                else CTRL_op <= PADDR[0x00];
         end
 
         ENC encoder (
         //input                       
         .rst(rst),
         .clk(clk),
-        .data_in(data_in),
-        .mod(mod),
+        .data_in(DATA_IN),
+        .mod(size(CODEWORD_WIDTH)), //67% it wont work :/
         //output
-        .data_out(data_out));
+        .data_out(data_out_enc));
 
 
         DEC decoder(
@@ -81,26 +86,28 @@ module ECC_ENC_DEC //top
         //input   
         .rst(rst),
         .clk(clk),
-        .data_in(data_in),
-        .mod(mod),
+        .data_in(DATA_IN_DEC),
+        .mod(size(CODEWORD_WIDTH)), //67% it wont work :/
         //output  
-        .data_out(data_out),
+        .data_out(data_out_dec),
         .num_of_errors(num_of_errors));
 
-        always @ (*) begin
-                case (CTRL_op)
-                        0: begin //Encode
-                                 
-                        end
-                        1: begin //Decode
-                                  
-                        end                        
-                        2: begin //Full channel
-                                 
-                        end                        
+        data_in_noised = data_out_enc ^ NOISE ;
 
-                        default: //Encode on defalut
-                endcase
+        always_comb begin : OPcode
+                case(CTRL)
+                        2'b00 : data_out <= data_out_enc;   //  Only Encoder
+                        2'b01 : data_out <= data_out_dec;   //  Full-channel/Decoder
+                        2'b10 : data_out <= data_out_dec;   //  Full-channel/Decoder
+                        defualt : data_out <= data_out_enc;
         end
+
+        always_comb begin : Full-channel_or_decoder_Mode
+                case(CTRL) 
+                        2'b01 : DATA_IN_DEC <= DATA_IN;
+                        2'b10 : DATA_IN_DEC <= data_in_noised;    
+                        defualt : data_out <= data_out_enc;
+        end
+
 
 endmodule

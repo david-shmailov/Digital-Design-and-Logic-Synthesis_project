@@ -12,8 +12,11 @@ module APB_BUS #(
                 PWRITE,
 
   output        
-                CTRL_op,
                 start,
+                CTRL,
+                DATA_IN,
+                CODEWORD_WIDTH,
+                NOISE,
                 PRDATA);
 
   
@@ -31,7 +34,6 @@ module APB_BUS #(
   logic   [AMBA_WORD - 1:0]         DATA_IN;
   logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
   logic   [AMBA_WORD - 1:0]         NOISE;
-  logic   [1:0]                     CTRL_op;
   logic                             start;
 
 
@@ -69,8 +71,6 @@ module APB_BUS #(
         next_state = IDLE;
     endcase
   end
-
-  CTRL_op = CTRL;
 
   always_ff @( posedge clk ) begin
       if (present_state == ACCESS)
