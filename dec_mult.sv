@@ -7,7 +7,7 @@ module DEC_MULT (
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
-    
+    localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH ;
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
     localparam info_mod_3 = 26;
@@ -22,69 +22,41 @@ module DEC_MULT (
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - full_length_mod_2;
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - full_length_mod_3;
 
-    wire    rst,clk;
-    wire    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    wire    [1:0]                       mod;
-    reg     [MAX_CODEWORD_WIDTH-1:0]      data_out;
+    logic    rst,clk;
+    logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
+    logic    [1:0]                       mod;
+    logic     [MAX_PARITY_WIDTH-1:0]      data_out;
 
 
-    wire [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
-    wire [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
-    wire [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
-
+    logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_1 = 192'hFF_0000_00E4_0000_00D2_0000_00B1; // i assume MSB bits will be zero padded
+    logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_2 = 192'hFFFF_0000_FE08_0000_F1C4_0000_CDA2_0000_AB61;
+    logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_3 = 192'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
+    logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     mat_for_mult;
     
-    reg     [full_length_mod_1-1:0] temp1;
-    reg     [full_length_mod_2-1:0] temp2; 
-    reg     [full_length_mod_3-1:0] temp3;
-    
-    reg     [MAX_CODEWORD_WIDTH-1 :0] mult_result;
+    logic     [MAX_PARITY_WIDTH-1 :0] mult_result;
 
-    MAT_MULT    #(  .A_ROWS(parity_mod_1),
-                    .A_COLS(full_length_mod_1),
+    MAT_MULT    #(  .A_ROWS(MAX_PARITY_WIDTH),
+                    .A_COLS(MAX_CODEWORD_WIDTH),
                     .B_COLS(1)) m1
                 (.clk(clk),
                 .rst(rst),
-                // we take only the info_length left side of the matrix and also without the first row.
-                // because we calculate the last parity bit in stage 2.
-                .A_data_in(H_matrix_1), 
-                .B_data_in(data_in[full_length_mod_1 - 1]),
-                .C_data_out(temp1));
+                .A_data_in(mat_for_mult), 
+                .B_data_in(data_in),
+                .C_data_out(mult_result));
 
-    MAT_MULT    #(  .A_ROWS(parity_mod_2),
-                    .A_COLS(full_length_mod_2),
-                    .B_COLS(1)) m2
-                (.clk(clk),
-                .rst(rst),
-                // we take only the info_length left side of the matrix and also without the first row.
-                // because we calculate the last parity bit in stage 2.
-                .A_data_in(H_matrix_2), 
-                .B_data_in(data_in[full_length_mod_2]),
-                .C_data_out(temp2));
-
-    MAT_MULT    #(  .A_ROWS(parity_mod_3),
-                    .A_COLS(full_length_mod_3),
-                    .B_COLS(1)) m3
-                (.clk(clk),
-                .rst(rst),
-                // we take only the info_length left side of the matrix and also without the first row.
-                // because we calculate the last parity bit in stage 2.
-                .A_data_in(H_matrix_3), 
-                .B_data_in(data_in[full_length_mod_3]),
-                .C_data_out(temp3));
-
-    always_comb begin : output_mux
-        case(mod)
-            2'b00   :   mult_result =    {{pad_zero_1{1'b0}}, temp1};
-            2'b01   :   mult_result =    {{pad_zero_2{1'b0}}, temp2};
-            2'b10   :   mult_result =    {{pad_zero_3{1'b0}}, temp3};
-
-            default :   mult_result =    {MAX_CODEWORD_WIDTH{1'b0}};
-          endcase
+    always_comb begin 
+        case (mod)
+            2'b00 : mat_for_mult = H_matrix_1;
+            2'b01 : mat_for_mult = H_matrix_2;
+            2'b10 : mat_for_mult = H_matrix_3;
+            default: mat_for_mult = 0;
+        endcase
     end
+
 
     always_ff @( posedge clk ) begin : output_reg
         if (rst) begin
-            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
+            data_out <= {MAX_PARITY_WIDTH{1'b0}};
         end else begin
             data_out <= mult_result;
         end
@@ -93,3 +65,5 @@ module DEC_MULT (
 
 
 endmodule
+
+
