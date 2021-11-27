@@ -48,12 +48,13 @@ module DEC #(
     DEC_CHK check (
         .rst(rst),
         .clk(clk),
-        .data_in(mult_result),
+        .data_in(data_in),
+        .s_vector(mult_result)
         .mod(mod),
         .data_out(data_out_with_parity),
         .num_of_errors(num_of_errors)
     );
-
+    // TBD understand how top expects the output of decoder to be in terms of bit length
     always_comb begin : 
         case (mod)
             2'b00   :   data_out_without_parity = {pad_zero_1{1'b0},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
