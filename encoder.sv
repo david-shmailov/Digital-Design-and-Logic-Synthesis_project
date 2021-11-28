@@ -23,13 +23,13 @@ module ENC (
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
 
 
-    wire    rst,clk;
-    wire [MAX_INFO_WIDTH-1:0]       data_in;
-    reg  [MAX_CODEWORD_WIDTH-1:0]   data_out;
-    wire [1:0] mod;
+    logic    rst,clk;
+    logic [MAX_INFO_WIDTH-1:0]       data_in;
+    logic  [MAX_CODEWORD_WIDTH-1:0]   data_out;
+    logic [1:0] mod;
 
-    wire  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage1;
-    wire  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage2;
+    logic  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage1;
+
  
     
     // Stage 1: computing all values of C except c[middle] (C5 in the pdf)

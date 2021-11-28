@@ -36,17 +36,35 @@ module APB_BUS #(
   logic   [AMBA_WORD - 1:0]         NOISE;
   logic                             start;
 
+  localparam  [3:0] CTRL_reg_addr = 4'h0;
+  localparam  [3:0] DATA_IN_reg_addr = 4'h1;
+  localparam  [3:0] CODEWORD_WIDTH_reg_addr = 4'h2;
+  localparam  [3:0] NOISE_reg_addr = 4'h3;
 
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
   localparam  [1:0]     SETUP   = 2'b01;
   localparam  [1:0]     ACCESS  = 2'b10;
 
+  logic       [3:0]     address;
   //state declaration of present and next 
   reg [1:0] present_state,next_state;
 
   //memory decleration
   reg [AMBA_WORD - 1:0]mem[3:0];
+
+
+  always_comb begin : address_dictionary
+      case (PADDR[3:0])
+        4'h0 : address = CTRL_reg_addr;
+        4'h4 : address = DATA_IN_reg_addr;
+        4'h8 : address = CODEWORD_WIDTH_reg_addr;
+        4'hC : address = CODEWORD_WIDTH_reg_addr;
+        default: address = 0;
+      endcase
+  end
+
+
 
   always @(posedge clk) begin
     if(rst) present_state <= IDLE;
@@ -75,12 +93,12 @@ module APB_BUS #(
   always_ff @( posedge clk ) begin
       if (present_state == ACCESS)
         if(PWRITE == 1) begin
-            mem[PADDR] <= PWDATA;
+            mem[address] <= PWDATA;
             if(!start)
               start <= 1'b1;
         end
         else
-            PRDATA <= mem[PADDR];
+            PRDATA <= mem[address];
       end
   end
 
@@ -92,10 +110,10 @@ module APB_BUS #(
       NOISE <= {AMBA_WORD{1'b0}};
     end 
     else if begin
-      CTRL <= mem[0x00];
-      DATA_IN <= mem[0x04];
-      CODEWORD_WIDTH <= mem[0x08];
-      NOISE <= mem[0x0c];
+      CTRL <= mem[CTRL_reg_addr];
+      DATA_IN <= mem[DATA_IN_reg_addr];
+      CODEWORD_WIDTH <= mem[CODEWORD_WIDTH_reg_addr];
+      NOISE <= mem[NOISE_reg_addr];
     end
   end
 

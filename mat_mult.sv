@@ -28,9 +28,7 @@ module MAT_MULT (
     for (row = 0; row<B_ROWS ;row = row +1 ) begin
         assign B_2D[row] = B_data_in[B_COLS*row + B_COLS -1: B_COLS*row];
     end
-    // for (row = 0; row<C_ROWS ;row = row +1 ) begin
-    //     assign C_2D[row] = C_data_in[C_COLS*row + C_COLS -1: C_COLS*row];
-    // end
+   
 
 // ask TA how to beautify this code
     always_comb begin : multiplication

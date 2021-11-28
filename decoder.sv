@@ -24,17 +24,17 @@ module DEC (
     localparam pad_zero_3 = MAX_INFO_WIDTH - info_mod_3;
 
 
-    wire    rst,clk;
-    wire    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    wire    [1:0]                       mod;
-    reg     [MAX_INFO_WIDTH-1 :0]       data_out;
-    reg     [1:0]                       num_of_errors;
+    logic    rst,clk;
+    logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
+    logic    [1:0]                       mod;
+    logic     [MAX_INFO_WIDTH-1 :0]       data_out;
+    logic     [1:0]                       num_of_errors;
     
 
-    reg     [MAX_CODEWORD_WIDTH-1:0]   mult_result;
+    logic     [MAX_CODEWORD_WIDTH-1:0]   mult_result;
     
-    reg     [MAX_CODEWORD_WIDTH-1:0]   data_out_with_parity;
-    reg     [MAX_INFO_WIDTH-1:0]   data_out_without_parity;
+    logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_with_parity;
+    logic     [MAX_INFO_WIDTH-1:0]   data_out_without_parity;
     DEC_MULT mult (
         .rst(rst),
         .clk(clk),
