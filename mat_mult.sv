@@ -22,12 +22,17 @@ module MAT_MULT (
     logic    [B_ROWS-1:0][B_COLS-1:0] B_2D;
     logic    [C_ROWS-1:0][C_COLS-1:0] C_2D;
 
-    for (row = 0; row<A_ROWS ;row = row +1 ) begin
-        assign A_2D[row] = A_data_in[A_COLS*row + A_COLS -1: A_COLS*row];
+    always_comb begin : OneDto2D
+        for (row = 0; row<A_ROWS ;row = row +1 ) begin
+            assign A_2D[row] = A_data_in[A_COLS*row + A_COLS -1: A_COLS*row];
+        end
+        for (row = 0; row<B_ROWS ;row = row +1 ) begin
+            assign B_2D[row] = B_data_in[B_COLS*row + B_COLS -1: B_COLS*row];
+        end
     end
-    for (row = 0; row<B_ROWS ;row = row +1 ) begin
-        assign B_2D[row] = B_data_in[B_COLS*row + B_COLS -1: B_COLS*row];
-    end
+
+
+    
    
 
 // ask TA how to beautify this code
