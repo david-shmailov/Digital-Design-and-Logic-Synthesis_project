@@ -1,78 +1,78 @@
 module tb;
   //input configration 
-  reg clk;
-  reg rst;
-  reg [31:0]PADDR;
+  logic clk;
+  logic rst;
+  logic [31:0]PADDR;
  
-  reg PSEL;
-  reg PENABLE;
-  reg PWRITE;
-  reg [31:0]PWDATA;
+  logic PSEL;
+  logic PENABLE;
+  logic PWRITE;
+  logic [31:0]PWDATA;
 
    //output configration
   wire [31:0]PRDATA;
   
   //intantiation of all port
-  AMBA_BUS  dut1(clk,rst,PADDR,PSEL,PENABLE,PWRITE,PWDATA,P_rdata);
+  AMBA_BUS  dut1(clk,rst,PADDR,PSEL,PENABLE,PWRITE,PWDATA,PRDATA);
   
-  always #5 P_clk=~P_clk;
+  always #5 clk =~ clk;
   
   task initialization;
     begin
-      P_clk=0;
-      P_rst=0;
-      P_addr=0;
-      P_selx=0;
-      P_enable=0;
-      P_write=0;
+      clk = 0;
+      rst = 0;
+      PADDR = 0;
+      PSEL = 0;
+      PENABLE = 0;
+      PWRITE = 0;
     end
   endtask
    // task reset.
   task reset;
     begin 
-      P_rst=1;
-      #10 P_rst=0;
+      rst=1;
+      #10 rst=0;
     end
   endtask
   
   
   task write_stimulus;
     begin
-      @(posedge P_clk);
-      P_selx=1;
-      P_write=1;
-      P_wdata={$random}%10;
-      P_addr=P_addr+1;
+      @(posedge clk);
+      PSEL = 1;
+      PWRITE = 1;
+      PWDATA = {$random}%10;
+      PADDR = PADDR + 1;
      
-      @(posedge P_clk);
-      P_enable=1;
-      P_selx=1;
-      @(posedge P_clk);
-      P_enable=0;
-      P_selx=0;
+      @(posedge clk);
+      PENABLE = 1;
+      PSEL = 1;
+      @(posedge clk);
+      PENABLE = 0;
+      PSEL = 0;
       
-      @(posedge P_clk);
-      $strobe ("writing data into memory data_in=%0d adress_in=%0d" , P_wdata,P_addr);
+      @(posedge clk);
+      $strobe ("writing data into memory data_in=%0d adress_in=%0d" , PWDATA, PRDATA);
     end
   endtask
       
    task read_stimulus;
     begin
-      @(posedge P_clk);
-       P_write=0;
-       P_selx=1;
-       P_enable=0;
-      //P_addr=P_addr+1;
+      @(posedge clk);
+       PWRITE = 0;
+       PSEL = 1;
+       PENABLE = 0;
+
       @(posedge P_clk); 
-      P_enable=1;
-      P_selx=1;
-      P_addr<=P_addr+1;
-      @(posedge P_clk); 
-      P_enable=0;
-      P_selx=0;
+      PENABLE = 1;
+      PSEL = 1;
+      PADDR <= PADDR + 1;
+      @(posedge clk); 
+      PENABLE = 0;
+      {PSEL} = 0;
       
-      @(posedge P_clk);
-      $strobe("reading data from memory data_out=%0d   address_out=%0d",P_rdata,P_addr);
+      @(posedge clk);
+      $strobe("reading data from memory data_out=%0d   address_out=%0d",PRDATA,PADDR);
     end
   endtask
   
@@ -82,7 +82,7 @@ module tb;
       write_stimulus;
     end
     #1
-    P_addr=0;
+    PADDR = 0;
     repeat(3) begin 
       read_stimulus;
     end
