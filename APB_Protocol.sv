@@ -1,8 +1,4 @@
-module APB_BUS #(
-  parameter       AMBA_WORD = 32;
-  parameter       AMBA_ADDR_WIDTH = 20;
-  parameter       DATA_WIDTH = 32; 
-)(
+module APB_BUS (
   input         rst,
                 clk,
                 PSEL,
@@ -17,9 +13,12 @@ module APB_BUS #(
                 DATA_IN,
                 CODEWORD_WIDTH,
                 NOISE,
-                PRDATA);
+                PRDATA
+  );
 
-  
+  parameter       AMBA_WORD = 32;
+  parameter       AMBA_ADDR_WIDTH = 20;
+  parameter       DATA_WIDTH = 32; 
   //input configration 
   logic  clk,rst;
   logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
@@ -76,12 +75,14 @@ module APB_BUS #(
     case (present_state)
       IDLE: begin 
         if (PSEL && !PENABLE)
-          next_state  = SETUP;          
+          next_state  = SETUP;
+      end          
       SETUP: begin
         if (!PENABLE && !PSEL)
           next_state = IDLE; 
         else if (PEANBLE && PSEL)
           next_state = ACCESS; 
+      end
       ACCESS:
         if(!PSEL | !PENABLE) 
           next_state = IDLE;
@@ -91,7 +92,7 @@ module APB_BUS #(
   end
 
   always_ff @( posedge clk ) begin
-      if (present_state == ACCESS)
+      if (present_state == ACCESS) begin
         if(PWRITE == 1) begin
             mem[address] <= PWDATA;
             if(!start)
@@ -109,7 +110,7 @@ module APB_BUS #(
       CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
       NOISE <= {AMBA_WORD{1'b0}};
     end 
-    else if begin
+    else begin
       CTRL <= mem[CTRL_reg_addr];
       DATA_IN <= mem[DATA_IN_reg_addr];
       CODEWORD_WIDTH <= mem[CODEWORD_WIDTH_reg_addr];

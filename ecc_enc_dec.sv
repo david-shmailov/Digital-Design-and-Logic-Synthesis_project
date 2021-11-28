@@ -28,7 +28,6 @@ module ECC_ENC_DEC //top
         logic    [AMBA_WORD-1:0]         PWDATA;
         logic                            PWRITE;
         logic     [AMBA_WORD-1:0]        PRDATA;
-        logic     [AMBA_WORD - 1:0]      PRDATA;
 
         // IO 
         logic                            clk;
@@ -62,8 +61,8 @@ module ECC_ENC_DEC //top
                  //defparam       
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
-                .DATA_WIDTH(DATA_WIDTH),
-        )register_bank
+                .DATA_WIDTH(DATA_WIDTH)
+        ) register_bank
         (
                 //inputs
                 .rst(rst),
@@ -81,7 +80,7 @@ module ECC_ENC_DEC //top
                 .CODEWORD_WIDTH(CODEWORD_WIDTH),
                 .DATA_IN(DATA_IN),
                 .PRDATA(PRDATA));
-        end
+      
 
         ENC #(//defparam
                 .MAX_CODEWORD_WIDTH(MAX_CODEWORD_WIDTH),
