@@ -63,7 +63,7 @@ module tb;
        PSEL = 1;
        PENABLE = 0;
 
-      @(posedge P_clk); 
+      @(posedge clk); 
       PENABLE = 1;
       PSEL = 1;
       PADDR <= PADDR + 1;
