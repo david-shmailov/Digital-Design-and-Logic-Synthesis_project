@@ -46,7 +46,7 @@ module APB_BUS #(
   reg [1:0] present_state,next_state;
 
   //memory decleration
-  reg [15:0]mem[15:0];
+  reg [AMBA_WORD - 1:0]mem[3:0];
 
   always @(posedge clk) begin
     if(rst) present_state <= IDLE;
