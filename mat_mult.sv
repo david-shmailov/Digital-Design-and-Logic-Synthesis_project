@@ -24,10 +24,10 @@ module MAT_MULT (
 
     always_comb begin : OneDto2D
         for (int row = 0; row<A_ROWS ;row = row +1 ) begin
-            A_2D[row:0] = A_data_in[A_COLS*row + A_COLS - 1: A_COLS*row];
+            A_2D[row] = A_data_in[A_COLS - 1:0];
         end
         for (int row = 0; row<B_ROWS ;row = row +1 ) begin
-            B_2D[row:0] = B_data_in[B_COLS*row + B_COLS -1: B_COLS*row];
+            B_2D[row] = B_data_in[B_COLS -1: 0];
         end
     end
 
