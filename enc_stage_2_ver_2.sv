@@ -1,8 +1,9 @@
 module ENC_STAGE_2 (
-    input       clk,rst,
+                clk,rst,
                 data_in,
                 mod,
-    output      data_out
+                data_out,
+                temp
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
@@ -21,11 +22,11 @@ module ENC_STAGE_2 (
 
     logic   [MAX_CODEWORD_WIDTH-1:0]      One_vec = {MAX_CODEWORD_WIDTH{1'b1}};
 
-    logic    rst,clk;
-    logic    [MAX_CODEWORD_WIDTH-1:0] data_in;
-    logic    [1:0] mod;
-    logic     [MAX_CODEWORD_WIDTH-1:0] data_out;
-    logic   temp;
+    input logic    rst,clk;
+    input logic    [MAX_CODEWORD_WIDTH-1:0] data_in;
+    input logic    [1:0] mod;
+    output logic     [MAX_CODEWORD_WIDTH-1:0] data_out;
+    output logic   temp;
     
     logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 

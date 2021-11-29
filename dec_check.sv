@@ -1,10 +1,10 @@
 module DEC_CHK (
-    input   rst,
+            rst,
             clk,
             data_in,
             s_vector,
             mod,
-    output  data_out,
+            data_out,
             num_of_errors
 );  
     parameter   MAX_CODEWORD_WIDTH = 32;
@@ -24,12 +24,12 @@ module DEC_CHK (
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - full_length_mod_2;
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - full_length_mod_3;
 
-    logic    rst,clk;
-    logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    logic    [MAX_PARITY_WIDTH-1:0]      s_vector;
-    logic    [1:0]                       mod;
-    logic     [MAX_CODEWORD_WIDTH-1:0]    data_out;
-    logic     [1:0]                       num_of_errors;
+    input logic    rst,clk;
+    input logic    [MAX_CODEWORD_WIDTH-1:0]     data_in;
+    input logic    [MAX_PARITY_WIDTH-1:0]        s_vector;
+    input logic    [1:0]                         mod;
+    output logic    [MAX_CODEWORD_WIDTH-1:0]    data_out;
+    output logic    [1:0]                       num_of_errors;
 
 
 
@@ -57,14 +57,14 @@ module DEC_CHK (
 
     // assumption: unspecified bits are zero for correction_vector_mod_#
     always_comb begin : compute_correction
-        for (i=0;i<full_length_mod_1;i=i+1) begin // need to full mod 1 so it doesnt check equality with zero padding
-            correction_vector_mod_1[i] = H_matrix_1[MAX_PARITY_WIDTH-1:0][i] ~^ s_vector; // this checks if they are equal (NXOR)
+        for (int i=0;i<full_length_mod_1;i=i+1) begin // need to full mod 1 so it doesnt check equality with zero padding
+            correction_vector_mod_1[i] = H_matrix_1[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal (NXOR)
         end
-        for (i=0;i<full_length_mod_2;i=i+1) begin
-            correction_vector_mod_2[i] = H_matrix_2[MAX_PARITY_WIDTH-1:0][i] ~^ s_vector; // this checks if they are equal
+        for (int i=0;i<full_length_mod_2;i=i+1) begin
+            correction_vector_mod_2[i] = H_matrix_2[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal
         end
-        for (i=0;i<full_length_mod_3;i=i+1) begin
-            correction_vector_mod_3[i] = H_matrix_3[MAX_PARITY_WIDTH-1:0][i] ~^ s_vector; // this checks if they are equal
+        for (int i=0;i<full_length_mod_3;i=i+1) begin
+            correction_vector_mod_3[i] = H_matrix_3[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal
         end
     end
 
@@ -100,6 +100,7 @@ module DEC_CHK (
                         eq_to_col = 1'b0;
                         temp_out   = data_in; 
             end
+        endcase
     end
 
     
@@ -107,26 +108,19 @@ module DEC_CHK (
         if (rst) begin
             num_of_errors <= 2'b00;
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
-        end else begin //priority if is required here. do not change to case
-            if (s_vector == {MAX_PARITY_WIDTH{1'b0}}) begin
+        end 
+        else begin //priority if is required here. do not change to case
+            if (s_vector == {MAX_PARITY_WIDTH{1'b0}}) 
                 num_of_errors <= 2'b00;
-            end else if (eq_to_col) begin
+            else if (eq_to_col) 
                 num_of_errors <= 2'b01;
-            end else if (!eq_to_col) begin
+            else if (!eq_to_col) 
                 num_of_errors <= 2'b10;
-            end else begin
+            else
                 num_of_errors <= 2'b11; //this is not a correct state of the machine.
-            end
-            data_out < temp_out
+            data_out <= temp_out;
         end
 
     end
         
-
-    
-
-
-
-
-
 endmodule

@@ -1,9 +1,10 @@
 module ENC (
-    input   rst,
+            rst,
             clk,
             data_in,
             mod,
-    output  data_out
+            data_out,
+            c_vector_stage1
 );
     
     
@@ -23,12 +24,12 @@ module ENC (
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
 
 
-    logic    rst,clk;
-    logic [MAX_INFO_WIDTH-1:0]       data_in;
-    logic  [MAX_CODEWORD_WIDTH-1:0]   data_out;
-    logic [1:0] mod;
+    input logic    rst,clk;
+    input logic [MAX_INFO_WIDTH-1:0]       data_in;
+    input logic  [MAX_CODEWORD_WIDTH-1:0]   data_out;
+    input logic [1:0] mod;
 
-    logic  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage1;
+    output logic  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage1;
 
  
     

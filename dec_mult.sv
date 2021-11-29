@@ -1,19 +1,19 @@
 module DEC_MULT (
-    input   rst,
+            rst,
             clk,
             data_in,
             mod,
-    output  data_out
+            data_out
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
     localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH ;
 
 
-    logic    rst,clk;
-    logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    logic    [1:0]                       mod;
-    logic    [MAX_PARITY_WIDTH-1:0]      data_out;
+    input logic    rst,clk;
+    input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
+    input logic    [1:0]                       mod;
+    output logic    [MAX_PARITY_WIDTH-1:0]      data_out;
 
 
     logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_1 = 192'hFF_0000_00E4_0000_00D2_0000_00B1; // i assume MSB bits will be zero padded

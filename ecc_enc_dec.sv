@@ -1,17 +1,17 @@
 module ECC_ENC_DEC //top
                 (
-                input   rst,
+                        rst,
                         clk, 
-                output  data_out,
+                        data_out,
                         operation_done,
                         num_of_errors,
                 //APB protocol
-                input   PWDATA,
+                        PWDATA,
                         PADDR,
                         PENABLE,
                         PSEL,
                         PWRITE,
-                output  PRDATA);
+                        PRDATA);
 
         parameter       AMBA_WORD = 32;
         parameter       AMBA_ADDR_WIDTH = 20;
@@ -22,19 +22,19 @@ module ECC_ENC_DEC //top
         localparam      MAX_PARITY_WIDTH = $clog2(MAX_CODEWORD_WIDTH)+1;
         localparam      MAX_INFO_WIDTH = MAX_CODEWORD_WIDTH - MAX_PARITY_WIDTH;
         // APB protocol
-        logic    [AMBA_ADDR_WIDTH-1:0]   PADDR;
-        logic                            PENABLE;
-        logic                            PSEL;
-        logic    [AMBA_WORD-1:0]         PWDATA;
-        logic                            PWRITE;
-        logic     [AMBA_WORD-1:0]        PRDATA;
+        input logic    [AMBA_ADDR_WIDTH-1:0]   PADDR;
+        input logic                            PENABLE;
+        input logic                            PSEL;
+        input logic    [AMBA_WORD-1:0]         PWDATA;
+        input logic                            PWRITE;
+        output logic     [AMBA_WORD-1:0]        PRDATA;
 
         // IO 
-        logic                            clk;
-        logic                            rst;
-        logic     [DATA_WIDTH-1:0]       data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
-        logic                            operation_done;
-        logic     [1:0]                  num_of_errors;
+        input logic                            clk;
+        input logic                            rst;
+        output logic     [DATA_WIDTH-1:0]       data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
+        output logic                            operation_done;
+        output logic     [1:0]                  num_of_errors;
 
 
         // signals

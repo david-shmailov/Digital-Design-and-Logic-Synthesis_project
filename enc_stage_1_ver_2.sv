@@ -1,8 +1,8 @@
 module ENC_STAGE_1 (
-    input       clk,rst,
+                clk,rst,
                 data_in,
                 mod,
-    output      data_out
+                data_out
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
@@ -32,10 +32,10 @@ module ENC_STAGE_1 (
     // logic   [6*32-1:0]     H_matrix_2 = 192'h0000_0000_fe08_0000_f1c4_0000_cda2_0000_ab61;
     // logic   [6*32-1:0]     H_matrix_3 = 192'h0000_0000_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
     
-    logic    rst,clk;
-    logic    [MAX_INFO_WIDTH-1:0] data_in;
-    logic    [1:0] mod;
-    logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
+    input logic    rst,clk;
+    input logic    [MAX_INFO_WIDTH-1:0] data_in;
+    input logic    [1:0] mod;
+    output logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
 
     logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat = 156'hE0_0000_3400_000B;
     logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;

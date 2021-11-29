@@ -1,13 +1,13 @@
 module APB_BUS (
-  input         rst,
+  //inputs
+                rst,
                 clk,
                 PSEL,
                 PADDR,
                 PENABLE,
                 PWDATA,
                 PWRITE,
-
-  output        
+  //outputs        
                 start,
                 CTRL,
                 DATA_IN,
@@ -20,20 +20,20 @@ module APB_BUS (
   parameter       AMBA_ADDR_WIDTH = 20;
   parameter       DATA_WIDTH = 32; 
   //input configration 
-  logic  clk,rst;
-  logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
-  logic  PENABLE;
-  logic  PSEL;
-  logic  [AMBA_WORD - 1:0]         PWDATA;
-  logic  PWRITE;
+  input logic  clk,rst;
+  input logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  input logic  PENABLE;
+  input logic  PSEL;
+  input logic  [AMBA_WORD - 1:0]         PWDATA;
+  input logic  PWRITE;
 
   //output configration
-  logic   [AMBA_WORD - 1:0]         PRDATA;
-  logic   [AMBA_WORD - 1:0]         CTRL;
-  logic   [AMBA_WORD - 1:0]         DATA_IN;
-  logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
-  logic   [AMBA_WORD - 1:0]         NOISE;
-  logic                             start;
+  output logic   [AMBA_WORD - 1:0]         PRDATA;
+  output logic   [AMBA_WORD - 1:0]         CTRL;
+  output logic   [AMBA_WORD - 1:0]         DATA_IN;
+  output logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
+  output logic   [AMBA_WORD - 1:0]         NOISE;
+  output logic                             start;
 
   localparam  [3:0] CTRL_reg_addr = 4'h0;
   localparam  [3:0] DATA_IN_reg_addr = 4'h1;
@@ -80,7 +80,7 @@ module APB_BUS (
       SETUP: begin
         if (!PENABLE && !PSEL)
           next_state = IDLE; 
-        else if (PEANBLE && PSEL)
+        else if (PENABLE && PSEL)
           next_state = ACCESS; 
       end
       ACCESS:

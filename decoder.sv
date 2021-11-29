@@ -1,9 +1,9 @@
 module DEC (
-    input   rst,
+            rst,
             clk,
             data_in,
             mod,
-    output  data_out,
+            data_out,
             num_of_errors
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
@@ -18,17 +18,17 @@ module DEC (
     localparam parity_mod_3 = 6;
     localparam full_length_mod_1 = info_mod_1 + parity_mod_1;
     localparam full_length_mod_2 = info_mod_2 + parity_mod_2;
-    localparam full_lenvth_mod_3 = info_mod_3 + parity_mod_3;
+    localparam full_length_mod_3 = info_mod_3 + parity_mod_3;
     localparam pad_zero_1 = MAX_INFO_WIDTH - info_mod_1;
     localparam pad_zero_2 = MAX_INFO_WIDTH - info_mod_2;
     localparam pad_zero_3 = MAX_INFO_WIDTH - info_mod_3;
 
 
-    logic    rst,clk;
-    logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    logic    [1:0]                       mod;
-    logic     [MAX_INFO_WIDTH-1 :0]       data_out;
-    logic     [1:0]                       num_of_errors;
+    input logic    rst,clk;
+    input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
+    input logic    [1:0]                       mod;
+    output logic     [MAX_INFO_WIDTH-1 :0]       data_out;
+    output logic     [1:0]                       num_of_errors;
     
 
     logic     [MAX_CODEWORD_WIDTH-1:0]   mult_result;
@@ -69,10 +69,5 @@ module DEC (
             data_out <= data_out_without_parity;
         end
     end
-
-
-    
-    
-
 
 endmodule
