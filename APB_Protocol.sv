@@ -47,10 +47,10 @@ module APB_BUS (
 
   logic       [3:0]     address;
   //state declaration of present and next 
-  reg [1:0] present_state,next_state;
+  reg [1:0] current_state,next_state;
 
   //memory decleration
-  reg [AMBA_WORD - 1:0]mem[3:0];
+  reg [AMBA_WORD - 1:0]mem;
 
 
   always_comb begin : address_dictionary
@@ -65,34 +65,34 @@ module APB_BUS (
 
 
 
-  always @(posedge clk) begin
-    if(rst) present_state <= IDLE;
+  always @ (posedge clk) begin
+    if(rst) current_state <= IDLE;
     else
-      present_state <= next_state;
+      current_state <= next_state;
   end
 
-  always @ (*) begin
-    case (present_state)
+  always @ ( * ) begin
+    case(current_state)
       IDLE: begin 
         if (PSEL && !PENABLE)
-          next_state  = SETUP;
+          next_state  <= SETUP;
       end          
       SETUP: begin
         if (!PENABLE && !PSEL)
-          next_state = IDLE; 
+          next_state <= IDLE; 
         else if (PENABLE && PSEL)
-          next_state = ACCESS; 
+          next_state <= ACCESS; 
       end
       ACCESS:
         if(!PSEL | !PENABLE) 
-          next_state = IDLE;
+          next_state <= IDLE;
       default: 
-        next_state = IDLE;
+        next_state <= IDLE;
     endcase
   end
 
   always_ff @( posedge clk ) begin
-      if (present_state == ACCESS) begin
+      if(current_state == ACCESS) begin
         if(PWRITE == 1) begin
             mem[address] <= PWDATA;
             if(!start)
