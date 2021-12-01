@@ -22,11 +22,11 @@ module ECC_ENC_DEC //top
         localparam      MAX_PARITY_WIDTH = $clog2(MAX_CODEWORD_WIDTH)+1;
         localparam      MAX_INFO_WIDTH = MAX_CODEWORD_WIDTH - MAX_PARITY_WIDTH;
         // APB protocol
-        input logic    [AMBA_ADDR_WIDTH-1:0]   PADDR;
-        input logic                            PENABLE;
-        input logic                            PSEL;
-        input logic    [AMBA_WORD-1:0]         PWDATA;
-        input logic                            PWRITE;
+        input logic      [AMBA_ADDR_WIDTH-1:0]  PADDR;
+        input logic                             PENABLE;
+        input logic                             PSEL;
+        input logic      [AMBA_WORD-1:0]        PWDATA;
+        input logic                             PWRITE;
         output logic     [AMBA_WORD-1:0]        PRDATA;
 
         // IO 
@@ -50,7 +50,7 @@ module ECC_ENC_DEC //top
         logic     [AMBA_WORD - 1:0]      DATA_IN;
         logic     [AMBA_WORD - 1:0]      CODEWORD_WIDTH; 
         logic     [AMBA_WORD - 1:0]      NOISE;          
-        logic     [DATA_WIDTH - 1:0]      DATA_IN_DEC;
+        logic     [DATA_WIDTH - 1:0]     DATA_IN_DEC;
 
         logic     [DATA_WIDTH-1:0]       DATA_IN_CUT;
 
@@ -114,7 +114,7 @@ module ECC_ENC_DEC //top
         assign data_in_noised = data_out_enc ^ NOISE ;
 
         always_comb begin : top_output
-                case (CTRL)
+                case (CTRL[1:0])
                         2'b00 : data_out <= data_out_enc;   //  Only Encoder
                         2'b01 : data_out <= data_out_dec;   //  Full-channel/Decoder
                         2'b10 : data_out <= data_out_dec;   //  Full-channel/Decoder
@@ -123,7 +123,7 @@ module ECC_ENC_DEC //top
         end
 
         always_comb begin : decoder_input
-                case(CTRL) 
+                case(CTRL[1:0]) 
                         2'b01 : DATA_IN_DEC <= DATA_IN_CUT;
                         2'b10 : DATA_IN_DEC <= data_in_noised;    
                         default : DATA_IN_DEC <= 0;

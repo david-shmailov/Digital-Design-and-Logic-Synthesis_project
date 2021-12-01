@@ -12,21 +12,21 @@ module MAT_MULT (
     localparam C_ROWS = A_ROWS;
     localparam C_COLS = B_COLS;
 
-    input logic    rst,clk;
-    input logic    [A_ROWS*A_COLS-1:0] A_data_in;
-    input logic    [B_ROWS*B_COLS-1:0] B_data_in;
+    input logic     rst,clk;
+    input logic     [A_ROWS*A_COLS-1:0] A_data_in;
+    input logic     [B_ROWS*B_COLS-1:0] B_data_in;
     output logic    [C_ROWS*C_COLS-1:0] C_data_out;
-    logic    [C_ROWS*C_COLS-1:0] temp;
+    logic           [C_ROWS*C_COLS-1:0] temp;
 
     logic    [A_ROWS-1:0][A_COLS-1:0] A_2D;
     logic    [B_ROWS-1:0][B_COLS-1:0] B_2D;
     logic    [C_ROWS-1:0][C_COLS-1:0] C_2D;
 
     always_comb begin : OneDto2D
-        for (int row = 0; row<A_ROWS ;row = row +1 ) begin
+        for (int row = 0; row<A_ROWS ;row = row + 1 ) begin
             A_2D[row] = A_data_in[A_COLS - 1:0];
         end
-        for (int row = 0; row<B_ROWS ;row = row +1 ) begin
+        for (int row = 0; row<B_ROWS ;row = row + 1 ) begin
             B_2D[row] = B_data_in[B_COLS -1: 0];
         end
     end
