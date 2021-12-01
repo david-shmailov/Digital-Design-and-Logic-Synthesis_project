@@ -17,16 +17,16 @@ module ENC_STAGE_2 (
 
     localparam pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1 - parity_mod_1;
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
-    localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
+    //localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
 
 
     logic   [MAX_CODEWORD_WIDTH-1:0]      One_vec = {MAX_CODEWORD_WIDTH{1'b1}};
 
-    input logic    rst,clk;
-    input logic    [MAX_CODEWORD_WIDTH-1:0] data_in;
-    input logic    [1:0] mod;
+    input logic       rst,clk;
+    input logic      [MAX_CODEWORD_WIDTH-1:0] data_in;
+    input logic      [1:0] mod;
     output logic     [MAX_CODEWORD_WIDTH-1:0] data_out;
-    output logic   temp;
+    output logic      temp;
     
     logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 
@@ -53,10 +53,10 @@ module ENC_STAGE_2 (
                                         temp,  // index parity_mod_2 -1
                                         data_in[parity_mod_2-2:0]};
 
-            2'b10   :   final_temp =    {{pad_zero_3{1'b0}},
-                                        data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],
-                                        temp,  // index parity_mod_3 -1
-                                        data_in[parity_mod_3-2:0]};
+            2'b10   :   final_temp =    {                                       //not genric ?  // 0
+                                        data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],     // 31 - 6
+                                        temp,  // index parity_mod_3 -1                         // 5
+                                        data_in[parity_mod_3-2:0]};                             // 4 - 0
                                         
             default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
         endcase
