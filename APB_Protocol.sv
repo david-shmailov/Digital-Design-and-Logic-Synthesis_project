@@ -91,7 +91,7 @@ module APB_BUS (
     endcase
   end
 
-  always_ff @( posedge clk ) begin
+  always_ff @( posedge clk ) begin : address_assign
       if(current_state == ACCESS) begin
         if(PWRITE == 1) begin
             mem[address] <= PWDATA;
