@@ -45,20 +45,23 @@ module APB_BUS (
   localparam  [1:0]     SETUP   = 2'b01;
   localparam  [1:0]     ACCES  = 2'b10;
 
-  logic       [3:0]     address;
+  int            address;
   //state declaration of present and next 
-  reg [1:0] current_state,next_state;
+  logic [1:0] current_state,next_state;
 
   //memory decleration
-  reg [AMBA_WORD - 1:0]mem;
+  logic [AMBA_WORD - 1:0]CTRL;
+  logic [AMBA_WORD - 1:0]NOISE;
+  logic [AMBA_WORD - 1:0]DATA_IN;
+  logic [AMBA_WORD - 1:0]CODEWORD_WIDTH;
 
 
   always_comb begin : address_dictionary
       case (PADDR[3:0])
-        4'h0 : address = CTRL_reg_addr;
-        4'h4 : address = DATA_IN_reg_addr;
-        4'h8 : address = CODEWORD_WIDTH_reg_addr;
-        4'hC : address = CODEWORD_WIDTH_reg_addr;
+        4'h0 : CTRL = 0;
+        4'h4 : address = 1;
+        4'h8 : address = 2;
+        4'hC : address = 3;
         default: address = 0;
       endcase
   end
@@ -94,7 +97,7 @@ module APB_BUS (
   always_ff @( posedge clk ) begin : address_assign
       if(current_state == ACCES) begin
         if(PWRITE == 1) begin
-            mem[address] <= PWDATA;
+            Write_data <= PWDATA;
             if(!start)
               start <= 1'b1;
         end
