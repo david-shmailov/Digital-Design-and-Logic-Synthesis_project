@@ -93,8 +93,8 @@ module ENC_STAGE_1 (
     end
     
     
-    always_ff @( posedge clk ) begin : Data_out_stage1
-        if (rst) begin
+    always_ff @( posedge clk or negedge rst) begin : Data_out_stage1
+        if (!rst) begin
             data_out <= 0;
         end else begin
             data_out <= final_temp;

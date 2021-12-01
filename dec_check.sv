@@ -32,12 +32,7 @@ module DEC_CHK (
     output logic    [1:0]                       num_of_errors;
 
 
-
-    // logic    [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
-    // logic    [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
-    // logic    [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
-
-    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_1; // i assume MSB bits will be zero padded
+    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_1;
     logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_2;
     logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_3;
 
@@ -49,17 +44,18 @@ module DEC_CHK (
     assign H_matrix_2 = 192'hFFFF_0000_FE08_0000_F1C4_0000_CDA2_0000_AB61;
     assign H_matrix_3 = 192'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
 
-    genvar row;
-    genvar col;
-    generate
-        for (row = 0;row< MAX_PARITY_WIDTH; row = row +1 ) begin
-            for (col = 0; col < MAX_CODEWORD_WIDTH; col = col +1) begin
-                assign H_1_transpose [col][row] = H_matrix_1 [row][col];
-                assign H_2_transpose [col][row] = H_matrix_2 [row][col];
-                assign H_3_transpose [col][row] = H_matrix_3 [row][col];
-            end
+
+
+    genvar row,col;    
+    for (row = 0; row < 6 ; row = row +1 ) begin
+        for (col = 0; col < MAX_CODEWORD_WIDTH ; col = col +1) begin
+            assign H_1_transpose [col][row] = H_matrix_1 [row][col];
+            assign H_2_transpose [col][row] = H_matrix_2 [row][col];
+            assign H_3_transpose [col][row] = H_matrix_3 [row][col];
         end
-    endgenerate
+    end
+
+
 
     
     logic     [MAX_CODEWORD_WIDTH-1:0]    correction_vector_mod_1, correction_vector_mod_2, correction_vector_mod_3;
@@ -67,7 +63,6 @@ module DEC_CHK (
     logic     [MAX_CODEWORD_WIDTH-1:0]    correction_vector_mod_1_sample, correction_vector_mod_2_sample, correction_vector_mod_3_sample;
 
 
-    logic     reduced_data;
     logic     eq_to_col;
     logic     [MAX_CODEWORD_WIDTH-1:0]    temp_out;
 
@@ -86,8 +81,8 @@ module DEC_CHK (
         end
     endgenerate
 
-    always_ff @( posedge clk ) begin : after_CV_compute
-        if (rst) begin
+    always_ff @( posedge clk or negedge rst) begin : after_CV_compute
+        if (!rst) begin
             correction_vector_mod_1_sample <= {MAX_CODEWORD_WIDTH{1'b0}};
             correction_vector_mod_2_sample <= {MAX_CODEWORD_WIDTH{1'b0}};
             correction_vector_mod_3_sample <= {MAX_CODEWORD_WIDTH{1'b0}};
@@ -122,8 +117,8 @@ module DEC_CHK (
     end
 
     
-    always_ff @( posedge clk ) begin : DEC_outputs
-        if (rst) begin
+    always_ff @( posedge clk or negedge rst) begin : DEC_outputs
+        if (!rst) begin
             num_of_errors <= 2'b00;
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end 

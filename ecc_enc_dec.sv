@@ -115,18 +115,18 @@ module ECC_ENC_DEC //top
 
         always_comb begin : top_output
                 case (CTRL[1:0])
-                        2'b00 : data_out <= data_out_enc;   //  Only Encoder
-                        2'b01 : data_out <= data_out_dec;   //  Full-channel/Decoder
-                        2'b10 : data_out <= data_out_dec;   //  Full-channel/Decoder
-                        default : data_out <= data_out_enc;
+                        2'b00 : data_out = data_out_enc;   //  Only Encoder
+                        2'b01 : data_out = data_out_dec;   //  Full-channel/Decoder
+                        2'b10 : data_out = data_out_dec;   //  Full-channel/Decoder
+                        default : data_out = data_out_enc;
                 endcase
         end
 
         always_comb begin : decoder_input
                 case(CTRL[1:0]) 
-                        2'b01 :   DATA_IN_DEC <= DATA_IN_CUT;
-                        2'b10 :   DATA_IN_DEC <= data_in_noised;    
-                        default : DATA_IN_DEC <= 0;
+                        2'b01 :   DATA_IN_DEC = DATA_IN_CUT;
+                        2'b10 :   DATA_IN_DEC = data_in_noised;    
+                        default : DATA_IN_DEC = 0;
                 endcase
         end
 

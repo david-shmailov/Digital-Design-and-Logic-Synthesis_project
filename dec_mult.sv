@@ -42,8 +42,8 @@ module DEC_MULT (
     end
 
 
-    always_ff @( posedge clk ) begin : output_reg
-        if (rst) begin
+    always_ff @( posedge clk or negedge rst) begin : output_reg
+        if (!rst) begin
             data_out <= {MAX_PARITY_WIDTH{1'b0}};
         end else begin
             data_out <= mult_result;

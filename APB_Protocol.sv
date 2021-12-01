@@ -51,8 +51,8 @@ module APB_BUS (
 
 
 // APB FSM
-  always @ (posedge clk) begin : state_assign
-    if(rst) current_state <= IDLE;
+  always @ (posedge clk or negedge rst) begin : state_assign
+    if(!rst) current_state <= IDLE;
     else
       current_state <= next_state;
   end
@@ -86,8 +86,8 @@ module APB_BUS (
 
 // read from memory
 
-  always_ff @( posedge clk ) begin : read
-    if(rst) begin
+  always_ff @( posedge clk or negedge rst) begin : read
+    if(!rst) begin
       PRDATA <= 0;
     end else if (current_state == ACCES && PWRITE == 0) begin
       case (PADDR[3:0])
@@ -104,8 +104,8 @@ module APB_BUS (
 
 
 // writing to memory:
-  always_ff @( posedge clk ) begin : ctrl
-    if(rst) begin
+  always_ff @( posedge clk or negedge rst) begin : ctrl
+    if(!rst) begin
       CTRL <= 0;
       start <= 0;
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h0) begin
@@ -118,8 +118,8 @@ module APB_BUS (
 
 
 
-  always_ff @( posedge clk ) begin : data_in
-    if(rst) begin
+  always_ff @( posedge clk or negedge rst) begin : data_in
+    if(!rst) begin
       DATA_IN <= 0;
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h4) begin
       DATA_IN <= PWDATA;
@@ -128,8 +128,8 @@ module APB_BUS (
     end
   end
 
-  always_ff @( posedge clk ) begin : codeword_width
-    if(rst) begin 
+  always_ff @( posedge clk or negedge rst) begin : codeword_width
+    if(!rst) begin 
       CODEWORD_WIDTH <= 0;
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h8) begin
       CODEWORD_WIDTH <= PWDATA;
@@ -138,8 +138,8 @@ module APB_BUS (
     end
   end
 
-  always_ff @( posedge clk ) begin : noise
-    if(rst) begin
+  always_ff @( posedge clk or negedge rst) begin : noise
+    if(!rst) begin
       NOISE <= 0;
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'hc) begin
       NOISE <= PWDATA;

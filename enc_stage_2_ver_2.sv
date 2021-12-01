@@ -62,8 +62,8 @@ module ENC_STAGE_2 (
         endcase
     end
     
-    always_ff @( posedge clk ) begin : DataOut_stage2
-        if (rst) begin
+    always_ff @( posedge clk or negedge rst) begin : DataOut_stage2
+        if (!rst) begin
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin
             data_out <= final_temp;
