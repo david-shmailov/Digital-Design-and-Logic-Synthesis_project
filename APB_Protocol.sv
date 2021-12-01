@@ -65,13 +65,13 @@ module APB_BUS (
 
 
 
-  always @ (posedge clk) begin
+  always @ (posedge clk) begin : state_assign
     if(rst) current_state <= IDLE;
     else
       current_state <= next_state;
   end
 
-  always @ ( * ) begin
+  always @ ( * ) begin : APB_FSM
     case(current_state)
       IDLE: begin 
         if (PSEL && !PENABLE)
@@ -91,7 +91,7 @@ module APB_BUS (
     endcase
   end
 
-  always_ff @( posedge clk ) begin
+  always_ff @( posedge clk ) begin : address_assign
       if(current_state == ACCESS) begin
         if(PWRITE == 1) begin
             mem[address] <= PWDATA;

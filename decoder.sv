@@ -62,7 +62,7 @@ module DEC (
         endcase
     end
 
-    always_ff @( posedge clk ) begin
+    always_ff @( posedge clk ) begin : DataOut_assgin
         if (rst) begin
             data_out <= {MAX_INFO_WIDTH{1'b0}};
         end else begin
