@@ -37,16 +37,17 @@ module ENC_STAGE_1 (
     input logic    [1:0] work_mod;
     output logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
 
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat = 156'hE0_0000_3400_000B;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
-
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat ;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H2_stage1_1D_mat ;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H3_stage1_1D_mat ;
     logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] mat_for_mult;
-
-
     logic     [MAX_PARITY_WIDTH-1:0] parity_bits;
-    
     logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
+
+    assign H1_stage1_1D_mat = 156'hE0_0000_3400_000B;
+    assign H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
+    assign H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
+
 
     // multiply left_side matrix without the first row with data in
 

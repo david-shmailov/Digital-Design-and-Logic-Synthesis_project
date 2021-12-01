@@ -124,8 +124,8 @@ module ECC_ENC_DEC //top
 
         always_comb begin : decoder_input
                 case(CTRL[1:0]) 
-                        2'b01 : DATA_IN_DEC <= DATA_IN_CUT;
-                        2'b10 : DATA_IN_DEC <= data_in_noised;    
+                        2'b01 :   DATA_IN_DEC <= DATA_IN_CUT;
+                        2'b10 :   DATA_IN_DEC <= data_in_noised;    
                         default : DATA_IN_DEC <= 0;
                 endcase
         end
