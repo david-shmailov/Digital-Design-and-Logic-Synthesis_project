@@ -51,7 +51,6 @@ module APB_BUS (
 
 
 // APB FSM
-
   always @ (posedge clk) begin : state_assign
     if(rst) current_state <= IDLE;
     else
