@@ -32,7 +32,7 @@ module DEC_MULT (
                 .B_data_in(data_in),
                 .C_data_out(mult_result));
 
-    always_comb begin 
+    always_comb begin : Size_of_matrix
         case (mod)
             2'b00 : mat_for_mult = H_matrix_1;
             2'b01 : mat_for_mult = H_matrix_2;

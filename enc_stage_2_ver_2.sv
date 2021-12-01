@@ -53,7 +53,7 @@ module ENC_STAGE_2 (
                                         temp,  // index parity_mod_2 -1
                                         data_in[parity_mod_2-2:0]};
 
-            2'b10   :   final_temp =    {                                       //not genric ?  // 0
+            2'b10   :   final_temp =    {                              //not genric??           // 0
                                         data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],     // 31 - 6
                                         temp,  // index parity_mod_3 -1                         // 5
                                         data_in[parity_mod_3-2:0]};                             // 4 - 0
@@ -62,7 +62,7 @@ module ENC_STAGE_2 (
         endcase
     end
     
-    always_ff @( posedge clk ) begin 
+    always_ff @( posedge clk ) begin : DataOut_stage2
         if (rst) begin
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin

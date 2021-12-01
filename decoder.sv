@@ -53,7 +53,7 @@ module DEC (
         .num_of_errors(num_of_errors)
     );
     // TBD understand how top expects the output of decoder to be in terms of bit length
-    always_comb begin 
+    always_comb begin : just_dataOut_mode
         case (mod)
             2'b00   :   data_out_without_parity = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
             2'b01   :   data_out_without_parity = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
@@ -62,7 +62,7 @@ module DEC (
         endcase
     end
 
-    always_ff @( posedge clk ) begin
+    always_ff @( posedge clk ) begin : DataOut_assgin
         if (rst) begin
             data_out <= {MAX_INFO_WIDTH{1'b0}};
         end else begin

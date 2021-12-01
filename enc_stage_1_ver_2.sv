@@ -60,7 +60,7 @@ module ENC_STAGE_1 (
                 .B_data_in(data_in),
                 .C_data_out(parity_bits));
 
-    always_comb begin 
+    always_comb begin : Mode_for_mat
         case (mod)
             2'b00 : mat_for_mult = H1_stage1_1D_mat;
             2'b01 : mat_for_mult = H2_stage1_1D_mat;
@@ -92,7 +92,7 @@ module ENC_STAGE_1 (
     end
     
     
-    always_ff @( posedge clk ) begin 
+    always_ff @( posedge clk ) begin : Data_out_stage1
         if (rst) begin
             data_out <= 0;
         end else begin
