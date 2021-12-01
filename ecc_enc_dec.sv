@@ -90,7 +90,7 @@ module ECC_ENC_DEC //top
         .rst(rst),
         .clk(clk),
         .data_in(DATA_IN_CUT),
-        .mod(CODEWORD_WIDTH[1:0]), 
+        .work_mod(CODEWORD_WIDTH[1:0]), 
         //output
         .data_out(data_out_enc));
 
@@ -105,7 +105,7 @@ module ECC_ENC_DEC //top
                 .rst(rst),
                 .clk(clk),
                 .data_in(DATA_IN_DEC),
-                .mod(CODEWORD_WIDTH[1:0]), 
+                .work_mod(CODEWORD_WIDTH[1:0]), 
                 //output  
                 .data_out(data_out_dec),
                 .num_of_errors(num_of_errors) // what happens when in encoding only mode?

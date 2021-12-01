@@ -2,7 +2,7 @@ module DEC_MULT (
             rst,
             clk,
             data_in,
-            mod,
+            work_mod,
             data_out
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
@@ -12,7 +12,7 @@ module DEC_MULT (
 
     input logic    rst,clk;
     input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    input logic    [1:0]                       mod;
+    input logic    [1:0]                       work_mod;
     output logic    [MAX_PARITY_WIDTH-1:0]      data_out;
 
 
@@ -33,7 +33,7 @@ module DEC_MULT (
                 .C_data_out(mult_result));
 
     always_comb begin 
-        case (mod)
+        case (work_mod)
             2'b00 : mat_for_mult = H_matrix_1;
             2'b01 : mat_for_mult = H_matrix_2;
             2'b10 : mat_for_mult = H_matrix_3;

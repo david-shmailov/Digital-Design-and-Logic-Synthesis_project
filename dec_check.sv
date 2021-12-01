@@ -3,7 +3,7 @@ module DEC_CHK (
             clk,
             data_in,
             s_vector,
-            mod,
+            work_mod,
             data_out,
             num_of_errors
 );  
@@ -27,7 +27,7 @@ module DEC_CHK (
     input logic    rst,clk;
     input logic    [MAX_CODEWORD_WIDTH-1:0]     data_in;
     input logic    [MAX_PARITY_WIDTH-1:0]        s_vector;
-    input logic    [1:0]                         mod;
+    input logic    [1:0]                         work_mod;
     output logic    [MAX_CODEWORD_WIDTH-1:0]    data_out;
     output logic    [1:0]                       num_of_errors;
 
@@ -57,7 +57,7 @@ module DEC_CHK (
 
     // assumption: unspecified bits are zero for correction_vector_mod_#
     always_comb begin : compute_correction
-        for (int i=0;i<full_length_mod_1;i=i+1) begin // need to full mod 1 so it doesnt check equality with zero padding
+        for (int i=0;i<full_length_mod_1;i=i+1) begin // need to full work_mod 1 so it doesnt check equality with zero padding
             correction_vector_mod_1[i] = H_matrix_1[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal (NXOR)
         end
         for (int i=0;i<full_length_mod_2;i=i+1) begin
@@ -83,7 +83,7 @@ module DEC_CHK (
 
 
     always_comb begin : reduce
-        case(mod)
+        case(work_mod)
             2'b00   :   begin
                         eq_to_col = |correction_vector_mod_1_sample;
                         temp_out   = data_in ^ correction_vector_mod_1_sample; //correct the data (XOR)

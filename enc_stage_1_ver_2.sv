@@ -1,7 +1,7 @@
 module ENC_STAGE_1 (
                 clk,rst,
                 data_in,
-                mod,
+                work_mod,
                 data_out
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
@@ -34,7 +34,7 @@ module ENC_STAGE_1 (
     
     input logic    rst,clk;
     input logic    [MAX_INFO_WIDTH-1:0] data_in;
-    input logic    [1:0] mod;
+    input logic    [1:0] work_mod;
     output logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
 
     logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat = 156'hE0_0000_3400_000B;
@@ -61,7 +61,7 @@ module ENC_STAGE_1 (
                 .C_data_out(parity_bits));
 
     always_comb begin 
-        case (mod)
+        case (work_mod)
             2'b00 : mat_for_mult = H1_stage1_1D_mat;
             2'b01 : mat_for_mult = H2_stage1_1D_mat;
             2'b10 : mat_for_mult = H3_stage1_1D_mat;
@@ -74,7 +74,7 @@ module ENC_STAGE_1 (
     
     
     always_comb begin : output_mux
-        case(mod)
+        case(work_mod)
             2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
                                         data_in[info_mod_1-1:0],
                                         parity_bits[parity_mod_1-1:0]};

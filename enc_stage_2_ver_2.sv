@@ -1,7 +1,7 @@
 module ENC_STAGE_2 (
                 clk,rst,
                 data_in,
-                mod,
+                work_mod,
                 data_out,
                 temp
 );
@@ -24,7 +24,7 @@ module ENC_STAGE_2 (
 
     input logic       rst,clk;
     input logic      [MAX_CODEWORD_WIDTH-1:0] data_in;
-    input logic      [1:0] mod;
+    input logic      [1:0] work_mod;
     output logic     [MAX_CODEWORD_WIDTH-1:0] data_out;
     output logic      temp;
     
@@ -42,7 +42,7 @@ module ENC_STAGE_2 (
     
     
     always_comb begin : output_mux
-        case(mod)
+        case(work_mod)
             2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
                                         data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
                                         temp,  // index parity_mod_1 -1

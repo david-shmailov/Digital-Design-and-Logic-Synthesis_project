@@ -2,7 +2,7 @@ module ENC (
             rst,
             clk,
             data_in,
-            mod,
+            work_mod,
             data_out,
             c_vector_stage1
 );
@@ -27,7 +27,7 @@ module ENC (
     input logic  rst,clk;
     input logic  [MAX_INFO_WIDTH-1:0]       data_in;
     input logic  [MAX_CODEWORD_WIDTH-1:0]   data_out;
-    input logic  [1:0] mod;
+    input logic  [1:0] work_mod;
 
     output logic  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage1;
 
@@ -39,7 +39,7 @@ module ENC (
                     .clk(clk),
                     .rst(rst),
                     .data_in(data_in),
-                    .mod(mod),
+                    .work_mod(work_mod),
                     .data_out(c_vector_stage1)
     );
 
@@ -49,7 +49,7 @@ module ENC (
                     .clk(clk),
                     .rst(rst),
                     .data_in(c_vector_stage1),
-                    .mod(mod),
+                    .work_mod(work_mod),
                     .data_out(data_out)
     );
 

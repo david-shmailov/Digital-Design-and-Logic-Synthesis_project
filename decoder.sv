@@ -2,7 +2,7 @@ module DEC (
             rst,
             clk,
             data_in,
-            mod,
+            work_mod,
             data_out,
             num_of_errors
 );
@@ -26,7 +26,7 @@ module DEC (
 
     input logic    rst,clk;
     input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    input logic    [1:0]                       mod;
+    input logic    [1:0]                       work_mod;
     output logic     [MAX_INFO_WIDTH-1 :0]       data_out;
     output logic     [1:0]                       num_of_errors;
     
@@ -39,7 +39,7 @@ module DEC (
         .rst(rst),
         .clk(clk),
         .data_in(data_in),
-        .mod(mod),
+        .work_mod(work_mod),
         .data_out(mult_result)
     );
 
@@ -48,13 +48,13 @@ module DEC (
         .clk(clk),
         .data_in(data_in),
         .s_vector(mult_result),
-        .mod(mod),
+        .work_mod(work_mod),
         .data_out(data_out_with_parity),
         .num_of_errors(num_of_errors)
     );
     // TBD understand how top expects the output of decoder to be in terms of bit length
     always_comb begin 
-        case (mod)
+        case (work_mod)
             2'b00   :   data_out_without_parity = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
             2'b01   :   data_out_without_parity = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
             2'b10   :   data_out_without_parity = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
