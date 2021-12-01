@@ -45,28 +45,12 @@ module APB_BUS (
   localparam  [1:0]     SETUP   = 2'b01;
   localparam  [1:0]     ACCES  = 2'b10;
 
-  int            address;
+
   //state declaration of present and next 
   logic [1:0] current_state,next_state;
 
-  //memory decleration
-  logic [AMBA_WORD - 1:0]CTRL;
-  logic [AMBA_WORD - 1:0]NOISE;
-  logic [AMBA_WORD - 1:0]DATA_IN;
-  logic [AMBA_WORD - 1:0]CODEWORD_WIDTH;
 
-
-  always_comb begin : address_dictionary
-      case (PADDR[3:0])
-        4'h0 : CTRL = 0;
-        4'h4 : address = 1;
-        4'h8 : address = 2;
-        4'hC : address = 3;
-        default: address = 0;
-      endcase
-  end
-
-
+// APB FSM
 
   always @ (posedge clk) begin : state_assign
     if(rst) current_state <= IDLE;
@@ -94,31 +78,70 @@ module APB_BUS (
     endcase
   end
 
-  always_ff @( posedge clk ) begin : address_assign
-      if(current_state == ACCES) begin
-        if(PWRITE == 1) begin
-            Write_data <= PWDATA;
-            if(!start)
-              start <= 1'b1;
-        end
-        else
-            PRDATA <= mem[address];
-      end
-  end
 
-  always_ff @( posedge clk ) begin : direct_access
-    if (rst) begin
-      CTRL <= {AMBA_WORD{1'b0}};
-      DATA_IN <= {AMBA_WORD{1'b0}};
-      CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
-      NOISE <= {AMBA_WORD{1'b0}};
-    end 
-    else begin
-      CTRL <= mem[CTRL_reg_addr];
-      DATA_IN <= mem[DATA_IN_reg_addr];
-      CODEWORD_WIDTH <= mem[CODEWORD_WIDTH_reg_addr];
-      NOISE <= mem[NOISE_reg_addr];
+// read from memory
+
+  always_ff @( posedge clk ) begin : read
+    if(rst) begin
+      PRDATA <= 0;
+    end else if (current_state == ACCES && PWRITE == 0) begin
+      case (PADDR[3:0])
+        CTRL_reg_addr           :   PRDATA <= CTRL;
+        DATA_IN_reg_addr        :   PRDATA <= DATA_IN;
+        CODEWORD_WIDTH_reg_addr :   PRDATA <= CODEWORD_WIDTH;
+        NOISE_reg_addr          :   PRDATA <= NOISE;
+        default                 :   PRDATA <= 0;
+      endcase
+    end else begin
+      PRDATA <= PRDATA;
     end
   end
+
+
+// writing to memory:
+  always_ff @( posedge clk ) begin : ctrl
+    if(rst) begin
+      CTRL <= 0;
+      start <= 0;
+    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h0) begin
+      CTRL <= PWDATA;
+      start <= 1;
+    end else begin
+      CTRL <= CTRL;
+    end
+  end
+
+
+
+  always_ff @( posedge clk ) begin : data_in
+    if(rst) begin
+      DATA_IN <= 0;
+    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h4) begin
+      DATA_IN <= PWDATA;
+    end else begin
+      DATA_IN <= DATA_IN;
+    end
+  end
+
+  always_ff @( posedge clk ) begin : codeword_width
+    if(rst) begin 
+      CODEWORD_WIDTH <= 0;
+    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h8) begin
+      CODEWORD_WIDTH <= PWDATA;
+    end else begin
+      CODEWORD_WIDTH <= CODEWORD_WIDTH;
+    end
+  end
+
+  always_ff @( posedge clk ) begin : noise
+    if(rst) begin
+      NOISE <= 0;
+    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'hc) begin
+      NOISE <= PWDATA;
+    end else begin
+      NOISE <= NOISE;
+    end
+  end
+
 
 endmodule
