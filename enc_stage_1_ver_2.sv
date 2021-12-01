@@ -84,7 +84,7 @@ module ENC_STAGE_1 (
                                         data_in[info_mod_2-1:0],
                                         parity_bits[parity_mod_2-1:0]};
 
-            2'b10   :   final_temp =    {{pad_zero_3{1'b0}},
+            2'b10   :   final_temp =    {
                                         data_in[info_mod_3-1:0],
                                         parity_bits[parity_mod_3-1:0]};
 

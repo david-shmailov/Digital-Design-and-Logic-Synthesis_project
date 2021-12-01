@@ -37,13 +37,30 @@ module DEC_CHK (
     // logic    [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
     // logic    [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
 
-    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_1 = 192'hFF_0000_00E4_0000_00D2_0000_00B1; // i assume MSB bits will be zero padded
-    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_2 = 192'hFFFF_0000_FE08_0000_F1C4_0000_CDA2_0000_AB61;
-    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_3 = 192'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
+    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_1; // i assume MSB bits will be zero padded
+    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_2;
+    logic   [MAX_PARITY_WIDTH-1:0][MAX_CODEWORD_WIDTH-1:0]     H_matrix_3;
 
-    // logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_1_T = 192'h3CE3_4B20_C289; // i assume MSB bits will be zero padded
-    // logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_2_T = 192'h17_5954_D061_4491;
-    // logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_3_T = 192'hFFEF_7CEF_AE78_DF6D_74CF_2C6F_BADB_2BAA_99E6_9638_30A2_48A1;
+    logic   [MAX_CODEWORD_WIDTH-1:0][MAX_PARITY_WIDTH-1:0]     H_1_transpose;
+    logic   [MAX_CODEWORD_WIDTH-1:0][MAX_PARITY_WIDTH-1:0]     H_2_transpose;
+    logic   [MAX_CODEWORD_WIDTH-1:0][MAX_PARITY_WIDTH-1:0]     H_3_transpose;
+
+    assign H_matrix_1 = 192'hFF_0000_00E4_0000_00D2_0000_00B1; // i assume MSB bits will be zero padded
+    assign H_matrix_2 = 192'hFFFF_0000_FE08_0000_F1C4_0000_CDA2_0000_AB61;
+    assign H_matrix_3 = 192'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
+
+    genvar row;
+    genvar col;
+    generate
+        for (row = 0;row< MAX_PARITY_WIDTH; row = row +1 ) begin
+            for (col = 0; col < MAX_CODEWORD_WIDTH; col = col +1) begin
+                assign H_1_transpose [col][row] = H_matrix_1 [row][col];
+                assign H_2_transpose [col][row] = H_matrix_2 [row][col];
+                assign H_3_transpose [col][row] = H_matrix_3 [row][col];
+            end
+        end
+    endgenerate
+
     
     logic     [MAX_CODEWORD_WIDTH-1:0]    correction_vector_mod_1, correction_vector_mod_2, correction_vector_mod_3;
 
@@ -56,17 +73,18 @@ module DEC_CHK (
 
 
     // assumption: unspecified bits are zero for correction_vector_mod_#
-    always_comb begin : compute_correction
-        for (int i=0;i<full_length_mod_1;i=i+1) begin // need to full work_mod 1 so it doesnt check equality with zero padding
-            correction_vector_mod_1[i] = H_matrix_1[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal (NXOR)
+    genvar i;
+    generate
+        for (i=0; i<full_length_mod_1; i=i+1) begin // need to full work_mod 1 so it doesnt check equality with zero padding
+            assign correction_vector_mod_1[i] = H_1_transpose[i] == s_vector; // this checks if they are equal 
         end
-        for (int i=0;i<full_length_mod_2;i=i+1) begin
-            correction_vector_mod_2[i] = H_matrix_2[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal
+        for (i=0; i<full_length_mod_2; i=i+1) begin
+            assign correction_vector_mod_2[i] = H_2_transpose[i] == s_vector; // this checks if they are equal
         end
-        for (int i=0;i<full_length_mod_3;i=i+1) begin
-            correction_vector_mod_3[i] = H_matrix_3[MAX_PARITY_WIDTH-1:0] ~^ s_vector; // this checks if they are equal
+        for (i=0; i<full_length_mod_3; i=i+1) begin
+            assign correction_vector_mod_3[i] = H_3_transpose[i] == s_vector; // this checks if they are equal
         end
-    end
+    endgenerate
 
     always_ff @( posedge clk ) begin : after_CV_compute
         if (rst) begin

@@ -43,7 +43,7 @@ module APB_BUS (
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
   localparam  [1:0]     SETUP   = 2'b01;
-  localparam  [1:0]     ACCES  = 2'b10;
+  localparam  [1:0]     ACCES   = 2'b10;
 
 
   //state declaration of present and next 
