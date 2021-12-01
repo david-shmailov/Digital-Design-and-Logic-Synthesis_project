@@ -43,7 +43,7 @@ module APB_BUS (
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
   localparam  [1:0]     SETUP   = 2'b01;
-  localparam  [1:0]     ACCESS  = 2'b10;
+  localparam  [1:0]     ACCES  = 2'b10;
 
   logic       [3:0]     address;
   //state declaration of present and next 
@@ -81,9 +81,9 @@ module APB_BUS (
         if (!PENABLE && !PSEL)
           next_state <= IDLE; 
         else if (PENABLE && PSEL)
-          next_state <= ACCESS; 
+          next_state <= ACCES; 
       end
-      ACCESS:
+      ACCES:
         if(!PSEL | !PENABLE) 
           next_state <= IDLE;
       default: 
@@ -92,7 +92,7 @@ module APB_BUS (
   end
 
   always_ff @( posedge clk ) begin : address_assign
-      if(current_state == ACCESS) begin
+      if(current_state == ACCES) begin
         if(PWRITE == 1) begin
             mem[address] <= PWDATA;
             if(!start)

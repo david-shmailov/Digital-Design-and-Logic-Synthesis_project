@@ -60,7 +60,7 @@ module ENC_STAGE_1 (
                 .B_data_in(data_in),
                 .C_data_out(parity_bits));
 
-    always_comb begin 
+    always_comb begin  : WhichMult_mode
         case (work_mod)
             2'b00 : mat_for_mult = H1_stage1_1D_mat;
             2'b01 : mat_for_mult = H2_stage1_1D_mat;
