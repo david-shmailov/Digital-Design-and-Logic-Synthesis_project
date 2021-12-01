@@ -19,22 +19,23 @@ module DEC (
     localparam full_length_mod_1 = info_mod_1 + parity_mod_1;
     localparam full_length_mod_2 = info_mod_2 + parity_mod_2;
     localparam full_length_mod_3 = info_mod_3 + parity_mod_3;
-    localparam pad_zero_1 = MAX_INFO_WIDTH - info_mod_1;
-    localparam pad_zero_2 = MAX_INFO_WIDTH - info_mod_2;
-    localparam pad_zero_3 = MAX_INFO_WIDTH - info_mod_3;
+    localparam pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1;
+    localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2;
+    localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3;
 
 
     input logic    rst,clk;
     input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
     input logic    [1:0]                       work_mod;
-    output logic     [MAX_INFO_WIDTH-1 :0]       data_out;
-    output logic     [1:0]                       num_of_errors;
+    output logic   [MAX_CODEWORD_WIDTH-1 :0]   data_out;
+    output logic   [1:0]                       num_of_errors;
     
 
-    logic     [MAX_CODEWORD_WIDTH-1:0]   mult_result;
+    logic     [MAX_PARITY_WIDTH-1:0]   mult_result;
     
     logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_with_parity;
-    logic     [MAX_INFO_WIDTH-1:0]   data_out_without_parity;
+    logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_without_parity; // more zero padding is added
+
     DEC_MULT mult (
         .rst(rst),
         .clk(clk),
@@ -58,13 +59,13 @@ module DEC (
             2'b00   :   data_out_without_parity = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
             2'b01   :   data_out_without_parity = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
             2'b10   :   data_out_without_parity = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
-            default :   data_out_without_parity = {MAX_INFO_WIDTH{1'b0}};
+            default :   data_out_without_parity = {MAX_CODEWORD_WIDTH{1'b0}};
         endcase
     end
 
     always_ff @( posedge clk ) begin : DataOut_assgin
         if (rst) begin
-            data_out <= {MAX_INFO_WIDTH{1'b0}};
+            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end else begin
             data_out <= data_out_without_parity;
         end

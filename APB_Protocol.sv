@@ -57,23 +57,29 @@ module APB_BUS (
       current_state <= next_state;
   end
 
-  always @ ( * ) begin : APB_FSM
+  always_comb begin : APB_FSM
     case(current_state)
       IDLE: begin 
         if (PSEL && !PENABLE)
-          next_state  <= SETUP;
+          next_state = SETUP;
+        else
+          next_state = IDLE;
       end          
       SETUP: begin
         if (!PENABLE && !PSEL)
-          next_state <= IDLE; 
+          next_state = IDLE; 
         else if (PENABLE && PSEL)
-          next_state <= ACCES; 
+          next_state = ACCES;
+        else
+          next_state = SETUP;
       end
       ACCES:
         if(!PSEL | !PENABLE) 
-          next_state <= IDLE;
+          next_state = IDLE;
+        else
+          next_state = ACCES;
       default: 
-        next_state <= IDLE;
+        next_state = IDLE;
     endcase
   end
 
