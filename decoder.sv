@@ -34,7 +34,7 @@ module DEC (
     logic     [MAX_PARITY_WIDTH-1:0]   mult_result;
     
     logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_with_parity;
-    logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_without_parity; // more zero padding is added
+    //logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_without_parity; // more zero padding is added
 
     DEC_MULT mult (
         .rst(rst),
@@ -56,19 +56,19 @@ module DEC (
     // TBD understand how top expects the output of decoder to be in terms of bit length
     always_comb begin  : DataOut_mode
         case (work_mod)
-            2'b00   :   data_out_without_parity = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
-            2'b01   :   data_out_without_parity = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
-            2'b10   :   data_out_without_parity = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
-            default :   data_out_without_parity = {MAX_CODEWORD_WIDTH{1'b0}};
+            2'b00   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
+            2'b01   :   data_out = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
+            2'b10   :   data_out = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
+            default :   data_out = {MAX_CODEWORD_WIDTH{1'b0}};
         endcase
     end
 
-    always_ff @( posedge clk ) begin : DataOut_assgin
-        if (rst) begin
-            data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
-        end else begin
-            data_out <= data_out_without_parity;
-        end
-    end
+    // always_ff @( posedge clk or negedge rst) begin : DataOut_assgin
+    //     if (!rst) begin
+    //         data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
+    //     end else begin
+    //         data_out <= data_out_without_parity;
+    //     end
+    // end
 
 endmodule
