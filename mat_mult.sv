@@ -18,7 +18,7 @@ module MAT_MULT (
     output logic   [C_ROWS*C_COLS-1:0] C_data_out;
 
 
-    logic    [C_ROWS*C_COLS-1:0] flat_temp;
+    //logic    [C_ROWS*C_COLS-1:0] flat_temp;
     
     logic    [A_ROWS-1:0][A_COLS-1:0] A_2D;
     logic    [B_ROWS-1:0][B_COLS-1:0] B_2D;
@@ -38,7 +38,7 @@ module MAT_MULT (
         end
         //2D to 1D
         for (row = 0; row<C_ROWS; row = row +1) begin
-            assign flat_temp[C_COLS*row +: C_COLS] = C_2D[row];
+            assign C_data_out[C_COLS*row +: C_COLS] = C_2D[row];
         end
     endgenerate
         
@@ -60,10 +60,10 @@ module MAT_MULT (
 
     
     //consider transforming this into a purely combinational module
-    always_ff @( posedge clk ) begin : sequencial
-        if (rst) C_data_out <= 0;
-        else C_data_out <= flat_temp;
-    end
+    // always_ff @( posedge clk ) begin : sequencial
+    //     if (rst) C_data_out <= 0;
+    //     else C_data_out <= flat_temp;
+    // end
 endmodule
 
     
