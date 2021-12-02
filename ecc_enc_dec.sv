@@ -43,7 +43,7 @@ module ECC_ENC_DEC //top
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
         logic     [DATA_WIDTH-1:0]       data_in_noised;
-
+        logic                            rst_n; // this reset is deasserted synchronicaly 
 
         // register bank
         logic     [AMBA_WORD - 1:0]      CTRL;
@@ -54,7 +54,12 @@ module ECC_ENC_DEC //top
 
         logic     [DATA_WIDTH-1:0]       DATA_IN_CUT;
 
-        assign    DATA_IN_CUT = DATA_IN[DATA_WIDTH-1 :0];
+        ASYNC_RST reset_synchronizer (
+                .clk(clk),
+                .rst_in(rst),
+                .rst_n(rst_n)
+        );        
+
 
         APB_BUS  #(
 
@@ -65,7 +70,7 @@ module ECC_ENC_DEC //top
         ) register_bank
         (
                 //inputs
-                .rst(rst),
+                .rst(rst_n),
                 .clk(clk),
                 .PSEL(PSEL),
                 .PADDR(PADDR),
@@ -87,7 +92,7 @@ module ECC_ENC_DEC //top
                 .MAX_INFO_WIDTH(MAX_INFO_WIDTH)
         ) encoder (
         //input                       
-        .rst(rst),
+        .rst(rst_n),
         .clk(clk),
         .data_in(DATA_IN_CUT),
         .work_mod(CODEWORD_WIDTH[1:0]), 
@@ -102,7 +107,7 @@ module ECC_ENC_DEC //top
                 .MAX_INFO_WIDTH(MAX_INFO_WIDTH)
         ) decoder(
                 //input   
-                .rst(rst),
+                .rst(rst_n),
                 .clk(clk),
                 .data_in(DATA_IN_DEC),
                 .work_mod(CODEWORD_WIDTH[1:0]), 
@@ -110,8 +115,10 @@ module ECC_ENC_DEC //top
                 .data_out(data_out_dec),
                 .num_of_errors(num_of_errors) // what happens when in encoding only mode?
         );
+        
 
-        assign data_in_noised = data_out_enc ^ NOISE ;
+        assign  DATA_IN_CUT = DATA_IN[DATA_WIDTH-1 :0];
+        assign  data_in_noised = data_out_enc ^ NOISE ;
 
         always_comb begin : top_output
                 case (CTRL[1:0])

@@ -86,7 +86,7 @@ module APB_BUS (
 
   always_ff @( posedge clk or negedge rst) begin : read
     if(!rst) begin
-      PRDATA <= 0;
+      PRDATA <= {AMBA_WORD{1'b0}};
     end else if (current_state == ACCES && PWRITE == 0) begin
       case (PADDR[3:0])
         CTRL_reg_addr           :   PRDATA <= CTRL;
@@ -104,11 +104,11 @@ module APB_BUS (
 // writing to memory:
   always_ff @( posedge clk or negedge rst) begin : ctrl
     if(!rst) begin
-      CTRL <= 0;
-      start <= 0;
+      CTRL <= {AMBA_WORD{1'b0}};
+      start <= 1'b0;
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h0) begin
       CTRL <= PWDATA;
-      start <= 1;
+      start <= 1'b1;
     end else begin
       CTRL <= CTRL;
     end
@@ -118,7 +118,7 @@ module APB_BUS (
 
   always_ff @( posedge clk or negedge rst) begin : data_in
     if(!rst) begin
-      DATA_IN <= 0;
+      DATA_IN <= {AMBA_WORD{1'b0}};
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h4) begin
       DATA_IN <= PWDATA;
     end else begin
@@ -128,7 +128,7 @@ module APB_BUS (
 
   always_ff @( posedge clk or negedge rst) begin : codeword_width
     if(!rst) begin 
-      CODEWORD_WIDTH <= 0;
+      CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h8) begin
       CODEWORD_WIDTH <= PWDATA;
     end else begin
@@ -138,7 +138,7 @@ module APB_BUS (
 
   always_ff @( posedge clk or negedge rst) begin : noise
     if(!rst) begin
-      NOISE <= 0;
+      NOISE <= {AMBA_WORD{1'b0}};
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'hc) begin
       NOISE <= PWDATA;
     end else begin
