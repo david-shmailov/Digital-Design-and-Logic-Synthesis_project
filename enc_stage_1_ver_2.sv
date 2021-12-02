@@ -82,7 +82,7 @@ module ENC_STAGE_1 (
 
         end else if (MAX_CODEWORD_WIDTH == 16) begin
             assign  H1_stage1_1D_mat = 55'h380_680B;
-            assign  H2_stage1_1D_mat = 55'hFFFF_FE08_F1C4_CDA2_AB61;
+            assign  H2_stage1_1D_mat = 55'hFE1_E3B3_6D5B;
             assign  H3_stage1_1D_mat = 55'h0;
 
             always_comb begin : output_mux
@@ -101,9 +101,9 @@ module ENC_STAGE_1 (
 
 
         end else if (MAX_CODEWORD_WIDTH == 32) begin
-            assign  H1_stage1_1D_mat = 156'hFF_0000_00E4_0000_00D2_0000_00B1; // we want the first rows to be padded zeros.
-            assign  H2_stage1_1D_mat = 156'hFFFF_0000_FE08_0000_F1C4_0000_CDA2_0000_AB61;
-            assign  H3_stage1_1D_mat = 156'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
+            assign  H1_stage1_1D_mat = 156'hE0_0000_3400_000B; // we want the first rows to be padded zeros.
+            assign  H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B
+            assign  H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
 
 
             always_comb begin : output_mux
