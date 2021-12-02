@@ -153,7 +153,7 @@ module ECC_ENC_DEC //top
                         operation_done <= 1'b0;
                         counter <= 4'b1;
                 end
-                else if(operation_done == 1'b1 && !(counter == 4'b1111) && online) begin
+                else if(operation_done == 1'b1 && !(counter == 4'b1111)) begin
                         operation_done <= 1'b0;
                         counter <= 4'b1;
                 end
