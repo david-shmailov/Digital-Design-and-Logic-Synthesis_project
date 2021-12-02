@@ -7,36 +7,38 @@ module ENC_STAGE_2 (
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
-    localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
-    localparam info_mod_1 = 4;
-    localparam info_mod_2 = 11;
-    localparam info_mod_3 = 26;
-    localparam parity_mod_1 = 4;
-    localparam parity_mod_2 = 5;
-    localparam parity_mod_3 = 6;
+    localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
+    localparam  info_mod_1 = 4;
+    localparam  info_mod_2 = 11;
+    localparam  info_mod_3 = 26;
+    localparam  parity_mod_1 = 4;
+    localparam  parity_mod_2 = 5;
+    localparam  parity_mod_3 = 6;
 
-    localparam pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1 - parity_mod_1;
-    localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
+    localparam  pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1 - parity_mod_1;
+    localparam  pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
     //localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
 
 
-    logic   [MAX_CODEWORD_WIDTH-1:0]      One_vec = {MAX_CODEWORD_WIDTH{1'b1}};
+    logic   [MAX_CODEWORD_WIDTH-1:0]      one_vec;
 
-    input logic       rst,clk;
-    input logic      [MAX_CODEWORD_WIDTH-1:0] data_in;
-    input logic      [1:0] work_mod;
-    output logic     [MAX_CODEWORD_WIDTH-1:0] data_out;
-    output logic      temp;
+    input logic                                 rst,clk;
+    input logic      [MAX_CODEWORD_WIDTH-1:0]   data_in;
+    input logic      [1:0]                      work_mod;
+    output logic     [MAX_CODEWORD_WIDTH-1:0]   data_out;
+    output logic                                temp;
     
     logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 
+
+    assign  one_vec = {MAX_CODEWORD_WIDTH{1'b1}};
     // multiply first row of matrix with codeword
     MAT_MULT    #(  .A_ROWS(1),
                     .A_COLS(MAX_CODEWORD_WIDTH),
                     .B_COLS(1)) m1
                 (.clk(clk),
                 .rst(rst),
-                .A_data_in(One_vec), //todo test that this is the correct selelction
+                .A_data_in(one_vec), //todo test that this is the correct selection
                 .B_data_in(data_in),
                 .C_data_out(temp));
     
