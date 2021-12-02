@@ -35,10 +35,10 @@ module APB_BUS (
   output logic   [AMBA_WORD - 1:0]         NOISE;
   output logic                             start;
 
-  localparam  [3:0] CTRL_reg_addr = 4'h0;
-  localparam  [3:0] DATA_IN_reg_addr = 4'h1;
-  localparam  [3:0] CODEWORD_WIDTH_reg_addr = 4'h2;
-  localparam  [3:0] NOISE_reg_addr = 4'h3;
+  localparam  CTRL_reg_addr = {{AMBA_ADDR_WIDTH-4{1'b0}} , 4'h0};
+  localparam  DATA_IN_reg_addr = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h4};
+  localparam  CODEWORD_WIDTH_reg_addr = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h8};
+  localparam  NOISE_reg_addr = {{AMBA_ADDR_WIDTH-4{1'b0}},4'hC};
 
   //state declaration
   localparam  [1:0]     IDLE    = 2'b00;
@@ -88,7 +88,7 @@ module APB_BUS (
     if(!rst) begin
       PRDATA <= {AMBA_WORD{1'b0}};
     end else if (current_state == ACCES && PWRITE == 0) begin
-      case (PADDR[3:0])
+      case (PADDR)
         CTRL_reg_addr           :   PRDATA <= CTRL;
         DATA_IN_reg_addr        :   PRDATA <= DATA_IN;
         CODEWORD_WIDTH_reg_addr :   PRDATA <= CODEWORD_WIDTH;
