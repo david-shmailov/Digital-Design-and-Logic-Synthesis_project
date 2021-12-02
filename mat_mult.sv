@@ -1,6 +1,4 @@
 module MAT_MULT (
-                rst,
-                clk,
                 A_data_in,
                 B_data_in,
                 C_data_out
@@ -12,7 +10,7 @@ module MAT_MULT (
     localparam C_ROWS = A_ROWS;
     localparam C_COLS = B_COLS;
 
-    input logic    rst,clk;
+    //input logic    rst,clk;
     input logic    [A_ROWS*A_COLS-1:0] A_data_in;
     input logic    [B_ROWS*B_COLS-1:0] B_data_in;
     output logic   [C_ROWS*C_COLS-1:0] C_data_out;
