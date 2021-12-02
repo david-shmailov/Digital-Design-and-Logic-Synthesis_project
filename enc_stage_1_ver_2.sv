@@ -102,9 +102,8 @@ module ENC_STAGE_1 (
 
         end else if (MAX_CODEWORD_WIDTH == 32) begin
             assign  H1_stage1_1D_mat = 156'hE0_0000_3400_000B; // we want the first rows to be padded zeros.
-            assign  H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B
+            assign  H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
             assign  H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
-
 
             always_comb begin : output_mux
                 case(work_mod)
