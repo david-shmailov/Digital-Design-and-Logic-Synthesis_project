@@ -30,15 +30,16 @@ module ECC_ENC_DEC //top
         output logic     [AMBA_WORD-1:0]        PRDATA;
 
         // IO 
-        input logic                            clk;
-        input logic                            rst;
+        input  logic                             clk;
+        input  logic                             rst;
         output logic     [DATA_WIDTH-1:0]       data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
         output logic                            operation_done;
         output logic     [1:0]                  num_of_errors;
 
 
-        // signals
 
+        // signals
+        logic                            online;
         logic                            start; 
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
@@ -115,10 +116,10 @@ module ECC_ENC_DEC //top
         assign  data_in_noised = data_out_enc ^ NOISE ;
 
         always_comb begin : top_output
-                case (CTRL[1:0])
-                        2'b00 : data_out = data_out_enc;   //  Only Encoder
-                        2'b01 : data_out = data_out_dec;   //  Full-channel/Decoder
-                        2'b10 : data_out = data_out_dec;   //  Full-channel/Decoder
+                case (CTRL)
+                        'b00 : data_out = data_out_enc;   //  Only Encoder
+                        'b01 : data_out = data_out_dec;   //  Full-channel/Decoder
+                        'b10 : data_out = data_out_dec;   //  Full-channel/Decoder
                         default : data_out = data_out_enc;
                 endcase
         end
@@ -131,7 +132,17 @@ module ECC_ENC_DEC //top
                 endcase
         end
 
+        always_ff @(posedge clk or negedge rst) begin : Start_FSM
+                if(!rst)
+                        online <= 1'b0;
+                else if(start)
+                        online <= 1'b1;
+                else if (operation_done == 1)
+                        online <= 1'b0;
+                else
+                        online <= online;
 
+        end
         always_ff @( posedge clk or negedge rst ) begin : CLk_incremnet 
                 if(!rst) begin
                         operation_done <= 1'b0;
