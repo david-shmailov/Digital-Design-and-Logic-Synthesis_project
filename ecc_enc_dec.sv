@@ -133,23 +133,27 @@ module ECC_ENC_DEC //top
 
 
         always_ff @( posedge clk or negedge rst ) begin : CLk_incremnet 
-                if(!rst || operation_done) begin
+                if(!rst) begin
+                        operation_done <= 1'b0;
+                        counter <= 4'b1;
+                end
+                else if(operation_done == 1'b1 && !(counter == 4'b1111)) begin
                         operation_done <= 1'b0;
                         counter <= 4'b1;
                 end
                 else if (counter == 4'b1 || counter == 4'b10) begin
-                        counter << 1;
+                        counter <= counter << 1;
                         operation_done <= 1'b0;
                 end
-                else if (counter == 4'b100 && (CTRL == 2'b0 || CTRL 2'b1)) begin
+                else if (counter == 4'b100 && (CTRL[1:0] == 2'b0 || CTRL[1:0] == 2'b1)) begin
                         operation_done <= 1'b1;
                         counter <= 4'b1;
                 end
                 else if (counter == 4'b100 || counter == 4'b1000) begin
-                        counter << 1;
+                        counter <= counter << 1;
                         operation_done <= 1'b0;
                 end
-                else if (counter == 4'b0 && CTRL == 2'b10) begin
+                else if (counter == 4'b0 && CTRL[1:0] == 2'b10) begin
                         operation_done <= 1'b1;
                         counter <= 4'b1;
                 end
