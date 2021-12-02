@@ -7,12 +7,15 @@ module DEC_MULT (
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
+    parameter   AMBA_WORD = 32;
     localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH ;
-
+    localparam  mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
+    localparam  mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
+    localparam  mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
 
     input logic     rst,clk;
     input logic     [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    input logic     [1:0]                       work_mod;
+    input logic     [AMBA_WORD-1:0]             work_mod;
     output logic    [MAX_PARITY_WIDTH-1:0]      data_out;
 
 
@@ -51,9 +54,9 @@ module DEC_MULT (
 
     always_comb begin : WhichMatrixToMult
         case (work_mod)
-            2'b00 : mat_for_mult = H_matrix_1;
-            2'b01 : mat_for_mult = H_matrix_2;
-            2'b10 : mat_for_mult = H_matrix_3;
+            mod_1 : mat_for_mult = H_matrix_1;
+            mod_2 : mat_for_mult = H_matrix_2;
+            mod_3 : mat_for_mult = H_matrix_3;
             default: mat_for_mult = 0;
         endcase
     end

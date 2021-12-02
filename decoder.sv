@@ -8,7 +8,13 @@ module DEC (
 );
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
-    localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
+    parameter   AMBA_WORD = 32;
+    localparam mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
+    localparam mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
+    localparam mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
+
+
+    localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
     // check with TA if this is ok or we somehow need to generlize it further
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
@@ -26,7 +32,7 @@ module DEC (
 
     input logic    rst,clk;
     input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    input logic    [1:0]                       work_mod;
+    input logic    [AMBA_WORD-1:0]             work_mod;
     output logic   [MAX_CODEWORD_WIDTH-1 :0]   data_out;
     output logic   [1:0]                       num_of_errors;
     
@@ -36,7 +42,11 @@ module DEC (
     logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_with_parity;
     //logic     [MAX_CODEWORD_WIDTH-1:0]   data_out_without_parity; // more zero padding is added
 
-    DEC_MULT mult (
+    DEC_MULT #(
+        .MAX_CODEWORD_WIDTH(MAX_CODEWORD_WIDTH),
+        .MAX_INFO_WIDTH(MAX_INFO_WIDTH),
+        .AMBA_WORD(AMBA_WORD)
+    )mult (
         .rst(rst),
         .clk(clk),
         .data_in(data_in),
@@ -44,7 +54,11 @@ module DEC (
         .data_out(mult_result)
     );
 
-    DEC_CHK check (
+    DEC_CHK #(
+        .MAX_CODEWORD_WIDTH(MAX_CODEWORD_WIDTH),
+        .MAX_INFO_WIDTH(MAX_INFO_WIDTH),
+        .AMBA_WORD(AMBA_WORD)
+    ) check (
         .rst(rst),
         .clk(clk),
         .data_in(data_in),
@@ -56,9 +70,9 @@ module DEC (
     // TBD understand how top expects the output of decoder to be in terms of bit length
     always_comb begin  : DataOut_mode
         case (work_mod)
-            2'b00   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
-            2'b01   :   data_out = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
-            2'b10   :   data_out = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
+            mod_1   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
+            mod_2   :   data_out = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
+            mod_3   :   data_out = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
             default :   data_out = {MAX_CODEWORD_WIDTH{1'b0}};
         endcase
     end

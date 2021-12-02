@@ -9,6 +9,11 @@ module DEC_CHK (
 );  
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
+    parameter   AMBA_WORD=32;
+
+    localparam  mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
+    localparam  mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
+    localparam  mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
 
     localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH ;
     localparam info_mod_1 = 4;
@@ -28,7 +33,7 @@ module DEC_CHK (
     input   logic                               rst,clk;
     input   logic   [MAX_CODEWORD_WIDTH-1:0]    data_in;
     input   logic   [MAX_PARITY_WIDTH-1:0]      s_vector;
-    input   logic   [1:0]                       work_mod;
+    input   logic   [AMBA_WORD-1:0]             work_mod;
     output  logic   [MAX_CODEWORD_WIDTH-1:0]    data_out;
     output  logic   [1:0]                       num_of_errors;
 
@@ -120,15 +125,15 @@ module DEC_CHK (
 
     always_comb begin : reduce
         case(work_mod)
-            2'b00   :   begin
+            mod_1   :   begin
                         eq_to_col = |correction_vector_mod_1;
                         temp_out   = data_in ^ correction_vector_mod_1; //correct the data (XOR)
             end
-            2'b01   :   begin
+            mod_2   :   begin
                         eq_to_col = |correction_vector_mod_2;
                         temp_out   = data_in ^ correction_vector_mod_2; //correct the data
             end
-            2'b10   :   begin
+            mod_3   :   begin
                         eq_to_col = |correction_vector_mod_3;
                         temp_out   = data_in ^ correction_vector_mod_3; //correct the data
             end

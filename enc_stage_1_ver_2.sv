@@ -4,8 +4,13 @@ module ENC_STAGE_1 (
                 work_mod,
                 data_out
 );
+    parameter   AMBA_WORD = 32;
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
+
+    localparam mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
+    localparam mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
+    localparam mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
 
 
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
@@ -34,7 +39,7 @@ module ENC_STAGE_1 (
     
     input logic    rst,clk;
     input logic    [MAX_INFO_WIDTH-1:0] data_in;
-    input logic    [1:0] work_mod;
+    input logic    [AMBA_WORD -1:0] work_mod;
     output logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
 
     logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat ;
@@ -62,28 +67,26 @@ module ENC_STAGE_1 (
 
     always_comb begin  : WhichMult_mode
         case (work_mod)
-            2'b00 : mat_for_mult = H1_stage1_1D_mat;
-            2'b01 : mat_for_mult = H2_stage1_1D_mat;
-            2'b10 : mat_for_mult = H3_stage1_1D_mat;
+            mod_1 : mat_for_mult = H1_stage1_1D_mat;
+            mod_2 : mat_for_mult = H2_stage1_1D_mat;
+            mod_3 : mat_for_mult = H3_stage1_1D_mat;
             default: mat_for_mult = 0;
         endcase
     end
     
-
-   
     
     
     always_comb begin : output_mux
         case(work_mod)
-            2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
+            mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
                                         data_in[info_mod_1-1:0],
                                         parity_bits[parity_mod_1-1:0]};
 
-            2'b01   :   final_temp =    {{pad_zero_2{1'b0}},
+            mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
                                         data_in[info_mod_2-1:0],
                                         parity_bits[parity_mod_2-1:0]};
 
-            2'b10   :   final_temp =    {
+            mod_3   :   final_temp =    {
                                         data_in[info_mod_3-1:0],
                                         parity_bits[parity_mod_3-1:0]};
 

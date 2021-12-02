@@ -5,8 +5,16 @@ module ENC_STAGE_2 (
                 data_out,
                 temp
 );
+
+
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
+    parameter   AMBA_WORD = 32;
+
+    localparam mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
+    localparam mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
+    localparam mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
+
     localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
     localparam  info_mod_1 = 4;
     localparam  info_mod_2 = 11;
@@ -24,7 +32,7 @@ module ENC_STAGE_2 (
 
     input logic                                 rst,clk;
     input logic      [MAX_CODEWORD_WIDTH-1:0]   data_in;
-    input logic      [1:0]                      work_mod;
+    input logic      [AMBA_WORD-1:0]            work_mod;
     output logic     [MAX_CODEWORD_WIDTH-1:0]   data_out;
     output logic                                temp;
     
@@ -44,17 +52,17 @@ module ENC_STAGE_2 (
     
     always_comb begin : output_mux
         case(work_mod)
-            2'b00   :   final_temp =    {{pad_zero_1{1'b0}},
+            mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
                                         data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
                                         temp,  // index parity_mod_1 -1
                                         data_in[parity_mod_1-2:0]};
                                         
-            2'b01   :   final_temp =    {{pad_zero_2{1'b0}},
+            mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
                                         data_in[info_mod_2+ parity_mod_2-1:parity_mod_2],
                                         temp,  // index parity_mod_2 -1
                                         data_in[parity_mod_2-2:0]};
 
-            2'b10   :   final_temp =    {                              //not genric??           // 0
+            mod_3   :   final_temp =    {                              //not genric??           // 0
                                         data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],     // 31 - 6
                                         temp,  // index parity_mod_3 -1                         // 5
                                         data_in[parity_mod_3-2:0]};                             // 4 - 0
