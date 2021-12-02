@@ -128,7 +128,7 @@ module DEC_CHK (
     end
 
     
-    always_ff @( posedge clk) begin : DEC_outputs
+    always_ff @( posedge clk or negedge rst) begin : DEC_outputs
         if (!rst) begin
             num_of_errors <= 2'b00;
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
