@@ -55,8 +55,7 @@ module ENC_STAGE_1 (
                     .A_COLS(MAX_INFO_WIDTH),
                     .B_COLS(1)
                     ) m3
-                (.clk(clk),
-                .rst(rst),
+                (
                 .A_data_in(mat_for_mult), //todo test that this is the correct selection
                 .B_data_in(data_in),
                 .C_data_out(parity_bits));
