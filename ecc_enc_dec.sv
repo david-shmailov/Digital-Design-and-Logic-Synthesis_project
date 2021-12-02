@@ -117,9 +117,9 @@ module ECC_ENC_DEC //top
 
         always_comb begin : top_output
                 case (CTRL)
-                        {{AMBA_WORD-4{1'b0}},4'h0} : data_out = data_out_enc;   //  Only Encoder
-                        {{AMBA_WORD-4{1'b0}},4'h1} : data_out = data_out_dec;   //  Full-channel/Decoder
-                        {{AMBA_WORD-4{1'b0}},4'h10} : data_out = data_out_dec;   //  Full-channel/Decoder
+                        {{AMBA_WORD-2{1'b0}},2'b0} : data_out = data_out_enc;   //  Only Encoder
+                        {{AMBA_WORD-2{1'b0}},2'b1} : data_out = data_out_dec;   //  Full-channel/Decoder
+                        {{AMBA_WORD-2{1'b0}},2'b10} : data_out = data_out_dec;   //  Full-channel/Decoder
                         default : data_out = data_out_enc;
                 endcase
         end
