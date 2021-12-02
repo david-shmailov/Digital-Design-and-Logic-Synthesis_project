@@ -153,23 +153,23 @@ module ECC_ENC_DEC //top
                         operation_done <= 1'b0;
                         counter <= 4'b1;
                 end
-                else if(operation_done == 1'b1 && !(counter == 4'b1111)) begin
+                else if(operation_done == 1'b1 && !(counter == 4'b1111) && online) begin
                         operation_done <= 1'b0;
                         counter <= 4'b1;
                 end
-                else if (counter == 4'b1 || counter == 4'b10) begin
+                else if (counter == 4'b1 || counter == 4'b10 && online ) begin
                         counter <= counter << 1;
                         operation_done <= 1'b0;
                 end
-                else if (counter == 4'b100 && (CTRL == EO || CTRL == DO)) begin
+                else if (counter == 4'b100 && (CTRL == EO || CTRL == DO) && online) begin
                         operation_done <= 1'b1;
                         counter <= 4'b1;
                 end
-                else if (counter == 4'b100 || counter == 4'b1000) begin
+                else if ((counter == 4'b100 || counter == 4'b1000) && online) begin
                         counter <= counter << 1;
                         operation_done <= 1'b0;
                 end
-                else if (counter == 4'b0 && CTRL == FC) begin
+                else if (counter == 4'b0 && CTRL == FC && online) begin
                         operation_done <= 1'b1;
                         counter <= 4'b1;
                 end
