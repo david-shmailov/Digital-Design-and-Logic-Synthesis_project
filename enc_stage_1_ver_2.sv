@@ -49,9 +49,6 @@ module ENC_STAGE_1 (
     logic     [MAX_PARITY_WIDTH-1:0] parity_bits;
     logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 
-    assign H1_stage1_1D_mat = 156'hE0_0000_3400_000B;
-    assign H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
-    assign H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
 
 
     // multiply left_side matrix without the first row with data in
@@ -65,6 +62,72 @@ module ENC_STAGE_1 (
                 .B_data_in(data_in),
                 .C_data_out(parity_bits));
 
+
+
+    generate
+        if (MAX_CODEWORD_WIDTH == 8) begin
+            assign  H1_stage1_1D_mat = 16'hEDB;
+            assign  H2_stage1_1D_mat = 16'h0;
+            assign  H3_stage1_1D_mat = 16'h0;
+
+            always_comb begin : output_mux
+                case(work_mod)
+                    mod_1   :   final_temp =    {data_in,
+                                                parity_bits};
+
+                    default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                endcase
+            end
+
+
+        end else if (MAX_CODEWORD_WIDTH == 16) begin
+            assign  H1_stage1_1D_mat = 55'h380_680B;
+            assign  H2_stage1_1D_mat = 55'hFFFF_FE08_F1C4_CDA2_AB61;
+            assign  H3_stage1_1D_mat = 55'h0;
+
+            always_comb begin : output_mux
+                case(work_mod)
+                    mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
+                                                data_in[info_mod_1-1:0],
+                                                parity_bits[parity_mod_1-1:0]};
+
+                    mod_2   :   final_temp =    {data_in,
+                                                parity_bits};
+
+                    default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                endcase
+            end
+
+
+
+        end else if (MAX_CODEWORD_WIDTH == 32) begin
+            assign  H1_stage1_1D_mat = 156'hFF_0000_00E4_0000_00D2_0000_00B1; // we want the first rows to be padded zeros.
+            assign  H2_stage1_1D_mat = 156'hFFFF_0000_FE08_0000_F1C4_0000_CDA2_0000_AB61;
+            assign  H3_stage1_1D_mat = 156'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
+
+
+            always_comb begin : output_mux
+                case(work_mod)
+                    mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
+                                                data_in[info_mod_1-1:0],
+                                                parity_bits[parity_mod_1-1:0]};
+
+                    mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
+                                                data_in[info_mod_2-1:0],
+                                                parity_bits[parity_mod_2-1:0]};
+
+                    mod_3   :   final_temp =    {
+                                                data_in[info_mod_3-1:0],
+                                                parity_bits[parity_mod_3-1:0]};
+
+                    default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                endcase
+            end
+        end
+    endgenerate
+
+
+
     always_comb begin  : WhichMult_mode
         case (work_mod)
             mod_1 : mat_for_mult = H1_stage1_1D_mat;
@@ -76,23 +139,7 @@ module ENC_STAGE_1 (
     
     
     
-    always_comb begin : output_mux
-        case(work_mod)
-            mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
-                                        data_in[info_mod_1-1:0],
-                                        parity_bits[parity_mod_1-1:0]};
-
-            mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
-                                        data_in[info_mod_2-1:0],
-                                        parity_bits[parity_mod_2-1:0]};
-
-            mod_3   :   final_temp =    {
-                                        data_in[info_mod_3-1:0],
-                                        parity_bits[parity_mod_3-1:0]};
-
-            default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
-        endcase
-    end
+    
     
     
     always_ff @( posedge clk or negedge rst) begin : Data_out_stage1
@@ -106,6 +153,7 @@ module ENC_STAGE_1 (
 
 
 endmodule
+
 
 // H1_info matrix zero padded
 // 00000000000000000000000000

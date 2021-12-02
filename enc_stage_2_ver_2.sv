@@ -49,27 +49,55 @@ module ENC_STAGE_2 (
                 .B_data_in(data_in),
                 .C_data_out(temp));
     
-    
-    always_comb begin : output_mux
-        case(work_mod)
-            mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
-                                        data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
-                                        temp,  // index parity_mod_1 -1
-                                        data_in[parity_mod_1-2:0]};
-                                        
-            mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
-                                        data_in[info_mod_2+ parity_mod_2-1:parity_mod_2],
-                                        temp,  // index parity_mod_2 -1
-                                        data_in[parity_mod_2-2:0]};
+    generate
+        if (MAX_CODEWORD_WIDTH == 8) begin
+            always_comb begin : output_mux
+                case(work_mod)
+                    mod_1   :   final_temp =    {data_in[MAX_INFO_WIDTH-1 : MAX_PARITY_WIDTH],
+                                                temp,  // index parity_mod_1 -1
+                                                data_in[MAX_PARITY_WIDTH-2:0]};
 
-            mod_3   :   final_temp =    {                              //not genric??           // 0
-                                        data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],     // 31 - 6
-                                        temp,  // index parity_mod_3 -1                         // 5
-                                        data_in[parity_mod_3-2:0]};                             // 4 - 0
-                                        
-            default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
-        endcase
-    end
+                    default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                endcase
+            end;
+        end else if (MAX_CODEWORD_WIDTH == 16) begin
+            always_comb begin : output_mux
+                case(work_mod)
+                    mod_1   :   final_temp =    {{8{1'b0}},
+                                                data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
+                                                temp,  // index parity_mod_1 -1
+                                                data_in[parity_mod_1-2:0]};
+                                                      
+                    mod_2   :   final_temp =    {data_in[MAX_INFO_WIDTH-1:MAX_PARITY_WIDTH],
+                                                temp,  // index parity_mod_2 -1
+                                                data_in[MAX_PARITY_WIDTH-2:0]};
+                                                
+                    default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                endcase
+            end
+        end else if (MAX_CODEWORD_WIDTH == 32) begin
+            always_comb begin : output_mux
+                case(work_mod)
+                    mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
+                                                data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
+                                                temp,  // index parity_mod_1 -1
+                                                data_in[parity_mod_1-2:0]};
+                                                      
+                    mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
+                                                data_in[info_mod_2+ parity_mod_2-1:parity_mod_2],
+                                                temp,  // index parity_mod_2 -1
+                                                data_in[parity_mod_2-2:0]};
+
+                    mod_3   :   final_temp =    {                              //not genric??           // 0
+                                                data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],     // 31 - 6
+                                                temp,  // index parity_mod_3 -1                         // 5
+                                                data_in[parity_mod_3-2:0]};                             // 4 - 0
+                                                
+                    default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                endcase
+            end
+        end
+    endgenerate
     
     always_ff @( posedge clk or negedge rst) begin : DataOut_stage2
         if (!rst) begin
