@@ -45,10 +45,8 @@ module APB_BUS (
   localparam  [1:0]     SETUP   = 2'b01;
   localparam  [1:0]     ACCES   = 2'b10;
 
-
   //state declaration of present and next 
   logic [1:0] current_state,next_state;
-
 
 // APB FSM
   always @ (posedge clk or negedge rst) begin : state_assign
