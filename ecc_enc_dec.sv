@@ -43,7 +43,6 @@ module ECC_ENC_DEC //top
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
         logic     [DATA_WIDTH-1:0]       data_in_noised;
-        logic                            rst_n; // this reset is deasserted synchronicaly 
 
         // register bank
         logic     [AMBA_WORD - 1:0]      CTRL;
@@ -52,13 +51,7 @@ module ECC_ENC_DEC //top
         logic     [AMBA_WORD - 1:0]      NOISE;          
         logic     [DATA_WIDTH - 1:0]     DATA_IN_DEC;
 
-        logic     [DATA_WIDTH-1:0]       DATA_IN_CUT;
-
-        ASYNC_RST reset_synchronizer (
-                .clk(clk),
-                .rst_in(rst),
-                .rst_n(rst_n)
-        );        
+        logic     [DATA_WIDTH-1:0]       DATA_IN_CUT;  
 
 
         APB_BUS  #(
@@ -70,7 +63,7 @@ module ECC_ENC_DEC //top
         ) register_bank
         (
                 //inputs
-                .rst(rst_n),
+                .rst(rst),
                 .clk(clk),
                 .PSEL(PSEL),
                 .PADDR(PADDR),
@@ -92,7 +85,7 @@ module ECC_ENC_DEC //top
                 .MAX_INFO_WIDTH(MAX_INFO_WIDTH)
         ) encoder (
         //input                       
-        .rst(rst_n),
+        .rst(rst),
         .clk(clk),
         .data_in(DATA_IN_CUT),
         .work_mod(CODEWORD_WIDTH[1:0]), 
@@ -107,7 +100,7 @@ module ECC_ENC_DEC //top
                 .MAX_INFO_WIDTH(MAX_INFO_WIDTH)
         ) decoder(
                 //input   
-                .rst(rst_n),
+                .rst(rst),
                 .clk(clk),
                 .data_in(DATA_IN_DEC),
                 .work_mod(CODEWORD_WIDTH[1:0]), 
