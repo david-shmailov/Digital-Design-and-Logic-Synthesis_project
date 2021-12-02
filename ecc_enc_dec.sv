@@ -153,9 +153,9 @@ module ECC_ENC_DEC //top
                         operation_done <= 1'b0;
                         counter <= 4'b1;
                 end
-                else if(operation_done == 1'b1 && !(counter == 4'b1111)) begin
+                else if(operation_done == 1'b1 && online) begin // online is here only to prevent checker thinking this is reset
                         operation_done <= 1'b0;
-                        counter <= 4'b1;
+                        counter <= counter; //counter remains at 1.
                 end
                 else if (counter == 4'b1 || counter == 4'b10 && online ) begin
                         counter <= counter << 1;
