@@ -17,7 +17,7 @@ module ECC_ENC_DEC //top
         parameter       AMBA_ADDR_WIDTH = 20;
         parameter       DATA_WIDTH = 32; 
 
-
+        
         localparam      MAX_CODEWORD_WIDTH = DATA_WIDTH;
         localparam      MAX_PARITY_WIDTH = $clog2(MAX_CODEWORD_WIDTH)+1;
         localparam      MAX_INFO_WIDTH = MAX_CODEWORD_WIDTH - MAX_PARITY_WIDTH;
@@ -43,6 +43,7 @@ module ECC_ENC_DEC //top
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
         logic     [DATA_WIDTH-1:0]       data_in_noised;
+        logic     [3:0]                  counter;
 
         // register bank
         logic     [AMBA_WORD - 1:0]      CTRL;
@@ -130,5 +131,32 @@ module ECC_ENC_DEC //top
                 endcase
         end
 
+
+        always_ff @( posedge clk or negedge rst ) begin : CLk_incremnet 
+                if(!rst || operation_done) begin
+                        operation_done <= 1'b0;
+                        counter <= 4'b1;
+                end
+                else if (counter == 4'b1 || counter == 4'b10) begin
+                        counter << 1;
+                        operation_done <= 1'b0;
+                end
+                else if (counter == 4'b100 && (CTRL == 2'b0 || CTRL 2'b1)) begin
+                        operation_done <= 1'b1;
+                        counter <= 4'b1;
+                end
+                else if (counter == 4'b100 || counter == 4'b1000) begin
+                        counter << 1;
+                        operation_done <= 1'b0;
+                end
+                else if (counter == 4'b0 && CTRL == 2'b10) begin
+                        operation_done <= 1'b1;
+                        counter <= 4'b1;
+                end
+                else begin
+                        counter <= 4'b1;
+                        operation_done <= 1'b0;
+                end
+        end
 
 endmodule
