@@ -73,7 +73,7 @@ module DEC (
             mod_1   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
             mod_2   :   data_out = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
             mod_3   :   data_out = {{pad_zero_3{1'b0}},data_out_with_parity[full_length_mod_3-1 : parity_mod_3]};
-            default :   data_out = {MAX_CODEWORD_WIDTH{1'b0}};
+            default :   data_out = {{MAX_CODEWORD_WIDTH - 4{1'b0}},data_out_with_parity[3:0]}; // clean when sythsizer
         endcase
     end
 
