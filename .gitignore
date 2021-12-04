@@ -6,7 +6,7 @@ workspace.code-workspace
 *.mti
 *.mpf
 *.wlf
-work/_info
+work/*
 
 *.dbs
 *.vhd
