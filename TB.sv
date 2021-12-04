@@ -54,65 +54,59 @@ initial begin
    clk <= 1'b0;
 
    rst <= 1'b0;
-   #2
+   @(posedge clk);
+   @(posedge clk);
    rst <= 1'b1;
-   #2
+   @(posedge clk);
+
+
+
 
 
    PSEL <= 1'b1;
-   #5
+   @(posedge clk);
    PENABLE <= 1'b1;
+   PWRITE <= 1'b1;
+   PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1100}}; // noise
+   PWDATA <= {{AMBA_ADDR_WIDTH-8{1'b0}},{8'b00100000}};
+   @(posedge clk);
+   PSEL <= 1'b0;
+   PENABLE <= 1'b0;
+   @(posedge clk);
+
+   PSEL <= 1'b1;
+   @(posedge clk);
+   PENABLE <= 1'b1;
+   PWRITE <= 1'b1;
+   PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1000}}; // code word width
+   PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0001}};
+   @(posedge clk);
+   PSEL <= 1'b0;
+   PENABLE <= 1'b0;
+   @(posedge clk);
 
 
+   PSEL <= 1'b1;
+   @(posedge clk);
+   PENABLE <= 1'b1;
+   PWRITE <= 1'b1;
+   PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0100}}; // DATA
+   PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1110}};
+   @(posedge clk);
+   PSEL <= 1'b0;
+   PENABLE <= 1'b0;
+   @(posedge clk);
 
-   // PSEL <= 1'b1;
-   // #1
-   // PENABLE <= 1'b1;
-   // #1
-   // PWRITE <= 1'b1;
-   // PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0100}}; // DATA
-   // PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1010}};
-   // #1
-   // PSEL <= 1'b0;
-   // PENABLE <= 1'b0;
-   // #1
-
-   // PSEL <= 1'b1;
-   // #1
-   // PENABLE <= 1'b1;
-   // #1
-   // PWRITE <= 1'b1;
-   // PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1000}}; // code word width
-   // PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0000}};
-   // #1
-   // PSEL <= 1'b0;
-   // PENABLE <= 1'b0;
-   // #1
-
-   // PSEL <= 1'b1;
-   // #1
-   // PENABLE <= 1'b1;
-   // #1
-   // PWRITE <= 1'b1;
-   // PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1100}}; // noise
-   // PWDATA <= {{AMBA_ADDR_WIDTH-8{1'b0}},{8'b00100000}};
-   // #1
-   // PSEL <= 1'b0;
-   // PENABLE <= 1'b0;
-   // #1
-
-
-   // PSEL <= 1'b1;
-   // #1
-   // PENABLE <= 1'b1;
-   // #1
-   // PWRITE <= 1'b1;
-   // PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0000}}; // ctrl full chanel
-   // PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0010}};
-   // #1
-   // PSEL <= 1'b0;
-   // PENABLE <= 1'b0;
-   // #1
+   PSEL <= 1'b1;
+   @(posedge clk);
+   PENABLE <= 1'b1;
+   PWRITE  <= 1'b1;
+   PADDR   <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0}}; // ctrl 
+   PWDATA  <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'h2}}; // FC
+   @(posedge clk);
+   PSEL <= 1'b0;
+   PENABLE <= 1'b0;
+   @(posedge clk);
 
 
 

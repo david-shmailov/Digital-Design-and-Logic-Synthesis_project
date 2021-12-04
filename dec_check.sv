@@ -190,6 +190,7 @@ module DEC_CHK (
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end 
         else begin //priority if is required here. do not change to case
+            data_out <= temp_out;
             if (s_vector == {MAX_PARITY_WIDTH{1'b0}}) 
                 num_of_errors <= 2'b00;
             else if (eq_to_col) 
@@ -198,7 +199,6 @@ module DEC_CHK (
                 num_of_errors <= 2'b10;
             else
                 num_of_errors <= 2'b11; //this is not a correct state of the machine.
-            data_out <= temp_out;
         end
 
     end
