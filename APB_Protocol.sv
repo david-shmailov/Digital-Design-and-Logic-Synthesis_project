@@ -16,6 +16,7 @@ module APB_BUS (
                 PRDATA
   );
 
+  //Parameters configration 
   parameter       AMBA_WORD = 32;
   parameter       AMBA_ADDR_WIDTH = 20;
   parameter       DATA_WIDTH = 32; 
@@ -43,49 +44,35 @@ module APB_BUS (
   localparam  NOISE_reg_addr          = {{AMBA_ADDR_WIDTH-4{1'b0}},4'hC};
 
   //state declaration
-  localparam  [1:0]     IDLE    = 2'b00;
-  localparam  [1:0]     SETUP   = 2'b01;
-  localparam  [1:0]     ACCES   = 2'b10;
+  localparam  [1:0]     SETUP   = 1'b0;
+  localparam  [1:0]     ACCES   = 1'b1;
 
   //state declaration of present and next 
   logic [1:0] current_state,next_state;
 
-// APB FSM
+// APB-Slave FSM
   always @ (posedge clk or negedge rst) begin : state_assign
-    if(!rst) current_state <= IDLE;
+    if(!rst) current_state <= SETUP;
     else
       current_state <= next_state;
   end
 
   always_comb begin : APB_FSM
-    case(current_state)
-      IDLE: begin 
-        if (PSEL && !PENABLE)
-          next_state = SETUP;
-        else
-          next_state = IDLE;
-      end          
+    case(current_state)     
       SETUP: begin
-        if (!PENABLE && !PSEL)
-          next_state = IDLE; 
-        else if (PENABLE && PSEL)
+        if (PENABLE && PSEL)
           next_state = ACCES;
         else
           next_state = SETUP;
       end
       ACCES:
-        if(!PSEL | !PENABLE) 
-          next_state = IDLE;
-        else
-          next_state = ACCES;
+          next_state = SETUP;
       default: 
-        next_state = IDLE;
+        next_state = SETUP;
     endcase
   end
 
-
 // read from memory
-
   always_ff @( posedge clk or negedge rst) begin : read
     if(!rst) begin
       PRDATA <= {AMBA_WORD{1'b0}};
@@ -104,6 +91,8 @@ module APB_BUS (
 
 
 // writing to memory:
+
+  //CTRL Reg
   always_ff @( posedge clk or negedge rst) begin : ctrl
     if(!rst) begin
       CTRL <= {AMBA_WORD{1'b0}};
@@ -119,7 +108,7 @@ module APB_BUS (
   end
 
 
-
+  //DATA_IN Reg
   always_ff @( posedge clk or negedge rst) begin : data_in
     if(!rst) begin
       DATA_IN <= {AMBA_WORD{1'b0}};
@@ -130,6 +119,7 @@ module APB_BUS (
     end
   end
 
+  //CTRL CODEWORD_WIDTH
   always_ff @( posedge clk or negedge rst) begin : codeword_width
     if(!rst) begin 
       CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
@@ -140,6 +130,7 @@ module APB_BUS (
     end
   end
 
+  //NOISE Reg
   always_ff @( posedge clk or negedge rst) begin : noise
     if(!rst) begin
       NOISE <= {AMBA_WORD{1'b0}};
