@@ -61,13 +61,11 @@ module APB_TB;
      
       @(posedge clk);
       PENABLE = 1;
-      
+
       @(posedge clk);
       PENABLE = 0;
       PSEL = 0;
       
-      @(posedge clk);
-      $strobe ("writing data into memory data_in=%0d adress_in=%0d" , PWDATA, PRDATA);
     end
   endtask
 
@@ -87,8 +85,6 @@ module APB_TB;
       PENABLE = 0;
       {PSEL} = 0;
       
-      @(posedge clk);
-      $strobe("reading data from memory data_out=%0d   address_out=%0d",PRDATA,PADDR);
     end
   endtask
   
@@ -100,7 +96,7 @@ module APB_TB;
     end
     #1
     PADDR = 0;
-    repeat(3) begin 
+    repeat(2) begin 
       read_stimulus;
     end
   end
