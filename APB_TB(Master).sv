@@ -3,23 +3,23 @@ module APB_TB;
   //parameter configration 
   parameter       AMBA_WORD = 32;
   parameter       AMBA_ADDR_WIDTH = 20;
-  parameter       DATA_WIDTH = 32; 
+  parameter       tbDATA_WIDTH = 32; 
 
   //input configration 
-  input logic  clk,rst;
-  input logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
-  input logic  PENABLE;
-  input logic  PSEL;
-  input logic  [AMBA_WORD - 1:0]         PWDATA;
-  input logic  PWRITE;
+  logic  clk,rst;
+  logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  logic  PENABLE;
+  logic  PSEL;
+  logic  [AMBA_WORD - 1:0]         PWDATA;
+  logic  PWRITE;
 
   //output configration
-  output logic   [AMBA_WORD - 1:0]         PRDATA;
-  output logic   [AMBA_WORD - 1:0]         CTRL;
-  output logic   [AMBA_WORD - 1:0]         DATA_IN;
-  output logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
-  output logic   [AMBA_WORD - 1:0]         NOISE;
-  output logic                             start;
+  logic   [AMBA_WORD - 1:0]         PRDATA;
+  logic   [AMBA_WORD - 1:0]         CTRL;
+  logic   [AMBA_WORD - 1:0]         DATA_IN;
+  logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
+  logic   [AMBA_WORD - 1:0]         NOISE;
+  logic                             start;
   
   //intantiation of all port
   APB_BUS  dut1(.clk(clk),.rst,.PADDR(PADDR),.PSEL(PSEL),.PENABLE(PENABLE),.PWRITE(PWRITE),.PWDATA(PWDATA),   //inputs

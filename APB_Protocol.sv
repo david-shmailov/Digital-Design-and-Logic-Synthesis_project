@@ -51,7 +51,7 @@ module APB_BUS (
   logic [1:0] current_state,next_state;
 
 // APB FSM
-  always @ (posedge clk or negedge rst) begin : state_assign_w/clk
+  always @ (posedge clk or negedge rst) begin : state_assign
     if(!rst) current_state <= IDLE;
     else
       current_state <= next_state;
