@@ -1,22 +1,36 @@
-module tb;
-  //input configration 
-  logic clk;
-  logic rst;
-  logic [31:0]PADDR;
- 
-  logic PSEL;
-  logic PENABLE;
-  logic PWRITE;
-  logic [31:0]PWDATA;
+`resetall
+`timescale 1ns/100ps
 
-   //output configration
-  wire [31:0]PRDATA;
+module APB_TB;
+
+  //parameter configration 
+  parameter       AMBA_WORD = 32;
+  parameter       AMBA_ADDR_WIDTH = 20;
+  parameter       tbDATA_WIDTH = 32; 
+
+  //input configration 
+  logic  clk,rst;
+  logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  logic  PENABLE;
+  logic  PSEL;
+  logic  [AMBA_WORD - 1:0]         PWDATA;
+  logic  PWRITE;
+
+  //output configration
+  logic   [AMBA_WORD - 1:0]         PRDATA;
+  logic   [AMBA_WORD - 1:0]         CTRL;
+  logic   [AMBA_WORD - 1:0]         DATA_IN;
+  logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
+  logic   [AMBA_WORD - 1:0]         NOISE;
+  logic                             start;
   
   //intantiation of all port
-  AMBA_BUS  dut1(clk,rst,PADDR,PSEL,PENABLE,PWRITE,PWDATA,PRDATA);
+  APB_BUS  dut1(.clk(clk),.rst,.PADDR(PADDR),.PSEL(PSEL),.PENABLE(PENABLE),.PWRITE(PWRITE),.PWDATA(PWDATA),   //inputs
+  .PRDATA(PRDATA),.CTRL(CTRL),.DATA_IN(DATA_IN),.CODEWORD_WIDTH(CODEWORD_WIDTH),.NOISE(NOISE),.start(start)); //outputs
   
-  always #5 clk =~ clk;
-  
+  always #1 clk =~ clk;
+
+  // task initialization.
   task initialization;
     begin
       clk = 0;
@@ -27,26 +41,27 @@ module tb;
       PWRITE = 0;
     end
   endtask
+
    // task reset.
   task reset;
     begin 
-      rst=1;
-      #10 rst=0;
+      rst=0;
+      #10 rst=1;
     end
   endtask
   
-  
+   // task write.  
   task write_stimulus;
     begin
       @(posedge clk);
       PSEL = 1;
       PWRITE = 1;
       PWDATA = {$random}%10;
-      PADDR = PADDR + 1;
+      PADDR = {{AMBA_ADDR_WIDTH-4{1'b0}}, 4'h0};
      
       @(posedge clk);
       PENABLE = 1;
-      PSEL = 1;
+      
       @(posedge clk);
       PENABLE = 0;
       PSEL = 0;
@@ -55,8 +70,9 @@ module tb;
       $strobe ("writing data into memory data_in=%0d adress_in=%0d" , PWDATA, PRDATA);
     end
   endtask
-      
-   task read_stimulus;
+
+  // task read.  
+  task read_stimulus;
     begin
       @(posedge clk);
        PWRITE = 0;
@@ -76,8 +92,9 @@ module tb;
     end
   endtask
   
-   task read_write;
-  begin 
+   // task read & write. 
+  task read_write;
+  begin
     repeat(2) begin 
       write_stimulus;
     end
@@ -90,8 +107,6 @@ module tb;
   endtask
   
     initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars;
     initialization;//initialize input values
     reset;// generate signal
     read_write;
