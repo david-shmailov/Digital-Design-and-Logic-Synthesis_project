@@ -1,5 +1,10 @@
 module APB_TB;
 
+  //parameter configration 
+  parameter       AMBA_WORD = 32;
+  parameter       AMBA_ADDR_WIDTH = 20;
+  parameter       DATA_WIDTH = 32; 
+
   //input configration 
   input logic  clk,rst;
   input logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
