@@ -57,6 +57,7 @@ module DEC_CHK (
     
     genvar row,col;
     generate
+        if (MAX_CODEWORD_WIDTH == 8) begin
         // --------------------------------------8 bit DATA_WIDTH--------------------------------------
         assign H_matrix_1 = 48'hFFE4_D2B1; // i assume MSB bits will be zero padded
         for (row = 0; row < MAX_PARITY_WIDTH ; row = row +1 ) begin
@@ -71,7 +72,21 @@ module DEC_CHK (
 
         assign correction_vector_mod_1 [MAX_CODEWORD_WIDTH-1 : full_length_mod_1] = {pad_zero_1{1'b0}};
 
-        if (MAX_CODEWORD_WIDTH == 16 || MAX_CODEWORD_WIDTH == 32) begin
+        end else if (MAX_CODEWORD_WIDTH == 16) begin
+            // --------------------------------------8 bit DATA_WIDTH--------------------------------------
+            assign H_matrix_1 = 48'hFFE4_D2B1; // i assume MSB bits will be zero padded
+            for (row = 0; row < MAX_PARITY_WIDTH ; row = row +1 ) begin
+                for (col = 0; col < full_length_mod_1 ; col = col +1) begin
+                    assign H_1_transpose [col][row] = H_matrix_1 [row][col];
+                end
+            end
+
+            for (col=0; col<full_length_mod_1; col=col+1) begin // need to full work_mod 1 so it doesnt check equality with zero padding
+                assign correction_vector_mod_1[col] = (H_1_transpose[col] == s_vector) ? 1'b1 : 1'b0; // this checks if they are equal 
+            end
+
+            assign correction_vector_mod_1 [MAX_CODEWORD_WIDTH-1 : full_length_mod_1] = {pad_zero_1{1'b0}};
+
             // --------------------------------------16 bit DATA_WIDTH--------------------------------------
 
             assign H_matrix_2 = 96'hFFFF_FE08_F1C4_CDA2_AB61;
@@ -88,25 +103,49 @@ module DEC_CHK (
             assign correction_vector_mod_2 [MAX_CODEWORD_WIDTH-1 : full_length_mod_2] = {pad_zero_2{1'b0}};
 
 
-            if (MAX_CODEWORD_WIDTH == 32) begin
-                // --------------------------------------32 bit DATA_WIDTH--------------------------------------
-
-                assign H_matrix_3 = 192'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
-
-                for (row = 0; row < MAX_PARITY_WIDTH ; row = row +1 ) begin
-                    for (col = 0; col < full_length_mod_3 ; col = col +1) begin
-                        assign H_3_transpose [col][row] = H_matrix_3 [row][col];
-                    end
+        end else if (MAX_CODEWORD_WIDTH == 32) begin
+            // --------------------------------------8 bit DATA_WIDTH--------------------------------------
+            assign H_matrix_1 = 48'hFFE4_D2B1; // i assume MSB bits will be zero padded
+            for (row = 0; row < MAX_PARITY_WIDTH ; row = row +1 ) begin
+                for (col = 0; col < full_length_mod_1 ; col = col +1) begin
+                    assign H_1_transpose [col][row] = H_matrix_1 [row][col];
                 end
+            end
 
-                for (col=0; col<full_length_mod_3; col=col+1) begin
-                    assign correction_vector_mod_3[col] = (H_3_transpose[col] == s_vector) ? 1'b1 : 1'b0; // this checks if they are equal
+            for (col=0; col<full_length_mod_1; col=col+1) begin // need to full work_mod 1 so it doesnt check equality with zero padding
+                assign correction_vector_mod_1[col] = (H_1_transpose[col] == s_vector) ? 1'b1 : 1'b0; // this checks if they are equal 
+            end
+
+            assign correction_vector_mod_1 [MAX_CODEWORD_WIDTH-1 : full_length_mod_1] = {pad_zero_1{1'b0}};
+
+            // --------------------------------------16 bit DATA_WIDTH--------------------------------------
+
+            assign H_matrix_2 = 96'hFFFF_FE08_F1C4_CDA2_AB61;
+
+            for (row = 0; row < MAX_PARITY_WIDTH ; row = row +1 ) begin
+                for (col = 0; col < full_length_mod_2 ; col = col +1) begin
+                    assign H_2_transpose [col][row] = H_matrix_2 [row][col];
                 end
+            end
 
-            end else begin
-                assign H_matrix_3 = 'h0;
-                assign H_3_transpose = 'h0;
-                assign correction_vector_mod_3 = 'h0;
+            for (col=0; col<full_length_mod_2; col=col+1) begin
+                assign correction_vector_mod_2[col] = (H_2_transpose[col] == s_vector) ? 1'b1 : 1'b0; // this checks if they are equal
+            end
+            assign correction_vector_mod_2 [MAX_CODEWORD_WIDTH-1 : full_length_mod_2] = {pad_zero_2{1'b0}};
+
+
+            // --------------------------------------32 bit DATA_WIDTH--------------------------------------
+
+            assign H_matrix_3 = 192'hFFFF_FFFF_FFFE_0010_FF01_FC08_F0F1_E384_CCCD_9B42_AAAB_56C1;
+
+            for (row = 0; row < MAX_PARITY_WIDTH ; row = row +1 ) begin
+                for (col = 0; col < full_length_mod_3 ; col = col +1) begin
+                    assign H_3_transpose [col][row] = H_matrix_3 [row][col];
+                end
+            end
+
+            for (col=0; col<full_length_mod_3; col=col+1) begin
+                assign correction_vector_mod_3[col] = (H_3_transpose[col] == s_vector) ? 1'b1 : 1'b0; // this checks if they are equal
             end
 
         end else begin
