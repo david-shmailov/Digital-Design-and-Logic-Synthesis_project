@@ -2,8 +2,7 @@ module ENC_STAGE_2 (
                 clk,rst,
                 data_in,
                 work_mod,
-                data_out,
-                temp
+                data_out
 );
 
 
@@ -34,7 +33,7 @@ module ENC_STAGE_2 (
     input logic      [MAX_CODEWORD_WIDTH-1:0]   data_in;
     input logic      [AMBA_WORD-1:0]            work_mod;
     output logic     [MAX_CODEWORD_WIDTH-1:0]   data_out;
-    output logic                                temp;
+    logic                                temp;
     
     logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
 
@@ -53,7 +52,7 @@ module ENC_STAGE_2 (
         if (MAX_CODEWORD_WIDTH == 8) begin
             always_comb begin : output_mux
                 case(work_mod)
-                    mod_1   :   final_temp =    {data_in[MAX_INFO_WIDTH-1 : MAX_PARITY_WIDTH],
+                    mod_1   :   final_temp =    {data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1 : MAX_PARITY_WIDTH],
                                                 temp,  // index parity_mod_1 -1
                                                 data_in[MAX_PARITY_WIDTH-2:0]};
 
@@ -68,7 +67,7 @@ module ENC_STAGE_2 (
                                                 temp,  // index parity_mod_1 -1
                                                 data_in[parity_mod_1-2:0]};
                                                       
-                    mod_2   :   final_temp =    {data_in[MAX_INFO_WIDTH-1:MAX_PARITY_WIDTH],
+                    mod_2   :   final_temp =    {data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1:MAX_PARITY_WIDTH],
                                                 temp,  // index parity_mod_2 -1
                                                 data_in[MAX_PARITY_WIDTH-2:0]};
                                                 
@@ -89,7 +88,7 @@ module ENC_STAGE_2 (
                                                 data_in[parity_mod_2-2:0]};
 
                     mod_3   :   final_temp =    {                              //not genric??           // 0
-                                                data_in[info_mod_3+parity_mod_3 -1 : parity_mod_3],     // 31 - 6
+                                                data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1 : parity_mod_3],     // 31 - 6
                                                 temp,  // index parity_mod_3 -1                         // 5
                                                 data_in[parity_mod_3-2:0]};                             // 4 - 0
                                                 

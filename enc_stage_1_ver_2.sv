@@ -74,6 +74,8 @@ module ENC_STAGE_1 (
                 case(work_mod)
                     mod_1   :   final_temp =    {data_in,
                                                 parity_bits};
+                    mod_2   :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
+                    mod_3   :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
                 endcase
@@ -93,6 +95,8 @@ module ENC_STAGE_1 (
 
                     mod_2   :   final_temp =    {data_in,
                                                 parity_bits};
+                    
+                    mod_3   :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
                 endcase
