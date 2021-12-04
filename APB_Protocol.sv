@@ -48,7 +48,7 @@ module APB_BUS (
   localparam  [1:0]     ACCES   = 1'b1;
 
   //state declaration of present and next 
-  logic [1:0] current_state,next_state;
+  logic current_state,next_state;
 
 // APB-Slave FSM
   always @ (posedge clk or negedge rst) begin : state_assign
