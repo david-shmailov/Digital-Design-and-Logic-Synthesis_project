@@ -1,19 +1,24 @@
-module tb;
-  //input configration 
-  logic clk;
-  logic rst;
-  logic [31:0]PADDR;
- 
-  logic PSEL;
-  logic PENABLE;
-  logic PWRITE;
-  logic [31:0]PWDATA;
+module APB_TB;
 
-   //output configration
-  wire [31:0]PRDATA;
+  //input configration 
+  input logic  clk,rst;
+  input logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
+  input logic  PENABLE;
+  input logic  PSEL;
+  input logic  [AMBA_WORD - 1:0]         PWDATA;
+  input logic  PWRITE;
+
+  //output configration
+  output logic   [AMBA_WORD - 1:0]         PRDATA;
+  output logic   [AMBA_WORD - 1:0]         CTRL;
+  output logic   [AMBA_WORD - 1:0]         DATA_IN;
+  output logic   [AMBA_WORD - 1:0]         CODEWORD_WIDTH; 
+  output logic   [AMBA_WORD - 1:0]         NOISE;
+  output logic                             start;
   
   //intantiation of all port
-  AMBA_BUS  dut1(clk,rst,PADDR,PSEL,PENABLE,PWRITE,PWDATA,PRDATA);
+  APB_BUS  dut1(.clk(clk),.rst,.PADDR(PADDR),.PSEL(PSEL),.PENABLE(PENABLE),.PWRITE(PWRITE),.PWDATA(PWDATA),   //inputs
+  .PRDATA(PRDATA),.CTRL(CTRL),.DATA_IN(DATA_IN),.CODEWORD_WIDTH(CODEWORD_WIDTH),.NOISE(NOISE),.start(start)); //outputs
   
   always #5 clk =~ clk;
   

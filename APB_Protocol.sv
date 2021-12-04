@@ -19,6 +19,7 @@ module APB_BUS (
   parameter       AMBA_WORD = 32;
   parameter       AMBA_ADDR_WIDTH = 20;
   parameter       DATA_WIDTH = 32; 
+
   //input configration 
   input logic  clk,rst;
   input logic  [AMBA_ADDR_WIDTH - 1:0]   PADDR;
@@ -35,6 +36,7 @@ module APB_BUS (
   output logic   [AMBA_WORD - 1:0]         NOISE;
   output logic                             start;
 
+  //localparam configration
   localparam  CTRL_reg_addr           = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h0};
   localparam  DATA_IN_reg_addr        = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h4};
   localparam  CODEWORD_WIDTH_reg_addr = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h8};
@@ -49,7 +51,7 @@ module APB_BUS (
   logic [1:0] current_state,next_state;
 
 // APB FSM
-  always @ (posedge clk or negedge rst) begin : state_assign
+  always @ (posedge clk or negedge rst) begin : state_assign_w/clk
     if(!rst) current_state <= IDLE;
     else
       current_state <= next_state;
