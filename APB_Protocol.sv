@@ -38,10 +38,10 @@ module APB_BUS (
   output logic                             start;
 
   //localparam configration
-  localparam  CTRL_reg_addr           = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h0};
-  localparam  DATA_IN_reg_addr        = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h4};
-  localparam  CODEWORD_WIDTH_reg_addr = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h8};
-  localparam  NOISE_reg_addr          = {{AMBA_ADDR_WIDTH-4{1'b0}},4'hC};
+  localparam  CTRL_ADDR           = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h0};
+  localparam  DATA_IN_ADDR        = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h4};
+  localparam  CODEWORD_WIDTH_ADDR = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h8};
+  localparam  NOISE_ADDR          = {{AMBA_ADDR_WIDTH-4{1'b0}},4'hC};
 
   //state declaration
   localparam  [1:0]     SETUP   = 1'b0;
@@ -78,11 +78,11 @@ module APB_BUS (
       PRDATA <= {AMBA_WORD{1'b0}};
     end else if (current_state == ACCES && PWRITE == 0) begin
       case (PADDR)
-        CTRL_reg_addr           :   PRDATA <= CTRL;
-        DATA_IN_reg_addr        :   PRDATA <= DATA_IN;
-        CODEWORD_WIDTH_reg_addr :   PRDATA <= CODEWORD_WIDTH;
-        NOISE_reg_addr          :   PRDATA <= NOISE;
-        default                 :   PRDATA <= 0;
+        CTRL_ADDR            :   PRDATA <= CTRL;
+        DATA_IN_ADDR         :   PRDATA <= DATA_IN;
+        CODEWORD_WIDTH_ADDR  :   PRDATA <= CODEWORD_WIDTH;
+        NOISE_ADDR           :   PRDATA <= NOISE;
+        default              :   PRDATA <= 0;
       endcase
     end else begin
       PRDATA <= PRDATA;
@@ -93,7 +93,7 @@ module APB_BUS (
 // writing to memory:
 
   //CTRL Reg
-  always_ff @( posedge clk or negedge rst) begin : ctrl
+  always_ff @( posedge clk or negedge rst) begin : ctrl_register
     if(!rst) begin
       CTRL <= {AMBA_WORD{1'b0}};
       start <= 1'b0;
@@ -108,8 +108,8 @@ module APB_BUS (
   end
 
 
-  //DATA_IN Reg
-  always_ff @( posedge clk or negedge rst) begin : data_in
+  //DATA_IN register
+  always_ff @( posedge clk or negedge rst) begin : data_in_register
     if(!rst) begin
       DATA_IN <= {AMBA_WORD{1'b0}};
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h4) begin
@@ -119,8 +119,8 @@ module APB_BUS (
     end
   end
 
-  //CTRL CODEWORD_WIDTH
-  always_ff @( posedge clk or negedge rst) begin : codeword_width
+  //CODEWORD_WIDTH register
+  always_ff @( posedge clk or negedge rst) begin : codeword_width_register
     if(!rst) begin 
       CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h8) begin
@@ -130,8 +130,8 @@ module APB_BUS (
     end
   end
 
-  //NOISE Reg
-  always_ff @( posedge clk or negedge rst) begin : noise
+  //NOISE Reg register
+  always_ff @( posedge clk or negedge rst) begin : noise_register
     if(!rst) begin
       NOISE <= {AMBA_WORD{1'b0}};
     end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'hc) begin

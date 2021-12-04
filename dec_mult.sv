@@ -13,10 +13,10 @@ module DEC_MULT (
     localparam  mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
     localparam  mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
 
-    input logic     rst,clk;
-    input logic     [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    input logic     [AMBA_WORD-1:0]             work_mod;
-    output logic    [MAX_PARITY_WIDTH-1:0]      data_out;
+    input   logic   rst,clk;
+    input   logic   [MAX_CODEWORD_WIDTH-1:0]    data_in;
+    input   logic   [AMBA_WORD-1:0]             work_mod;
+    output  logic   [MAX_PARITY_WIDTH-1:0]      data_out;
 
 
     logic   [MAX_PARITY_WIDTH * MAX_CODEWORD_WIDTH-1:0]     H_matrix_1;
@@ -52,7 +52,7 @@ module DEC_MULT (
 
     
 
-    always_comb begin : WhichMatrixToMult
+    always_comb begin : matrix_selector
         case (work_mod)
             mod_1 : mat_for_mult = H_matrix_1;
             mod_2 : mat_for_mult = H_matrix_2;

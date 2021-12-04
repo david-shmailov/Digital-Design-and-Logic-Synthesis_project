@@ -6,14 +6,16 @@ module MAT_MULT (
     parameter   A_ROWS = 4;
     parameter   A_COLS = 8;
     parameter   B_COLS = 1;
-    localparam B_ROWS = A_COLS;
-    localparam C_ROWS = A_ROWS;
-    localparam C_COLS = B_COLS;
+
+    // these sizes are dependant on the parameters.
+    localparam  B_ROWS = A_COLS;
+    localparam  C_ROWS = A_ROWS;
+    localparam  C_COLS = B_COLS;
 
     //input logic    rst,clk;
-    input logic    [A_ROWS*A_COLS-1:0] A_data_in;
-    input logic    [B_ROWS*B_COLS-1:0] B_data_in;
-    output logic   [C_ROWS*C_COLS-1:0] C_data_out;
+    input   logic   [A_ROWS*A_COLS-1:0] A_data_in;
+    input   logic   [B_ROWS*B_COLS-1:0] B_data_in;
+    output  logic   [C_ROWS*C_COLS-1:0] C_data_out;
 
 
     //logic    [C_ROWS*C_COLS-1:0] flat_temp;
@@ -40,9 +42,6 @@ module MAT_MULT (
         end
     endgenerate
         
-        
-
-// ask TA how to beautify this code
 
     genvar col_index, row_index, index;
     generate
@@ -56,12 +55,6 @@ module MAT_MULT (
         end
     endgenerate
 
-    
-    //consider transforming this into a purely combinational module
-    // always_ff @( posedge clk ) begin : sequencial
-    //     if (rst) C_data_out <= 0;
-    //     else C_data_out <= flat_temp;
-    // end
 endmodule
 
     

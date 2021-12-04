@@ -14,9 +14,19 @@ module TB ;
 
 
 // Local declarations
-parameter AMBA_WORD = 32;
+parameter AMBA_WORD = 16;
 parameter AMBA_ADDR_WIDTH = 20;
-parameter DATA_WIDTH = 32;
+parameter DATA_WIDTH = 16;
+
+localparam  ENCODER_ONLY = {{AMBA_WORD-2{1'b0}}, 2'b00}; //Encoder Only
+localparam  DECODER_ONLY = {{AMBA_WORD-2{1'b0}}, 2'b01}; //Decoder Only
+localparam  FULL_CHANNEL = {{AMBA_WORD-2{1'b0}}, 2'b10}; //Full Channel
+
+        
+localparam  CTRL_ADDR           = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h0};
+localparam  DATA_IN_ADDR        = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h4};
+localparam  CODEWORD_WIDTH_ADDR = {{AMBA_ADDR_WIDTH-4{1'b0}},4'h8};
+localparam  NOISE_ADDR          = {{AMBA_ADDR_WIDTH-4{1'b0}},4'hC};
 
 // Internal signal declarations
 logic                         clk;
@@ -67,7 +77,7 @@ initial begin
    @(posedge clk);
    PENABLE <= 1'b1;
    PWRITE <= 1'b1;
-   PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1100}}; // noise
+   PADDR <= NOISE_ADDR;
    PWDATA <= {{AMBA_ADDR_WIDTH-8{1'b0}},{8'b00100000}};
    @(posedge clk);
    PSEL <= 1'b0;
@@ -78,8 +88,8 @@ initial begin
    @(posedge clk);
    PENABLE <= 1'b1;
    PWRITE <= 1'b1;
-   PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1000}}; // code word width
-   PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0001}};
+   PADDR <= CODEWORD_WIDTH_ADDR;
+   PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0000}};
    @(posedge clk);
    PSEL <= 1'b0;
    PENABLE <= 1'b0;
@@ -90,8 +100,8 @@ initial begin
    @(posedge clk);
    PENABLE <= 1'b1;
    PWRITE <= 1'b1;
-   PADDR <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0100}}; // DATA
-   PWDATA <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b1110}};
+   PADDR <= DATA_IN_ADDR;
+   PWDATA <= {{AMBA_ADDR_WIDTH-8{1'b0}},{8'b10101110}};
    @(posedge clk);
    PSEL <= 1'b0;
    PENABLE <= 1'b0;
@@ -101,8 +111,8 @@ initial begin
    @(posedge clk);
    PENABLE <= 1'b1;
    PWRITE  <= 1'b1;
-   PADDR   <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'b0}}; // ctrl 
-   PWDATA  <= {{AMBA_ADDR_WIDTH-4{1'b0}},{4'h2}}; // FC
+   PADDR   <= CTRL_ADDR;
+   PWDATA  <= DECODER_ONLY;
    @(posedge clk);
    PSEL <= 1'b0;
    PENABLE <= 1'b0;
@@ -110,7 +120,7 @@ initial begin
 
 
 
-   #100
+   #50
    $finish(0);
 end
 

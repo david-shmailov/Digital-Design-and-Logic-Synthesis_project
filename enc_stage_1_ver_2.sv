@@ -12,7 +12,7 @@ module ENC_STAGE_1 (
     localparam mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
     localparam mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
 
-
+    // parameters for various widths:
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
@@ -23,50 +23,40 @@ module ENC_STAGE_1 (
 
     localparam pad_zero_1 = MAX_CODEWORD_WIDTH - info_mod_1 - parity_mod_1;
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
-    localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
     
-    // logic [3:0][7:0]     H_matrix_1 = 32'hffe4_d2b1;
-    // logic [4:0][15:0]    H_matrix_2 = 80'hffff_fe08_f1c4_cda2_ab61;
-    // logic [5:0][31:0]    H_matrix_3 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
+    // I/O
+    input logic     rst,clk;
+    input logic     [MAX_INFO_WIDTH-1:0]        data_in;
+    input logic     [AMBA_WORD -1:0]            work_mod;
+    output logic    [MAX_CODEWORD_WIDTH-1:0]    data_out;
 
-    // logic [4*8-1:0]      H1_MAT_D1 = 32'hffe4_d2b1;
-    // logic [5*16-1:0]     H2_MAT_D1 = 80'hffff_fe08_f1c4_cda2_ab61;
-    // logic [6*32-1:0]     H3_MAT_D1 = 192'hffff_ffff_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
-
-    // logic   [MAX_INFO_WIDTH*MAX_PARITY_WIDTH-1:0]     H_matrix_1 = 192'h0000_0000_e400_0000_d200_0000_b100_0000; // i assume MSB bits will be zero padded
-    // logic   [6*32-1:0]     H_matrix_2 = 192'h0000_0000_fe08_0000_f1c4_0000_cda2_0000_ab61;
-    // logic   [6*32-1:0]     H_matrix_3 = 192'h0000_0000_fffe_0010_ff01_fc08_f0f1_e384_cccd_9b42_aaab_56c1;
-    
-    input logic    rst,clk;
-    input logic    [MAX_INFO_WIDTH-1:0] data_in;
-    input logic    [AMBA_WORD -1:0] work_mod;
-    output logic    [MAX_CODEWORD_WIDTH-1:0] data_out;
-
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H1_stage1_1D_mat ;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H2_stage1_1D_mat ;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] H3_stage1_1D_mat ;
-    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0] mat_for_mult;
-    logic     [MAX_PARITY_WIDTH-1:0] parity_bits;
-    logic     [MAX_CODEWORD_WIDTH-1:0] final_temp;
+    // signals
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0]    H1_stage1_1D_mat ;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0]    H2_stage1_1D_mat ;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0]    H3_stage1_1D_mat ;
+    logic     [MAX_INFO_WIDTH*MAX_PARITY_WIDTH -1:0]    mat_for_mult;
+    logic     [MAX_PARITY_WIDTH-1:0]                    parity_bits;
+    logic     [MAX_CODEWORD_WIDTH-1:0]                  final_temp;
 
 
 
-    // multiply left_side matrix without the first row with data in
+    // multiply part of the H_matrix with data in 
+    //(only info part of the matrix, with first row of 1's being replaced by a row of zeros) 
 
     MAT_MULT    #(  .A_ROWS(MAX_PARITY_WIDTH),
                     .A_COLS(MAX_INFO_WIDTH),
                     .B_COLS(1)
-                    ) m3
-                (
-                .A_data_in(mat_for_mult), //todo test that this is the correct selection
+    ) matrix_multiplier (
+                .A_data_in(mat_for_mult), 
                 .B_data_in(data_in),
-                .C_data_out(parity_bits));
+                .C_data_out(parity_bits)
+    );
 
 
 
     generate
         if (MAX_CODEWORD_WIDTH == 8) begin
-            assign  H1_stage1_1D_mat = 16'hEDB;
+            assign  H1_stage1_1D_mat = 16'hEDB;// we want the first rows to be padded zeros.
             assign  H2_stage1_1D_mat = 16'h0;
             assign  H3_stage1_1D_mat = 16'h0;
 
@@ -83,7 +73,7 @@ module ENC_STAGE_1 (
 
 
         end else if (MAX_CODEWORD_WIDTH == 16) begin
-            assign  H1_stage1_1D_mat = 55'h380_680B;
+            assign  H1_stage1_1D_mat = 55'h380_680B;// we want the first rows to be padded zeros.
             assign  H2_stage1_1D_mat = 55'hFE1_E3B3_6D5B;
             assign  H3_stage1_1D_mat = 55'h0;
 
@@ -131,7 +121,7 @@ module ENC_STAGE_1 (
 
 
 
-    always_comb begin  : WhichMult_mode
+    always_comb begin  : matrix_selector
         case (work_mod)
             mod_1 : mat_for_mult = H1_stage1_1D_mat;
             mod_2 : mat_for_mult = H2_stage1_1D_mat;
@@ -145,7 +135,7 @@ module ENC_STAGE_1 (
     
     
     
-    always_ff @( posedge clk or negedge rst) begin : Data_out_stage1
+    always_ff @( posedge clk or negedge rst) begin : output_reg
         if (!rst) begin
             data_out <= 0;
         end else begin
@@ -157,7 +147,7 @@ module ENC_STAGE_1 (
 
 endmodule
 
-
+// this is an example of how the matrices are represented with DATA_WIDTH = 32 instantiation.
 // H1_info matrix zero padded
 // 00000000000000000000000000
 // 00000000000000000000000000

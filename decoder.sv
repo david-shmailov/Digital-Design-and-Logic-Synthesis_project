@@ -64,10 +64,10 @@ module DEC (
         .data_in(data_in),
         .s_vector(mult_result),
         .work_mod(work_mod),
-        .data_out(data_out_with_parity),
+        .data_out(data_out_with_parity), 
         .num_of_errors(num_of_errors)
     );
-    // TBD understand how top expects the output of decoder to be in terms of bit length
+    // dec_check has registered output , so no need to add a register output here as well.
     always_comb begin  : DataOut_mode
         case (work_mod)
             mod_1   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
@@ -77,12 +77,5 @@ module DEC (
         endcase
     end
 
-    // always_ff @( posedge clk or negedge rst) begin : DataOut_assgin
-    //     if (!rst) begin
-    //         data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
-    //     end else begin
-    //         data_out <= data_out_without_parity;
-    //     end
-    // end
 
 endmodule

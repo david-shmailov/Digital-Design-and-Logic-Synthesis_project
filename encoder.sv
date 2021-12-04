@@ -16,7 +16,6 @@ module ENC (
 
 
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
-    // check with TA if this is ok or we somehow need to generlize it further
     localparam info_mod_1 = 4;
     localparam info_mod_2 = 11;
     localparam info_mod_3 = 26;
@@ -30,9 +29,9 @@ module ENC (
 
 
     input logic   rst,clk;
-    input logic   [MAX_INFO_WIDTH-1:0]      data_in;
+    input logic   [MAX_INFO_WIDTH-1:0]          data_in;
     output logic  [MAX_CODEWORD_WIDTH-1:0]      data_out;
-    input logic   [AMBA_WORD-1 :0] work_mod;
+    input logic   [AMBA_WORD-1 :0]              work_mod;
 
     logic  [MAX_CODEWORD_WIDTH-1:0] c_vector_stage1;
 
