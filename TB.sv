@@ -78,7 +78,7 @@ initial begin
    PENABLE <= 1'b1;
    PWRITE <= 1'b1;
    PADDR <= NOISE_ADDR;
-   PWDATA <= {{AMBA_ADDR_WIDTH-8{1'b0}},{8'b00100000}};
+   PWDATA <= {{AMBA_ADDR_WIDTH-8{1'b0}},{8'b00100010}};
    @(posedge clk);
    PSEL <= 1'b0;
    PENABLE <= 1'b0;
@@ -112,7 +112,7 @@ initial begin
    PENABLE <= 1'b1;
    PWRITE  <= 1'b1;
    PADDR   <= CTRL_ADDR;
-   PWDATA  <= DECODER_ONLY;
+   PWDATA  <= FULL_CHANNEL;
    @(posedge clk);
    PSEL <= 1'b0;
    PENABLE <= 1'b0;
