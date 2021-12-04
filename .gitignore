@@ -2,3 +2,19 @@ workspace.code-workspace
 *.sv.bak
 *.sv.lck
 
+*.dat
+*.mti
+*.mpf
+*.wlf
+work/_info
+
+*.dbs
+*.vhd
+*.prw
+.gitignore
+*.psm
+work/_vmake
+work/_temp/vlog2g61sv
+work/_temp/vlogikjz9g
+work/_temp/vlogst22ed
+work/_temp/vlogw92qmk
