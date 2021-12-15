@@ -107,5 +107,5 @@ module APB_TB;
     reset;// generate signal
     read_write;
      #80; $finish;
-  end 
+    end 
 endmodule

@@ -27,14 +27,12 @@ interface intf (clk,rst);
                             operation_done,
                             num_of_errors);
 
-    modport MASTER(input    clk,
-                            rst,
-                            PADDR,
+    modport MASTER(output   PADDR,
                             PENABLE,
                             PSEL,
                             PWDATA,
                             PWRITE,
-                output      PRDATA,
+                input       PRDATA,
                             data_out,       
                             operation_done,
                             num_of_errors);
