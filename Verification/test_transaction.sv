@@ -13,10 +13,14 @@ class rand_trans;
       ctrl >= 0;
       ctrl <= 2; 
    }
-
-   constraint data_in {
-      if (ctrl == 0)
-         
-   }
+  
+  constraint c_codewidth {
+    	codeword_width >= 0;
+    	codeword_width <= 0; 
+  }
+  constraint c_data_in{
+    data_in>=0;
+    data_in<=16;
+  }
 
 endclass
