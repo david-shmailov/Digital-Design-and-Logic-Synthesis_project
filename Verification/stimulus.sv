@@ -8,10 +8,10 @@ class generator_driver;
     mailbox gen2drv;
     virtual intf.MASTER inter;
 
-   function new(virtual intf.MASTER inter);
-      this.gen2drv = new();
-      this.inter = inter;
-   endfunction
+    function new(virtual intf.MASTER inter);
+       this.gen2drv = new();
+       this.inter = inter;
+    endfunction
 
     task run_gen();
         for ( i = 0 ; i < 50 ; i++ ) begin
