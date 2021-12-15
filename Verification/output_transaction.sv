@@ -9,11 +9,8 @@ class out_trans;
    bit     [1:0]                  num_of_errors;
 
 
-   function void record_output(virtual intf.MONITOR inter);
-      this.data_out = inter.data_out;
-      this.operation_done = inter.operation_done;
-      this.num_of_errors = inter.num_of_errors;
-   endfunction
+   function new();
 
+   endfunction
 
 endclass

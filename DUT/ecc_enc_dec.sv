@@ -23,10 +23,12 @@ module ECC_ENC_DEC //top
 
         localparam  ENC_DEC_DELAY = 0;
         localparam  FULL_CHAN_DELAY = 1;
+        
         // for given parameters, those are the MAX various widths in all operating codeword widths modes.
         localparam      MAX_CODEWORD_WIDTH = DATA_WIDTH; 
         localparam      MAX_PARITY_WIDTH = $clog2(MAX_CODEWORD_WIDTH)+1; 
         localparam      MAX_INFO_WIDTH = MAX_CODEWORD_WIDTH - MAX_PARITY_WIDTH;
+
         // APB protocol I/O
         input logic      [AMBA_ADDR_WIDTH-1:0]  PADDR;
         input logic                             PENABLE;
@@ -38,7 +40,7 @@ module ECC_ENC_DEC //top
         // I/O 
         input  logic                             clk;
         input  logic                             rst;
-        output logic     [DATA_WIDTH-1:0]       data_out;       //TBD in the PDF it says [DATA_WIDTH:0], typo?
+        output logic     [DATA_WIDTH-1:0]       data_out;
         output logic                            operation_done;
         output logic     [1:0]                  num_of_errors;
 
