@@ -18,17 +18,19 @@ class out_monitor;
 
     task in_sampling;
         forever begin
-            transaction trans = new;
+            amba_trans trans = new; // check that if something is rand can still accept a deterministic value
             @(posedge inter.clk)
-            trans.PADDR <= inter.PADDR;
-            trans.PENABLE <= inter.PENABLE;
-            trans.PSEL <= inter.PSEL;
-            trans.PWDATA <= inter.PWDATA;
-            trans.PWRITE <= inter.PWRITE;
-            trans.PRDATA <= inter.PRDATA;    
+            if (inter.PENABLE) begin
+                case(inter.PADDR)
+                    'h0: trans.ctrl <= inter.PWDATA;
+                    'h4: trans.data_in <= inter.PWDATA;
+                    'h8: trans.codeword_width <= inter.PWDATA;
+                    'hc: trans.noise <= inter.PWDATA;
+                endcase
+            end
             mon2chk.put(trans);
         end
-    endtask 
+    endtask
 
 
 endclass //Out_monitor

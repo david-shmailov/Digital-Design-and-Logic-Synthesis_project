@@ -1,4 +1,4 @@
-class rand_trans;
+class apb_trans;
 
   parameter       AMBA_WORD = 32;
   parameter       AMBA_ADDR_WIDTH = 20;

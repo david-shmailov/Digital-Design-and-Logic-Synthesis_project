@@ -13,42 +13,82 @@ class golden_model;
         
     endfunction
 
-    task create_expected(in_trans trans);
-        //out_trans expected = new;
-        if (encoder_only) begin
-            // add encode function
-        end else if (decoder_only) begin
-            // add decode function
-        end else if (full_channel) begin
-            if (noise is 2 mistakes) begin
-                //num of errors is 2
-                //output the same data
-            end else if (noise < 2) begin
-                //return the same output as input,
-                //num of errors determined by noise.
-            end
-        end
-    endtask
+//     task create_expected(in_trans trans);
+//         //out_trans expected = new;
+//         if (encoder_only) begin
+//             // add encode function
+//         end else if (decoder_only) begin
+//             // add decode function
+//         end else if (full_channel) begin
+//             if (noise is 2 mistakes) begin
+//                 //num of errors is 2
+//                 //output the same data
+//             end else if (noise < 2) begin
+//                 //return the same output as input,
+//                 //num of errors determined by noise.
+//             end
+//         end
+//     endtask
 
 
     task encode(in_trans trans);
-        case (trans.codeword_width):
-            0: encode_0(trans);
-            1: encode_1
-            2: encode_2
+        out_trans expected = new;
+        bit     [31:0]  data_out = 0;
+        case (trans.codeword_width)
+          0: data_out = {24'b0, encode_0(trans)};
+          1: encode_1(trans);
+          2: encode_2(trans);
+        endcase
     endtask
 
 
-    task encode_1(in_trans trans)
-        out_trans expected = new;
-        bit [7:0] data_out = {trans.data_in[3:0],4'b0};
-        for (int row = 1; row <4 ; row++) begin
-            data_out[3-row] = vector_mult(H1[row],data_out[7:4]);
-        end
-        data_out[3] = 
+
+              
+    function automatic encode_0(in_trans trans);
     
+        parameter int codeword_l = 8;
+        parameter int parity_l = 4;
+        localparam int info_l = codeword_l - parity_l;
 
+        automatic bit [codeword_l-1:0] data_out ;
+        automatic bit  [info_l-1:0] temp ;
+        for (int row = 1; row < parity_l; row++) begin
+            temp = (H3[row][codeword_l-1:parity_l] & data_out[codeword_l-1:parity_l]); // BUG need only to take 4 MSB bits of H1 here
+            data_out[parity_l-1-row] = ^temp;
+        end
+        data_out[parity_l-1] = ^data_out;
+        return data_out;
+    endfunction
+          
+          
+    function automatic encode_1(in_trans trans);
+    
+        parameter int codeword_l = 16;
+        parameter int parity_l = 5;
+        localparam int info_l = codeword_l - parity_l;
 
+        automatic bit [codeword_l-1:0] data_out ;
+        automatic bit  [info_l-1:0] temp ;
+        for (int row = 1; row < parity_l; row++) begin
+            temp = (H3[row][codeword_l-1:parity_l] & data_out[codeword_l-1:parity_l]); // BUG need only to take 4 MSB bits of H1 here
+            data_out[parity_l-1-row] = ^temp;
+        end
+        data_out[parity_l-1] = ^data_out;
+    endfunction
+     
+    function automatic encode_2(in_trans trans);
+    
+        parameter int codeword_l = 32;
+        parameter int parity_l = 6;
+        localparam int info_l = codeword_l - parity_l;
 
-
-   
+        automatic bit [codeword_l-1:0] data_out ;
+        automatic bit  [info_l-1:0] temp ;
+        for (int row = 1; row < parity_l; row++) begin
+            temp = (H3[row][codeword_l-1:parity_l] & data_out[codeword_l-1:parity_l]); // BUG need only to take 4 MSB bits of H1 here
+            data_out[parity_l-1-row] = ^temp;
+        end
+        data_out[parity_l-1] = ^data_out;
+    endfunction
+endclass
+          
