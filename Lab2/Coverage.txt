@@ -1,0 +1,57 @@
+//
+// Verilog Module my_example_lib.Coverage
+//
+// Created:
+//          by - user.UNKNOWN (DESKTOP-A337LJE)
+//          at - 19:30:26 10/26/2020
+//
+// using Mentor Graphics HDL Designer(TM) 2018.2 (Build 19)
+//
+
+`resetall
+`timescale 1ns/10ps
+module Coverage #(
+  parameter Data_Depth= 8)
+( 
+   // Port Declarations
+   Interface.checker_coverager coverage_bus
+);
+// Coverage Group
+covergroup regular_test @ (posedge coverage_bus.clk);
+				// checking if the reset signal went to all the ranges
+				reset : coverpoint coverage_bus.rst{
+         bins low = {0};
+         bins high = {1};
+          }
+        // checking if the enable signal went to all the ranges
+        enable : coverpoint coverage_bus.ena{
+         bins low = {0};
+         bins high = {1};
+          }
+        // checking if the primary image pixel went to all the ranges
+        primary_pixel : coverpoint coverage_bus.im_pixel{
+         bins low = {[0:255]};
+          }
+        // checking if the watermark image pixel went to all the ranges
+        watermark_pixel : coverpoint coverage_bus.w_pixel{
+         bins low = {[0:255]};
+          }
+        // checking if the result pixel went to all the ranges
+        result_pixel : coverpoint coverage_bus.iw_pixel{
+         bins low = {[0:255]};
+          }
+        // checking if the parameter went to all the ranges
+        coefficients : coverpoint coverage_bus.param{
+         bins first = {[40:65]};
+         bins second = {[1120:1820]};
+         bins third = {[1200:1950]};
+         bins fourth = {[1440:2340]};
+         bins fifth = {[2200:3575]};
+          }
+        
+				endgroup 
+
+// Instance of covergroup regular_test
+regular_test tst = new();
+
+endmodule

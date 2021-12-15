@@ -1,0 +1,133 @@
+//
+// Verilog Module my_example_lib.Stimulus
+//
+// Created:
+//          by - user.UNKNOWN (DESKTOP-A337LJE)
+//          at - 03:05:07 10/25/2020
+//
+// using Mentor Graphics HDL Designer(TM) 2018.2 (Build 19)
+//
+
+`resetall
+`timescale 1ns/10ps
+module Stimulus #(
+  parameter Data_Depth= 8)
+( 
+   // Port Declarations
+   Interface.stimulus stim_bus
+);
+
+`define NULL 0
+// Data Types
+integer data_file_0;
+integer data_file_1;
+integer data_file_2;
+integer scan_file_0;
+integer scan_file_1;
+integer scan_file_2;
+integer i;
+
+string  str0 = "C:/Users/user/Desktop/GoldenModel/alpha_i_random_value_";
+string  str1 = "C:/Users/user/Desktop/GoldenModel/primary_image_";
+string  str2 = "C:/Users/user/Desktop/GoldenModel/watermark_image_";
+string  val;
+
+reg [Data_Depth-1:0] primpix;
+reg [Data_Depth-1:0] waterpix;
+reg [Data_Depth-1:0] alphai;
+reg [Data_Depth-1:0] cf;
+reg [10-1:0] primsize;
+reg [10-1:0] watersize;
+reg [21-1:0] count;
+
+
+always begin : clock_generator_proc
+  #10 stim_bus.clk = ~stim_bus.clk;
+end
+
+initial 
+begin : stim_proc
+  
+  for(i=1;i<11;i=i+1) begin
+    // Initilization
+    stim_bus.clk = 1; // start with clock and reset at '1', while enable at '0'
+    stim_bus.rst = 1;
+    stim_bus.ena = 0;
+    @(posedge stim_bus.clk); // wait til next rising edge (in other words, wait 20ns)
+    stim_bus.rst = 0;
+    
+    // Starting work by reading the data from external files,
+    // then sending it to the device by asserting the values to the appropriate ports.
+    
+    //// The Ai parameters file
+    //file_name = {str0, i, txt}; // Concatenation: combining number of elements together as one string
+    val.itoa(i);
+    //$display($sformatf({str0, val, ".txt"}));
+    data_file_0 = $fopen($sformatf({str0, val, ".txt"}), "r"); // opening file in reading format
+    if (data_file_0 == `NULL) begin // checking if we mangaed to open it
+      $display("data_file_0 handle was NULL");
+      $finish;
+    end
+    //// The Primary Image Pixels file
+    //file_name = {str1, i, txt}; // Concatenation: combining number of elements together as one string
+    val.itoa(i);
+    data_file_1 = $fopen($sformatf({str1, val, ".txt"}), "r"); // opening file in reading format
+    if (data_file_1 == `NULL) begin // checking if we mangaed to open it
+      $display("data_file_1 handle was NULL");
+      $finish;
+    end
+    //// The Watermark Image Pixels file
+    //file_name = {str2, i, txt}; // Concatenation: combining number of elements together as one string
+    val.itoa(i);
+    data_file_2 = $fopen($sformatf({str2, val, ".txt"}), "r"); // opening file in reading format
+    if (data_file_2 == `NULL) begin // checking if we mangaed to open it
+      $display("data_file_2 handle was NULL");
+      $finish;
+    end
+    
+    @(posedge stim_bus.clk); // wait til next rising edge (in other words, wait 20ns)
+    
+    //// Reading First Line of each file
+    if ((!$feof(data_file_0)) && (!$feof(data_file_1)) && (!$feof(data_file_2))) begin
+      scan_file_0 = $fscanf(data_file_0, "%d\n", alphai); // Ai*1000
+      scan_file_1 = $fscanf(data_file_1, "%d\n", primsize); // Np
+      scan_file_2 = $fscanf(data_file_2, "%d\n", watersize); // Nw
+    end
+    
+    count = 0;
+    while (count < primsize*primsize) begin
+      scan_file_1 = $fscanf(data_file_1, "%d\n", primpix); // Im(x,y)
+      scan_file_2 = $fscanf(data_file_2, "%d\n", waterpix); // W(x,y)
+      stim_bus.im_pixel = primpix; // sending the scanned value
+      stim_bus.w_pixel = waterpix; // sending the scanned value
+      // calling compare unit for Equation Coefficients evaluation
+      if (primpix > 8'd2 && primpix <= 8'd64) begin
+        cf = 8'd55;
+      end
+      else if (primpix > 8'd64 && primpix <= 8'd128) begin
+        cf = 8'd36;
+      end
+      else if (primpix > 8'd128 && primpix <= 8'd192) begin
+        cf = 8'd30;
+      end
+      else if (primpix > 8'd192 && primpix <= 8'd255) begin
+        cf = 8'd28;
+      end
+      else begin
+        cf = 8'd1;
+      end
+      stim_bus.param = cf * alphai; // sending the calculated parameter value
+      
+      stim_bus.ena = 1;
+      @(posedge stim_bus.clk); // wait til next rising edge (in other words, wait 20ns)
+      stim_bus.ena = 0;
+      count = count + 1;
+    end
+    
+    @(posedge stim_bus.clk); // wait til next rising edge (in other words, wait 20ns)
+    // ?!
+  end
+  $stop;
+end
+
+endmodule

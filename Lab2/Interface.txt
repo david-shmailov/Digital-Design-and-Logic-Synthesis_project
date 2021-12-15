@@ -1,0 +1,31 @@
+//
+// Verilog interface my_example_lib.Interface
+//
+// Created:
+//          by - user.UNKNOWN (DESKTOP-A337LJE)
+//          at - 21:51:33 10/24/2020
+//
+// using Mentor Graphics HDL Designer(TM) 2018.2 (Build 19)
+//
+
+`resetall
+`timescale 1ns/10ps
+interface Interface #(
+  parameter Data_Depth= 8)();
+
+//signals declaration
+logic clk;
+logic rst;
+logic ena;
+logic [Data_Depth-1:0] im_pixel;
+logic [Data_Depth-1:0] w_pixel;
+logic [2*Data_Depth-1:0] param;
+logic [Data_Depth-1:0] iw_pixel;
+
+//modports declaration
+modport stimulus (output clk, rst, ena, im_pixel, w_pixel, param);
+modport watermark (input clk, rst, ena, im_pixel, w_pixel, param, output iw_pixel);
+modport checker_coverager (input clk, rst, ena, im_pixel, w_pixel, param, iw_pixel);
+modport vsgoldenmodel (input ena, iw_pixel);
+
+endinterface

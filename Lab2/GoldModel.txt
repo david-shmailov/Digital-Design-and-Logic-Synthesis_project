@@ -1,0 +1,139 @@
+//
+// Verilog Module my_example_lib.GoldModel
+//
+// Created:
+//          by - user.UNKNOWN (DESKTOP-A337LJE)
+//          at - 12:11:45 11/20/2020
+//
+// using Mentor Graphics HDL Designer(TM) 2018.2 (Build 19)
+//
+
+`resetall
+`timescale 1ns/10ps
+module GoldModel #(
+  parameter Data_Depth= 8)
+( 
+   // Port Declarations
+   Interface.vsgoldenmodel gold_bus
+);
+
+`define NULL 0
+// Data Types
+integer data_file_0;
+integer scan_file_0;
+integer data_file_1;
+integer i = 1;
+integer hit = 0;
+integer miss = 0;
+integer error = 0;
+
+
+string  str0 = "C:/Users/user/Desktop/GoldenModel/watermarked_image(result)_";
+string  str1 = "C:/Users/user/Desktop/GoldenModel/hdl_design_watermarked_image(result)_";
+
+string  val;
+
+reg [Data_Depth-1:0] resultpix [2**(20-1)-1:0];
+reg [Data_Depth-1:0] currentpix;
+reg [10-1:0] resultsize;
+reg [21-1:0] count;
+
+initial
+begin : init_proc
+
+    //------------------------------------------------------------------------------------------
+    //// The Golden Model Result Image Pixels file
+    val.itoa(i);
+    data_file_0 = $fopen($sformatf({str0, val, ".txt"}), "r"); // opening file in reading format
+    if (data_file_0 == `NULL) begin // checking if we mangaed to open it
+      $display("data_file_1 handle was NULL");
+      $finish;
+    end
+    if (!$feof(data_file_0)) begin
+      scan_file_0 = $fscanf(data_file_0, "%d\n", resultsize);
+    end
+    for (count=0;count<resultsize*resultsize;count=count+1) begin
+      scan_file_0 = $fscanf(data_file_0, "%d\n", resultpix[count]);
+    end
+    count = 0;
+    //// Our Architectural Model Result Image Pixels file (For Saving)
+    val.itoa(i);
+    data_file_1 = $fopen($sformatf({str1, val, ".txt"}), "w"); // opening file in writing format
+    if (data_file_1 == `NULL) begin
+      $display("data_file_1 handle was NULL");
+      $finish;
+    end
+    //------------------------------------------------------------------------------------------
+    //// Initilization
+    hit = 0;
+    miss = 0;
+    error = 0;
+    count = 0;
+
+end
+
+
+
+always @(posedge gold_bus.ena)
+begin : res_proc
+  
+  if ((gold_bus.iw_pixel >= 0) && (gold_bus.iw_pixel <= 255)) begin
+    //////////////////////////////////////////////////////////////////////////////
+    currentpix = resultpix[count];
+    if ((gold_bus.iw_pixel <= (currentpix + currentpix*15/100)) && (gold_bus.iw_pixel >= (currentpix - currentpix*15/100))) begin
+      hit = hit + 1;
+      $fwrite(data_file_1, "%d\n", gold_bus.iw_pixel);
+    end
+    else begin
+      miss = miss + 1;
+      $fwrite(data_file_1, "%d\n", gold_bus.iw_pixel);
+    end
+    //////////////////////////////////////////////////////////////////////////////
+    if (count < resultsize*resultsize) begin
+      count = count + 1;
+    end
+    if (count == resultsize*resultsize) begin // finished image?
+      $display("iteration Num. %d Finished\n",i);
+      $display("iteration Num. %d :: Hits=%d, Misses=%d, Errors=%d\n",i,hit,miss,error);
+      count = 0;
+      i = i + 1;
+      if (i == 11) begin
+        $finish;
+      end
+    end
+    
+  end
+  if (!count && i) begin // each beginning except first time
+    //------------------------------------------------------------------------------------------
+    //// The Golden Model Result Image Pixels file
+    val.itoa(i);
+    data_file_0 = $fopen($sformatf({str0, val, ".txt"}), "r"); // opening file in reading format
+    if (data_file_0 == `NULL) begin // checking if we mangaed to open it
+      $display("data_file_1 handle was NULL");
+      $finish;
+    end
+    if (!$feof(data_file_0)) begin
+      scan_file_0 = $fscanf(data_file_0, "%d\n", resultsize);
+    end
+    for (count=0;count<resultsize*resultsize;count=count+1) begin
+      scan_file_0 = $fscanf(data_file_0, "%d\n", resultpix[count]);
+    end
+    count = 0;
+    //// Our Architectural Model Result Image Pixels file (For Saving)
+    val.itoa(i);
+    data_file_1 = $fopen($sformatf({str1, val, ".txt"}), "w"); // opening file in writing format
+    if (data_file_1 == `NULL) begin
+      $display("data_file_1 handle was NULL");
+      $finish;
+    end
+    //------------------------------------------------------------------------------------------
+    //// Initilization
+    hit = 0;
+    miss = 0;
+    error = 0;
+    count = 0;
+  end
+  
+end
+
+endmodule

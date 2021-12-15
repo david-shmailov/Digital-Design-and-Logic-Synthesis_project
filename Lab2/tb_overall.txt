@@ -1,0 +1,46 @@
+//
+// Verilog Module my_example_lib.tb_overall
+//
+// Created:
+//          by - user.UNKNOWN (DESKTOP-A337LJE)
+//          at - 18:08:43 11/ 3/2020
+//
+// using Mentor Graphics HDL Designer(TM) 2018.2 (Build 19)
+//
+
+`resetall
+`timescale 1ns/10ps
+module tb_overall #(
+  parameter Data_Depth= 8);
+
+Interface tb();
+
+Stimulus gen(
+    .stim_bus(tb)
+    );
+
+eqn_imp dut(
+    //.dut_bus(tb)
+    .clk(tb.clk),
+    .rst(tb.rst),
+    .ena(tb.ena),
+    .im_pixel(tb.im_pixel),
+    .w_pixel (tb.w_pixel),
+    .param(tb.param),
+    .iw_pixel(tb.iw_pixel)
+    );
+
+Coverage cov(
+    .coverage_bus(tb)
+    );
+
+Checker check(
+    .checker_bus(tb)
+    );
+
+GoldModel res_test(
+    .gold_bus(tb)
+    );
+
+
+endmodule

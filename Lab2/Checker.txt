@@ -1,0 +1,36 @@
+//
+// Verilog Module my_example_lib.Checker
+//
+// Created:
+//          by - user.UNKNOWN (DESKTOP-A337LJE)
+//          at - 11:59:06 11/ 3/2020
+//
+// using Mentor Graphics HDL Designer(TM) 2018.2 (Build 19)
+//
+
+`resetall
+`timescale 1ns/10ps
+module Checker #(
+  parameter Data_Depth= 8)
+( 
+   // Port Declarations
+   Interface.checker_coverager checker_bus
+);
+
+property ena_active;
+				@(checker_bus.ena) checker_bus.ena==1 |=> (checker_bus.iw_pixel >= 0) && (checker_bus.iw_pixel <= 255);
+				endproperty
+
+assert property(ena_active)
+  else $error("error with enable");
+  cover property(ena_active);
+ 			
+property rst_active;
+				@(checker_bus.rst) checker_bus.rst==1 |=> ((checker_bus.iw_pixel >= 0) && (checker_bus.iw_pixel <= 255)) || (checker_bus.iw_pixel == 8'bX);
+				endproperty
+
+assert property(rst_active)
+  else $error("error with Reset");
+  cover property(rst_active);
+
+endmodule
