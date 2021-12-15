@@ -23,45 +23,38 @@ endclass //generator
 
 class driver;
 
+    transaction trans;
     task CTRL;
       forever begin
-         transaction trans;
-         gen2drv.get(trans);
-         @(posedge clk);
-        DATA_IN <= trans;
-
-      end
+            gen2drv.get(trans);
+            @(posedge clk);
+            DATA_IN <= trans;
+        end
    endtask
 
 
    task DATA_IN;
       forever begin
-         transaction trans;
-         gen2drv.get(trans);
-         @(posedge clk);
-        DATA_IN <= trans;
-
-      end
+            gen2drv.get(trans);
+            @(posedge clk);
+            DATA_IN <= trans;
+        end
    endtask
 
    task NOISE;
-      forever begin
-         transaction trans;
-         gen2drv.get(trans);
-         @(posedge clk);
-        DATA_IN <= trans;
-
-      end
+        forever begin
+            gen2drv.get(trans);
+            @(posedge clk);
+            DATA_IN <= trans;
+        end
    endtask
 
    task CODEWARD_WIDTH;
       forever begin
-         transaction trans;
-         gen2drv.get(trans);
-         @(posedge clk);
-        DATA_IN <= trans;
-
-      end
+            gen2drv.get(trans);
+            @(posedge clk);
+            DATA_IN <= trans;
+        end
    endtask
     
 endclass //driver
