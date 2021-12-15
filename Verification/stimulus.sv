@@ -22,11 +22,46 @@ endclass //generator
 
 
 class driver;
-    function new();
-        
-    endfunction //new()
 
-    gen2drv.get(trans);
-    @(posedge clk);
+    task CTRL;
+      forever begin
+         transaction trans;
+         gen2drv.get(trans);
+         @(posedge clk);
+        DATA_IN <= trans;
+
+      end
+   endtask
+
+
+   task DATA_IN;
+      forever begin
+         transaction trans;
+         gen2drv.get(trans);
+         @(posedge clk);
+        DATA_IN <= trans;
+
+      end
+   endtask
+
+   task NOISE;
+      forever begin
+         transaction trans;
+         gen2drv.get(trans);
+         @(posedge clk);
+        DATA_IN <= trans;
+
+      end
+   endtask
+
+   task CODEWARD_WIDTH;
+      forever begin
+         transaction trans;
+         gen2drv.get(trans);
+         @(posedge clk);
+        DATA_IN <= trans;
+
+      end
+   endtask
     
 endclass //driver
