@@ -17,7 +17,7 @@ class out_monitor;
 
 
 
-    task sampling;
+    task out_sampling;
         forever begin
             transaction trans = new;
             @(posedge inter.clk)
