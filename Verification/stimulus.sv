@@ -28,7 +28,7 @@ class driver;
       forever begin
             gen2drv.get(trans);
             @(posedge clk);
-            DATA_IN <= trans;
+            PADDR <= trans;
         end
    endtask
 
@@ -37,7 +37,7 @@ class driver;
       forever begin
             gen2drv.get(trans);
             @(posedge clk);
-            DATA_IN <= trans;
+            PADDR <= trans;
         end
    endtask
 
@@ -45,7 +45,7 @@ class driver;
         forever begin
             gen2drv.get(trans);
             @(posedge clk);
-            DATA_IN <= trans;
+            PADDR <= trans;
         end
    endtask
 
@@ -53,7 +53,7 @@ class driver;
       forever begin
             gen2drv.get(trans);
             @(posedge clk);
-            DATA_IN <= trans;
+            PADDR <= trans;
         end
    endtask
     
