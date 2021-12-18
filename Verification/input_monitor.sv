@@ -18,7 +18,7 @@ class out_monitor;
 
     task in_sampling;
         forever begin
-            amba_trans trans = new; // check that if something is rand can still accept a deterministic value
+            abp_trans trans = new; // check that if something is rand can still accept a deterministic value
             @(posedge inter.clk)
             if (inter.PENABLE) begin
                 case(inter.PADDR)
@@ -27,8 +27,9 @@ class out_monitor;
                     'h8: trans.codeword_width <= inter.PWDATA;
                     'hc: trans.noise <= inter.PWDATA;
                 endcase
+                if(inter.PADDR == 0)
+                    mon2chk.put(trans);
             end
-            mon2chk.put(trans);
         end
     endtask
 
