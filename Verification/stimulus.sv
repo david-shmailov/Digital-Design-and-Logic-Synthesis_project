@@ -7,14 +7,18 @@ class generator_driver;
 
     mailbox gen2drv;
     virtual intf.MASTER inter;
+    event   finished;
 
-    function new(virtual intf.MASTER inter);
+    localparam num_of_tests = 50;
+
+    function new(virtual intf.MASTER inter, event finished);
        this.gen2drv = new();
        this.inter = inter;
+       this.finished = finished;
     endfunction
 
     task run_gen();
-        for ( i = 0 ; i < 50 ; i++ ) begin
+        for ( i = 0 ; i < num_of_tests ; i++ ) begin
             transaction trans = new;
             if(!trans.randomize()) $fatal("Gen: trans randomization failed"); 
             gen2drv.put(trans);
@@ -28,7 +32,7 @@ class generator_driver;
         @(posedge inter.clk);
         inter.PSEL <= 0;
         inter.PENABLE <= 0;
-        forever begin
+        for (i=0; i < num_of_tests; i++) begin
             gen2drv.get(trans)
             //gen2drv.get(trans);
             $display("PSEL goes UP ...");
@@ -77,7 +81,7 @@ class generator_driver;
     
         run_gen;
         run_driver;
-
+        ->finished;
     endclass //driver
 
 endclass //generator & driver
