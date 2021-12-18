@@ -1,4 +1,4 @@
-class Functional_Coverage;
+class coverage;
 
    parameter       AMBA_WORD = 32;
    parameter       AMBA_ADDR_WIDTH = 20;

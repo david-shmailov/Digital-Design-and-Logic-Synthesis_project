@@ -1,4 +1,4 @@
-class out_monitor;
+class in_monitor;
 
     parameter       AMBA_WORD = 32;
     parameter       AMBA_ADDR_WIDTH = 20;
@@ -9,14 +9,14 @@ class out_monitor;
     
     mailbox mon2gm;
 
-    function new(mailbox mon2gm,virtual intf.MONITOR inter);
+    function new(virtual intf.MONITOR inter, mailbox mon2gm);
         this.mon2gm = mon2gm;
         this.inter = inter;
         
     endfunction //new()
 
 
-    task in_sampling;
+    task run;
         forever begin
             abp_trans trans = new; // check that if something is rand can still accept a deterministic value
             @(posedge inter.clk)
@@ -27,11 +27,11 @@ class out_monitor;
                     'h8: trans.codeword_width <= inter.PWDATA;
                     'hc: trans.noise <= inter.PWDATA;
                 endcase
-                if(inter.PADDR == 0)
+                if(inter.PADDR == 0) // if we wrote to ctrl , then the transaction is complete
                     mon2chk.put(trans);
             end
         end
     endtask
 
 
-endclass //Out_monitor
+endclass //in_monitor

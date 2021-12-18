@@ -1,4 +1,4 @@
-class generator_driver;
+class stimulus;
 
     parameter       AMBA_WORD = 32;
     parameter       AMBA_ADDR_WIDTH = 20;
@@ -77,7 +77,7 @@ class generator_driver;
         end 
     endtask //run_driver
 
-    task stimulus();
+    task run();
     
         run_gen;
         run_driver;

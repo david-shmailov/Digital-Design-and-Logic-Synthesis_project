@@ -9,7 +9,7 @@ class out_monitor;
     
     mailbox mon2chk;
 
-    function new(mailbox mon2chk,virtual intf.MONITOR inter);
+    function new(virtual intf.MONITOR inter, mailbox mon2chk);
         this.mon2chk = mon2chk;
         this.inter = inter;
         
