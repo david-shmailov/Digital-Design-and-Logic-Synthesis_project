@@ -11,7 +11,7 @@ class Functional_Coverage;
     //test for inputs and outputs of the DUT
     covergroup inDUT () @(posedge inter.clk && inter.PEANBLE && negedge inter.rst);
 
-        cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0) ;{
+        cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0) {
 
             bins encoder_mode = {0};
             bins decoder_mode = {1};
@@ -20,21 +20,21 @@ class Functional_Coverage;
 
         cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4) ;
 
-        cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8) ;{
+        cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8) {
 
             bins bit8 = {0};
             bins bit16 = {1};
             bins bit32 = {2};
         }
 
-        cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0) ;{
+        cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0) {
             bins ZeroNoise = {0};
         }
-        cover4ONEnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc !(inter.PWDATA == 0)) ;{
+        cover4ONEnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc !(inter.PWDATA == 0)) {
             bins OneNoise = {1};
         }
-        cover4TWOnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc !(inter.PWDATA == 0)) ;{
-            bins TwoNoise = {2};
+        cover4TWOnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc !(inter.PWDATA == 0)) {
+            bins TwoNoise = {0};
         }
 
 
