@@ -12,8 +12,8 @@ class apb_trans;
 
   constraint c_ctrl
   {
-    ctrl >= 0;
-    ctrl <= 2; 
+    ctrl >= 1;
+    ctrl <= 1; 
   }
 
   constraint c_noise_tri 
@@ -35,18 +35,18 @@ class apb_trans;
     data_in >= 0;
     if(ctrl == 1)
       if(codeword_width == 0)
-        data_in <= 255;
+        data_in < 2^8;
       else if(codeword_width == 1)
-        data_in <= 65535;
+        data_in < 2^16;
       else 
-        data_in <= 4294967295;
+        data_in < 2^32;
     else
       if(codeword_width == 0)
-        data_in <= 15;
+        data_in < 2^4;
       else if(codeword_width == 1)
-        data_in <= 2047;
+        data_in < 2^11;
       else 
-        data_in <= 67108863;
+        data_in < 2^26;
  }
 
     constraint c_noise
