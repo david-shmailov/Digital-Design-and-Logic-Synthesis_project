@@ -6,30 +6,33 @@ class out_monitor;
 
 
     virtual intf.MONITOR inter;
-    
+    event stm_finished;
     mailbox mon2chk;
 
-    function new(virtual intf.MONITOR inter, mailbox mon2chk);
+    function new(virtual intf.MONITOR inter, mailbox mon2chk, event stm_finished, event out_mon_finished);
         this.mon2chk = mon2chk;
         this.inter = inter;
-        
+        this.stm_finished = stm_finished;
+        this.out_mon_finished = out_mon_finished;
     endfunction //new()
 
     task wait_for_finish;
-
+        @(stm_finished);
+        @(posedge inter.operation_done);
+        ->out_mon_finished
     endtask
 
 
     task run;
         forever begin
             transaction trans = new;
-            @(posedge inter.clk)
-            if (inter.operation_done) begin
-                trans.data_out <= inter.data_out;
-                trans.operation_done <= inter.operation_done;
-                trans.num_of_errors <= inter.num_of_errors;
-                mon2chk.put(trans);
-            end
+            @(posedge inter.operation_done);
+
+            trans.data_out <= inter.data_out;
+            trans.operation_done <= inter.operation_done;
+            trans.num_of_errors <= inter.num_of_errors;
+            mon2chk.put(trans);
+            
         end
     endtask 
 

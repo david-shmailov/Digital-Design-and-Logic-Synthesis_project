@@ -26,6 +26,7 @@ class stimulus;
     endtask
 
 
+
     task run_driver();
 
         $display("Driver starting ...");
@@ -73,9 +74,16 @@ class stimulus;
             inter.PENABLE <= 1;
             @(inter.posedge clk);
             inter.PENABLE <= 0;
+            
+            inter.PSEL <= 0;
             @(posedge inter.operation_done);
-        end 
+        end
     endtask //run_driver
+
+    task wait_for_finish;
+        @(finished);
+        $display("Stimulus finished");
+    endtask
 
     task run();
     

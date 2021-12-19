@@ -3,12 +3,15 @@ class checker;
     mailbox inputs;
     mailbox outputs;
     golden_model gm;
+    event out_mon_finished;
+    event finished_test;
 
 
-    function new(mailbox inputs, outputs);
+    function new(mailbox inputs, mailbox outputs, event out_mon_finished);
         this.inputs = inputs;
         this.outputs = outputs;
         this.gm = new;
+        this.out_mon_finished = out_mon_finished;
     endfunction 
 
     task run;
@@ -21,9 +24,13 @@ class checker;
             outputs.get(sampled_out);
             gm.create_expected(sampled_in,expected);
             compare(sampled_out,expected,sampled_in);
+            ->finished_test;
         end
+    endtask
 
-        
+    task wait_for_finish;
+        @(out_mon_finished);
+        @(finished_test);
     endtask
 
     task compare(out_trans sampled_out, expected, apb_trans sampled_in);
