@@ -24,9 +24,8 @@ class checker_chk;
     endfunction 
 
     task run;
-        
-
         forever begin
+            expected = new;
             inputs.get(sampled_in);
             outputs.get(sampled_out);
             gm.create_expected(sampled_in,expected);
