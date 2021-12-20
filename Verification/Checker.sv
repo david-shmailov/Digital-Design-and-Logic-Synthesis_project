@@ -1,11 +1,20 @@
-class checker;
+`ifndef golden_model
+`define golden_model
+`include "GoldModel.sv"
+`endif
+
+
+
+class checker_chk;
 
     mailbox inputs;
     mailbox outputs;
     golden_model gm;
     event out_mon_finished;
     event finished_test;
-
+    apb_trans sampled_in;
+    out_trans expected;
+    out_trans sampled_out;
 
     function new(mailbox inputs, mailbox outputs, event out_mon_finished);
         this.inputs = inputs;
@@ -15,9 +24,7 @@ class checker;
     endfunction 
 
     task run;
-        apb_trans sampled_in;
-        out_trans expected;
-        out_trans sampled_out;
+        
 
         forever begin
             inputs.get(sampled_in);

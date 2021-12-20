@@ -1,3 +1,15 @@
+`ifndef apb_trans
+`define apb_trans
+`include "transaction.sv"
+`endif 
+
+`ifndef out_trans
+`define out_trans
+`include "output_transaction.sv"
+`endif 
+
+
+
 class golden_model;
     parameter       AMBA_WORD = 32;
     parameter       AMBA_ADDR_WIDTH = 20;
@@ -14,9 +26,13 @@ class golden_model;
     localparam width_8 = 0;
     localparam width_16 = 1;
     localparam width_32 = 2;
+    
+    function new();
+        
+        
+    endfunction
 
-
-  task create_expected( apb_trans trans, out_trans expected);
+    task create_expected( apb_trans trans, out_trans expected);
         //out_trans expected = new;
         assert(trans.ctrl <=2 && trans.ctrl >=0);
         case (trans.ctrl)

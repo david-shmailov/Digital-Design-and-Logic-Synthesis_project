@@ -1,3 +1,11 @@
+`ifndef apb_trans
+`define apb_trans
+`include "transaction.sv"
+`endif 
+
+
+
+
 class in_monitor;
 
     parameter       AMBA_WORD = 32;
@@ -9,10 +17,11 @@ class in_monitor;
     event   stm_finished;
     bit     last_trans;
     event   finish;
-    mailbox mon2gm;
+    mailbox mon2chk;
+    apb_trans trans;
 
-    function new(virtual intf.MONITOR inter, mailbox mon2gm,event stm_finished); // maybe you cant tranfer events as arg
-        this.mon2gm = mon2gm;
+    function new(virtual intf.MONITOR inter, mailbox mon2chk, event stm_finished); // maybe you cant tranfer events as arg
+        this.mon2chk = mon2chk;
         this.inter = inter;
         this.stm_finished = stm_finished;
         this.last_trans = 0;
@@ -25,7 +34,7 @@ class in_monitor;
 
     task run;
         forever begin
-            abp_trans trans = new; // check that if something is rand can still accept a deterministic value
+            trans = new; // check that if something is rand can still accept a deterministic value
             @(posedge inter.clk)
             if (inter.PENABLE) begin
                 case(inter.PADDR)

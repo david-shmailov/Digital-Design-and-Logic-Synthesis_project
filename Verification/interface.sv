@@ -3,14 +3,13 @@ interface intf (clk,rst);
     parameter       AMBA_ADDR_WIDTH = 20;
     parameter       DATA_WIDTH = 32;
 
+    input logic                       clk, rst;
     logic      [AMBA_ADDR_WIDTH-1:0]  PADDR;
     logic                             PENABLE;
     logic                             PSEL;
     logic      [AMBA_WORD-1:0]        PWDATA;
     logic                             PWRITE;
     logic      [AMBA_WORD-1:0]        PRDATA;
-    logic                            clk;
-    logic                            rst;
     logic     [DATA_WIDTH-1:0]       data_out;       
     logic                            operation_done;
     logic     [1:0]                  num_of_errors;
@@ -32,7 +31,8 @@ interface intf (clk,rst);
                             PSEL,
                             PWDATA,
                             PWRITE,
-                input       PRDATA,
+                 input      clk,rst,
+                   			PRDATA,
                             data_out,       
                             operation_done,
                             num_of_errors);
