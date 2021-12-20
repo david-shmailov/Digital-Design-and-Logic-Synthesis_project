@@ -12,10 +12,11 @@ class stimulus;
 
 
     mailbox gen2drv;
+    apb_trans tests[$];
     virtual intf.MASTER inter;
     event   finished;
     apb_trans trans;
-    localparam num_of_tests = 50;
+    localparam num_of_tests = 200;
 
     function new(virtual intf.MASTER inter, event finished);
        this.gen2drv = new();
@@ -28,24 +29,28 @@ class stimulus;
             trans = new;
             assert(trans.randomize());
             gen2drv.put(trans);
+            tests.push_back(trans);
         end
-        // trans = new;
-        // trans.data_in = 0;
-        // gen2drv.put(trans);
+        trans = new;
+        trans.data_in = 32'b0;
+        trans.ctrl = 0;
+        trans.codeword_width =0;
+        tests.push_back(trans);
+        gen2drv.put(trans);
     endtask
 
 
 
     task run_driver();
-
+        int debug;
         $display("Driver starting ...");
         @(posedge inter.clk);
         inter.PSEL <= 0;
         inter.PENABLE <= 0;
         inter.PWRITE   <=  1;
-        for (int i=0; i < num_of_tests; i++) begin
-            gen2drv.get(trans);
-            //gen2drv.get(trans);
+        while(tests.size() > 0) begin
+            trans = tests.pop_front();
+            debug = debug + 1;
             //$display("WRITING OPERATION ...");
             inter.PSEL     <=  1;
             
@@ -100,7 +105,9 @@ class stimulus;
     
         run_gen;
         run_driver;
-        //$display("Stimulus finished");
+        @(negedge inter.operation_done);
+        $display("Number of tests: %d",num_of_tests);
+        $display("Stimulus finished");
         ->finished;
     endtask //driver
 
