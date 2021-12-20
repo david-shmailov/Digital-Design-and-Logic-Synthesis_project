@@ -15,6 +15,8 @@ class checker_chk;
     apb_trans sampled_in;
     out_trans expected;
     out_trans sampled_out;
+    int counter;
+    int num_of_fails;
 
     function new(mailbox inputs, mailbox outputs, event out_mon_finished);
         this.inputs = inputs;
@@ -24,13 +26,16 @@ class checker_chk;
     endfunction 
 
     task run;
+        num_of_fails =0;
+        counter = 0;
         forever begin
             expected = new;
             inputs.get(sampled_in);
             outputs.get(sampled_out);
             gm.create_expected(sampled_in,expected);
-            compare(sampled_out,expected,sampled_in);
-            if (sampled_out.data_out == 0)  debug(sampled_out,expected,sampled_in);
+            compare;
+            counter = counter +1;
+            //debug;
             ->finished_test;
         end
     endtask
@@ -40,14 +45,24 @@ class checker_chk;
         @(finished_test);
     endtask
 
-    task debug(out_trans sampled_out, expected, apb_trans sampled_in);
-        $display("[CHECKER]\tdata_in                : %b",sampled_in.data_in);
+    task debug(string fail);
+        num_of_fails = num_of_fails +1;
+        $display("[CHECKER]\tTEST FAILED reason: ",fail);
+        $display("[CHECKER]\ttransaction number     : %d",counter);
+        $display("[CHECKER]\tSAMPLED INPUT:");
         $display("[CHECKER]\tcontrol                : %d",sampled_in.ctrl);
         $display("[CHECKER]\tcodeword_width         : %d",sampled_in.codeword_width);
-        $display("[CHECKER]\tsample data_out        : %b",sampled_out.data_out);
-        $display("[CHECKER]\tsample num_of_errors   : %d",sampled_out.num_of_errors);
-        $display("[CHECKER]\texpected data_out      : %b",expected.data_out);
-        $display("[CHECKER]\texpected num_of_errors : %d",expected.num_of_errors);
+        $display("[CHECKER]\tdata_in                : %b",sampled_in.data_in);
+        $display("[CHECKER]\tnoise                  : %b",sampled_in.noise);
+        $display("[CHECKER]\tSAMPLED OUTPUT:");
+        $display("[CHECKER]\tdata_out               : %b",sampled_out.data_out);
+        $display("[CHECKER]\tnum_of_errors          : %d",sampled_out.num_of_errors);
+        $display("[CHECKER]\tEXPECTED:");
+        $display("[CHECKER]\tdata_out               : %b",expected.data_out);
+        $display("[CHECKER]\tnum_of_errors          : %d",expected.num_of_errors);
+        $display("[CHECKER]\tnumber of failed tests until now: %d", num_of_fails);
+        $display("-------------------------------------------------------");
+    
     endtask
 
     // task compare(out_trans sampled_out, expected, apb_trans sampled_in);
@@ -61,17 +76,16 @@ class checker_chk;
     //     end
     // endtask
 
-    task compare(out_trans sampled_out, expected, apb_trans sampled_in);
+    task compare;
         if (sampled_in.ctrl != 0) begin // if we are in full channel or decode only
-            $display("Test num_of_errors result: %d",expected.num_of_errors == sampled_out.num_of_errors);
-            if (expected.num_of_errors != 2) begin
-                $display("Test data_out result: %d",expected.data_out == sampled_out.data_out); // we only care about data_out value if num of errors is <2
-                //$display("test result: %b", expected.data_out == sampled_out.data_out);
+            if (expected.num_of_errors != sampled_out.num_of_errors) debug("num_of_errors");
+
+            if (expected.num_of_errors < 2) begin // we only care about data_out value if num_of_errors is <2
+                if (expected.data_out != sampled_out.data_out) debug("data_out");
             end 
         end else begin // we are in encode mode, we dont care about num_of_errors
-            $display("Test data_out result: %d",expected.data_out == sampled_out.data_out);
+            if(expected.data_out != sampled_out.data_out) debug("data_out");
         end
-        $display("--------------------------------------------------------------");
     endtask
 
 
