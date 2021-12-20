@@ -39,12 +39,13 @@ class stimulus;
         @(posedge inter.clk);
         inter.PSEL <= 0;
         inter.PENABLE <= 0;
+        inter.PWRITE   <=  1;
         for (int i=0; i < num_of_tests; i++) begin
             gen2drv.get(trans);
             //gen2drv.get(trans);
             $display("PSEL goes UP ...");
             inter.PSEL     <=  1;
-
+            
             //Write to DATA_IN
             @(posedge inter.clk);
             inter.PWDATA   <=  trans.data_in;
