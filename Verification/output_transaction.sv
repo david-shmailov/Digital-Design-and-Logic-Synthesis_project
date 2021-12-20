@@ -7,10 +7,6 @@ class out_trans;
    bit     [DATA_WIDTH-1:0]       data_out;      
    bit                            operation_done;
    bit     [1:0]                  num_of_errors;
-
-
-   function new();
-
-   endfunction
+   int test_number;
 
 endclass

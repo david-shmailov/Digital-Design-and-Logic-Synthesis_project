@@ -15,6 +15,7 @@ class out_monitor;
     event stm_finished , out_mon_finished;
     mailbox mon2chk;
     out_trans trans;
+    int counter;
 
     function new(virtual intf.MONITOR inter, mailbox mon2chk, event stm_finished, event out_mon_finished);
         this.mon2chk = mon2chk;
@@ -32,15 +33,17 @@ class out_monitor;
 
 
     task run;
+        counter = 1;
         forever begin
             trans = new;
             @(posedge inter.operation_done);
             trans.data_out = inter.data_out;
             trans.operation_done = inter.operation_done;
             trans.num_of_errors = inter.num_of_errors;
-            //$display("monitor trans data_out is: %b",trans.data_out);
-            //$display("monitor interface data_out is: %b",inter.data_out);
+            trans.test_number = counter;
+
             mon2chk.put(trans);
+            counter = counter +1;
         end
     endtask 
 

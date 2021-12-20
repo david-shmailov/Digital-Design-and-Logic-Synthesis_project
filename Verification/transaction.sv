@@ -9,6 +9,7 @@ class apb_trans;
   rand bit [AMBA_WORD-1:0] data_in;
   rand bit [AMBA_WORD-1:0] codeword_width;
   rand bit [AMBA_WORD-1:0] noise;
+  int test_number;
 
   constraint c_ctrl
   {

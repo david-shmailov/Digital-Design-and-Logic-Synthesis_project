@@ -19,6 +19,7 @@ class in_monitor;
     event   finish;
     mailbox mon2chk;
     apb_trans trans;
+    int     counter;
 
     function new(virtual intf.MONITOR inter, mailbox mon2chk, event stm_finished); // maybe you cant tranfer events as arg
         this.mon2chk = mon2chk;
@@ -35,18 +36,21 @@ class in_monitor;
 
     task run;
         trans = new; // check that if something is rand can still accept a deterministic value
+        counter = 1;
         forever begin
             @(posedge inter.clk)
             if (inter.PENABLE) begin
                 case(inter.PADDR)
-                    'h0: trans.ctrl <= inter.PWDATA;
-                    'h4: trans.data_in <= inter.PWDATA;
-                    'h8: trans.codeword_width <= inter.PWDATA;
-                    'hc: trans.noise <= inter.PWDATA;
+                    'h0: trans.ctrl = inter.PWDATA;
+                    'h4: trans.data_in = inter.PWDATA;
+                    'h8: trans.codeword_width = inter.PWDATA;
+                    'hc: trans.noise = inter.PWDATA;
                 endcase
                 if(inter.PADDR == 0) begin // if we wrote to ctrl , then the transaction is complete
+                    trans.test_number = counter;
                     mon2chk.put(trans);
                     trans = new;
+                    counter = counter +1;
                     ->finish; // triggers this event every time a trans is sent
                 end
             end

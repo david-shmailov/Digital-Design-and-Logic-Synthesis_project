@@ -15,7 +15,6 @@ class checker_chk;
     apb_trans sampled_in;
     out_trans expected;
     out_trans sampled_out;
-    int counter;
     int num_of_fails;
 
     function new(mailbox inputs, mailbox outputs, event out_mon_finished);
@@ -27,14 +26,12 @@ class checker_chk;
 
     task run;
         num_of_fails =0;
-        counter = 0;
         forever begin
             expected = new;
             inputs.get(sampled_in);
             outputs.get(sampled_out);
             gm.create_expected(sampled_in,expected);
             compare;
-            counter = counter +1;
             //debug;
             ->finished_test;
         end
@@ -47,8 +44,9 @@ class checker_chk;
 
     task debug(string fail);
         num_of_fails = num_of_fails +1;
+        assert(sampled_in.test_number == sampled_out.test_number); //tests for proper sync between monitors
         $display("[CHECKER]\tTEST FAILED reason: ",fail);
-        $display("[CHECKER]\ttransaction number     : %d",counter);
+        $display("[CHECKER]\ttest number            : %d",sampled_in.test_number);
         $display("[CHECKER]\tSAMPLED INPUT:");
         $display("[CHECKER]\tcontrol                : %d",sampled_in.ctrl);
         $display("[CHECKER]\tcodeword_width         : %d",sampled_in.codeword_width);

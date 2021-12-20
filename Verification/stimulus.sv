@@ -33,14 +33,14 @@ class stimulus;
 
 
     task run_driver();
-        $display("[Stimulus] starting ...");
+        $display("[STIMULUS] starting ...");
         @(posedge inter.clk);
         inter.PSEL <= 0;
         inter.PENABLE <= 0;
         inter.PWRITE   <=  1;
         while(tests.size() > 0) begin
             trans = tests.pop_front();
-            //$display("WRITING OPERATION ...");
+            //$display("[STIMULUS] writing to DUT");
             inter.PSEL     <=  1;
             
             //Write to DATA_IN
@@ -87,7 +87,7 @@ class stimulus;
 
     task wait_for_finish;
         @(finished);
-        $display("[Stimulus] finished");
+        $display("[STIMULUS] finished");
     endtask
 
     task run();
@@ -95,8 +95,8 @@ class stimulus;
         run_gen;
         run_driver;
         @(negedge inter.operation_done); // this was added to insure checker finish processing last test before $finish
-        $display("[Stimulus] Number of tests: %d",num_of_tests);
-        $display("[Stimulus] finished");
+        $display("[STIMULUS] Number of tests: %d",num_of_tests);
+        $display("[STIMULUS] finished");
         ->finished;
     endtask //driver
 
