@@ -11,7 +11,6 @@ class stimulus;
     parameter       DATA_WIDTH = 32;
 
 
-    mailbox gen2drv;
     apb_trans tests[$];
     virtual intf.MASTER inter;
     event   finished;
@@ -19,7 +18,6 @@ class stimulus;
     localparam num_of_tests = 200;
 
     function new(virtual intf.MASTER inter, event finished);
-       this.gen2drv = new();
        this.inter = inter;
        this.finished = finished;
     endfunction
@@ -28,29 +26,20 @@ class stimulus;
         for (int i = 0 ; i < num_of_tests ; i++ ) begin
             trans = new;
             assert(trans.randomize());
-            gen2drv.put(trans);
             tests.push_back(trans);
         end
-        trans = new;
-        trans.data_in = 32'b0;
-        trans.ctrl = 0;
-        trans.codeword_width =0;
-        tests.push_back(trans);
-        gen2drv.put(trans);
     endtask
 
 
 
     task run_driver();
-        int debug;
-        $display("Driver starting ...");
+        $display("[Stimulus] starting ...");
         @(posedge inter.clk);
         inter.PSEL <= 0;
         inter.PENABLE <= 0;
         inter.PWRITE   <=  1;
         while(tests.size() > 0) begin
             trans = tests.pop_front();
-            debug = debug + 1;
             //$display("WRITING OPERATION ...");
             inter.PSEL     <=  1;
             
@@ -98,16 +87,16 @@ class stimulus;
 
     task wait_for_finish;
         @(finished);
-        $display("Stimulus finished");
+        $display("[Stimulus] finished");
     endtask
 
     task run();
     
         run_gen;
         run_driver;
-        @(negedge inter.operation_done);
-        $display("Number of tests: %d",num_of_tests);
-        $display("Stimulus finished");
+        @(negedge inter.operation_done); // this was added to insure checker finish processing last test before $finish
+        $display("[Stimulus] Number of tests: %d",num_of_tests);
+        $display("[Stimulus] finished");
         ->finished;
     endtask //driver
 
