@@ -29,6 +29,9 @@ class stimulus;
             assert(trans.randomize());
             gen2drv.put(trans);
         end
+        // trans = new;
+        // trans.data_in = 0;
+        // gen2drv.put(trans);
     endtask
 
 
@@ -43,7 +46,7 @@ class stimulus;
         for (int i=0; i < num_of_tests; i++) begin
             gen2drv.get(trans);
             //gen2drv.get(trans);
-            $display("PSEL goes UP ...");
+            //$display("WRITING OPERATION ...");
             inter.PSEL     <=  1;
             
             //Write to DATA_IN
@@ -64,9 +67,9 @@ class stimulus;
             @(posedge inter.clk);
             inter.PENABLE <= 0;
 
-            //Write to DATA_IN
+            //Write to NOISE
             @(posedge inter.clk);
-            inter.PWDATA   <=  trans.data_in;
+            inter.PWDATA   <=  trans.noise;
             inter.PADDR    <=  4'hc; 
             @(posedge inter.clk);
             inter.PENABLE <= 1;
@@ -83,6 +86,7 @@ class stimulus;
             inter.PENABLE <= 0;
             
             inter.PSEL <= 0;
+            //$display("WRITE FINISHED.\nWAITING FOR OPERATION DONE ...");
             @(posedge inter.operation_done);
         end
     endtask //run_driver
@@ -96,6 +100,7 @@ class stimulus;
     
         run_gen;
         run_driver;
+        //$display("Stimulus finished");
         ->finished;
     endtask //driver
 

@@ -30,11 +30,12 @@ class in_monitor;
     task wait_for_finish;
         @(stm_finished);
         @(finish);
+        $display("input monitor finished");
     endtask
 
     task run;
+        trans = new; // check that if something is rand can still accept a deterministic value
         forever begin
-            trans = new; // check that if something is rand can still accept a deterministic value
             @(posedge inter.clk)
             if (inter.PENABLE) begin
                 case(inter.PADDR)
@@ -45,6 +46,7 @@ class in_monitor;
                 endcase
                 if(inter.PADDR == 0) begin // if we wrote to ctrl , then the transaction is complete
                     mon2chk.put(trans);
+                    trans = new;
                     ->finish; // triggers this event every time a trans is sent
                 end
             end

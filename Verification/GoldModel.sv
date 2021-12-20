@@ -46,7 +46,6 @@ class golden_model;
 
     task full(apb_trans trans, out_trans expected);
       	int unsigned num_of_errors = $countones(trans.noise);
-
         assert(num_of_errors <= 2);
         expected.num_of_errors = num_of_errors;
         expected.data_out = trans.data_in; // if there are less then 2 errors, the data should be the same, else , we dont care about data_out

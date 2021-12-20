@@ -61,8 +61,8 @@ module tb;
     task wait_for_finish;
         fork
             stm.wait_for_finish();
-            in_mon.wait_for_finish();
-            out_mon.wait_for_finish();
+            //in_mon.wait_for_finish(); // no need. they finish together
+            //out_mon.wait_for_finish();
             chk.wait_for_finish();
         join
     endtask
@@ -72,7 +72,8 @@ module tb;
         build();
         $display("Running\n");
         run(); // this shouldnt be a deadlock because stm should run a finite amount of time.
-        wait_for_finish();
+        //wait_for_finish();
+
         $finish;
     end
     

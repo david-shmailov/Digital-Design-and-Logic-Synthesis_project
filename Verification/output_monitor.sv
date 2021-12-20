@@ -1,5 +1,3 @@
-
-
 `ifndef out_trans
 `define out_trans
 `include "output_transaction.sv"
@@ -27,8 +25,9 @@ class out_monitor;
 
     task wait_for_finish;
         @(stm_finished);
-        @(posedge inter.operation_done);
+        //@(posedge inter.operation_done);
         ->out_mon_finished;
+        $display("output monitor finished");
     endtask
 
 
@@ -36,9 +35,11 @@ class out_monitor;
         forever begin
             trans = new;
             @(posedge inter.operation_done);
-            trans.data_out <= inter.data_out;
-            trans.operation_done <= inter.operation_done;
-            trans.num_of_errors <= inter.num_of_errors;
+            trans.data_out = inter.data_out;
+            trans.operation_done = inter.operation_done;
+            trans.num_of_errors = inter.num_of_errors;
+            //$display("monitor trans data_out is: %b",trans.data_out);
+            //$display("monitor interface data_out is: %b",inter.data_out);
             mon2chk.put(trans);
         end
     endtask 
