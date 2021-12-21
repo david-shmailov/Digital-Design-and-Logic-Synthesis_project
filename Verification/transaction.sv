@@ -63,6 +63,15 @@ class apb_trans;
         //data_in[31:26] == 0;
  }
 
+    constraint c_noise_1
+    {
+      solve noise_tri,codeword_width before noise;
+      if(codeword_width == 0)
+        noise inside{[0:256]};
+
+      if(codeword_width == 1)
+        noise inside{[0:65536]};
+    }
     constraint c_noise
     {
       solve noise_tri,codeword_width before noise;
