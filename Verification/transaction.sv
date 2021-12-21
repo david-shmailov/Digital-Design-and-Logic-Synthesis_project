@@ -36,28 +36,28 @@ class apb_trans;
     data_in >= 0;
     if(ctrl == 1)
       if(codeword_width == 0)
-        //data_in < 256;
-        data_in[31:8] == 0;
+        data_in < 256;
+        //data_in[31:8] == 0;
       else if(codeword_width == 1)
-        //data_in < 65536;
-        data_in[31:16] == 0;
+        data_in < 65536;
+        //data_in[31:16] == 0;
       //else 
         //data_in < 4294967296;
     else
       if(codeword_width == 0)
-        //data_in < 16;
-        data_in[31:4] == 0;
+        data_in < 16;
+        //data_in[31:4] == 0;
       else if(codeword_width == 1)
-        //data_in < 2048;
-        data_in[31:11] == 0;
+        data_in < 2048;
+        //data_in[31:11] == 0;
       else 
-        //data_in < 67108864;
-        data_in[31:26] == 0;
+        data_in < 67108864;
+        //data_in[31:26] == 0;
  }
 
     constraint c_noise
     {
-      solve noise_tri before noise;
+      solve noise_tri,codeword_width before noise;
       if(noise_tri == 0)
         $countones(noise) == 0;
       else if(noise_tri == 1)

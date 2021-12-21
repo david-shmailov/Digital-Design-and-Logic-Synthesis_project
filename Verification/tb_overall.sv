@@ -34,7 +34,7 @@ module tb;
         .PENABLE(inter.PENABLE),
         .PSEL(inter.PSEL),
         .PWRITE(inter.PWRITE),
-        .PRDATA(inter.PWDATA)
+        .PRDATA(inter.PRDATA)
     );
 
 
