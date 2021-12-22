@@ -22,7 +22,7 @@ class coverage;
     //test for inputs and outputs of the DUT
     covergroup inOutDUT @(posedge inter.clk);
 
-        cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0 && inter.PEANBLE) {
+        cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0 && inter.PENABLE) {
 
             bins encoder_mode = {0};
             bins decoder_mode = {1};
@@ -30,20 +30,20 @@ class coverage;
             //modeXnoise cross cover4ctrl,cover4ZEROnoise;
         }
 
-        cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8 && inter.PEANBLE) {
+        cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8 && inter.PENABLE) {
 
             bins bit8 = {0};
             bins bit16 = {1};
             bins bit32 = {2};
         }
 
-        cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PEANBLE) {
+        cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE) {
             bins DataIn = {[0:AMBA_WORD]};
             //sizeXdataIn : cross DataIn,cover4codeword_width;
             //modeXDataIn : cross DataIn,cover4ctrl;
         }
 
-        cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PEANBLE) {
+        cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) {
             bins ZeroNoise = {0};
         }
 
