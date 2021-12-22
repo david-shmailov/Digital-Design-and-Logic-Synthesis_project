@@ -33,34 +33,21 @@ class apb_trans;
   constraint c_data_in
  {
     solve ctrl,codeword_width before data_in;
-    //data_in >= 0;
     if(ctrl == 1)
       if(codeword_width == 0)
         data_in inside{[0:256]};
-        //data_in[31:8] == 0;
     if(ctrl == 1)
       if(codeword_width == 1)
         data_in inside{[0:65536]};
-        //data_in < 65536;
-        //data_in[31:16] == 0;
-      //else 
-        //data_in < 4294967296;
-
     if(ctrl != 1)
       if(codeword_width == 0)
         data_in inside{[0:16]};
-        //data_in < 16;
-        //data_in[31:4] == 0;
     if(ctrl != 1)
       if(codeword_width == 1)
         data_in inside{[0:2048]};
-        //data_in < 2048;
-        //data_in[31:11] == 0;
     if(ctrl != 1)    
       if(codeword_width == 2)
         data_in inside{[0:67108864]};
-        //data_in < 67108864;
-        //data_in[31:26] == 0;
  }
 
     constraint c_noise_1
