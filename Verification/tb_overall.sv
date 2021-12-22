@@ -43,11 +43,11 @@
 
 module tb;
 
-    parameter       AMBA_WORD = 16;
+    parameter       AMBA_WORD = 32;
     parameter       AMBA_ADDR_WIDTH = 20;
-    parameter       DATA_WIDTH = 8; // codeword width max
+    parameter       DATA_WIDTH = 32; // codeword width max
 
-    int number_of_tests = 10000;
+    int number_of_tests = 100000;
 
     bit clk, rst;
     mailbox in2chk, out2chk;
@@ -108,7 +108,7 @@ module tb;
 
         cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE)
         {
-            bins DataIn[] = {[0:DATA_WIDTH]};
+            bins DataIn[] = {[0:DATA_WIDTH-1]};
         }
 
         cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) 
@@ -133,9 +133,9 @@ module tb;
             bins TwoErr = {2};
         }
 
-        data8bit : cross inter.data_out,cover4codeword_width;
-
-
+        ctrlXwidth : cross cover4ctrl,cover4codeword_width;
+        ctrlXdata_in: cross cover4ctrl,cover4data_in;
+        widthXdata_in: cross cover4codeword_width,cover4data_in;
     endgroup 
 
     cg cg_inst;
