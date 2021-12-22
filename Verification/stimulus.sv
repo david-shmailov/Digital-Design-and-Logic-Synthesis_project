@@ -4,26 +4,40 @@
 `endif 
 
 
-class stimulus;
+class stimulus #(
+  int       AMBA_WORD = 32,
+  int       AMBA_ADDR_WIDTH = 20,
+  int       DATA_WIDTH = 32);
 
-    parameter       AMBA_WORD = 32;
-    parameter       AMBA_ADDR_WIDTH = 20;
-    parameter       DATA_WIDTH = 32;
+    typedef virtual intf.MASTER # (     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+    ) param_intf;
 
 
-    apb_trans tests[$];
-    virtual intf.MASTER inter;
+    apb_trans # (     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+    ) tests[$]; // a queue of apb_trans
+    param_intf inter;
     event   finished;
-    apb_trans trans;
-    int num_of_tests = 1000;
+    apb_trans # (     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+    ) trans;
+    int number_of_tests;
 
-    function new(virtual intf.MASTER inter, event finished);
+    function new(param_intf inter, event finished, int number_of_tests);
        this.inter = inter;
        this.finished = finished;
+       this.number_of_tests = number_of_tests;
     endfunction
 
     task run_gen(); 
-        for (int i = 0 ; i < num_of_tests ; i++ ) begin
+        for (int i = 0 ; i < number_of_tests ; i++ ) begin
             trans = new;
             assert(trans.randomize());
             trans.test_number = i + 1;
@@ -97,7 +111,7 @@ class stimulus;
         run_gen;
         run_driver;
         @(negedge inter.operation_done); // this was added to insure checker finish processing last test before $finish
-        $display("[STIMULUS] Number of tests: %d",num_of_tests);
+        $display("[STIMULUS] Number of tests: %d",number_of_tests);
         $display("[STIMULUS] finished");
         ->finished;
     endtask //driver

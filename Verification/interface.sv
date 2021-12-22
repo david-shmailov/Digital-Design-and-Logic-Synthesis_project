@@ -1,7 +1,8 @@
-interface intf (clk,rst);
-    parameter       AMBA_WORD = 32;
-    parameter       AMBA_ADDR_WIDTH = 20;
-    parameter       DATA_WIDTH = 32;
+interface intf #(
+    int       AMBA_WORD = 32,
+    int       AMBA_ADDR_WIDTH = 20,
+    int       DATA_WIDTH = 32) (clk,rst);
+    
 
     input logic                       clk, rst;
     logic      [AMBA_ADDR_WIDTH-1:0]  PADDR;

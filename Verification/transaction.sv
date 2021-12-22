@@ -1,8 +1,22 @@
-class apb_trans;
+//`ifndef apb_trans
 
-  parameter       AMBA_WORD = 32;
-  parameter       AMBA_ADDR_WIDTH = 20;
-  parameter       DATA_WIDTH = 32; // codeword width max
+class apb_trans #(
+  int       AMBA_WORD = 32,
+  int       AMBA_ADDR_WIDTH = 20,
+  int       DATA_WIDTH = 32); // codeword width max
+
+  // parameter       AMBA_WORD = 32;
+  // parameter       AMBA_ADDR_WIDTH = 20;
+  // parameter       DATA_WIDTH = 32; // codeword width max
+
+  localparam      MAX_CODEWORD_WIDTH = DATA_WIDTH; 
+  localparam      MAX_PARITY_WIDTH = $clog2(MAX_CODEWORD_WIDTH)+1; 
+  localparam      MAX_INFO_WIDTH = MAX_CODEWORD_WIDTH - MAX_PARITY_WIDTH;
+
+
+
+
+
 
   rand bit [1:0] noise_tri;
   rand bit [AMBA_WORD-1:0] ctrl;
@@ -25,11 +39,18 @@ class apb_trans;
     
   constraint c_codewidth  //not sure to include DATA_WIDTH PARAMETER
   {
-    codeword_width >= 0;
-    codeword_width <= 2; 
+    if (DATA_WIDTH == 8) codeword_width == 0;
+    if (DATA_WIDTH == 16) codeword_width inside{[0:1]};
+    if (DATA_WIDTH == 32) codeword_width inside{[0:2]};
+ 
   }
     
-    
+  constraint c_paramteres
+  {
+    data_in inside{[0:2^MAX_INFO_WIDTH-1]}; //should allways be smaller then max info width
+    noise   inside{[0:2^MAX_CODEWORD_WIDTH-1]};
+  }
+
   constraint c_data_in
  {
     solve ctrl,codeword_width before data_in;

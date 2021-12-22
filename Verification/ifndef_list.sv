@@ -28,10 +28,10 @@
 `include "Stimulus.sv"
 `endif
 
-`ifndef coverage
-`define coverage
-`include "Coverage.sv"
-`endif
+// `ifndef coverage
+// `define coverage
+// `include "Coverage.sv"
+// `endif
 
 `ifndef checker_chk
 `define checker_chk

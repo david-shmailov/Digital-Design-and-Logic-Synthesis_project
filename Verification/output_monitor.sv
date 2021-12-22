@@ -4,20 +4,28 @@
 `endif 
 
 
-class out_monitor;
+class out_monitor #(
+  int       AMBA_WORD = 32,
+  int       AMBA_ADDR_WIDTH = 20,
+  int       DATA_WIDTH = 32);
 
-    parameter       AMBA_WORD = 32;
-    parameter       AMBA_ADDR_WIDTH = 20;
-    parameter       DATA_WIDTH = 32;
+    typedef virtual intf.MONITOR # (     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+    ) param_intf;
 
-
-    virtual intf.MONITOR inter;
+    param_intf inter;
     event stm_finished , out_mon_finished;
     mailbox mon2chk;
-    out_trans trans;
+    out_trans # (     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+    ) trans;
     int counter;
 
-    function new(virtual intf.MONITOR inter, mailbox mon2chk, event stm_finished, event out_mon_finished);
+    function new(param_intf inter, mailbox mon2chk, event stm_finished, event out_mon_finished);
         this.mon2chk = mon2chk;
         this.inter = inter;
         this.stm_finished = stm_finished;

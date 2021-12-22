@@ -5,16 +5,28 @@
 
 
 
-class checker_chk;
+class checker_chk #(
+  int       AMBA_WORD = 32,
+  int       AMBA_ADDR_WIDTH = 20,
+  int       DATA_WIDTH = 32);
 
     mailbox inputs;
     mailbox outputs;
-    golden_model gm;
+
+    golden_model  gm;
     event out_mon_finished;
     event finished_test;
-    apb_trans sampled_in;
-    out_trans expected;
-    out_trans sampled_out;
+    apb_trans #(     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+        ) sampled_in;
+    out_trans #(     
+                .AMBA_WORD(AMBA_WORD),
+                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
+                .DATA_WIDTH(DATA_WIDTH)
+    ) expected, sampled_out;
+
     int num_of_fails;
 
     function new(mailbox inputs, mailbox outputs, event out_mon_finished);
