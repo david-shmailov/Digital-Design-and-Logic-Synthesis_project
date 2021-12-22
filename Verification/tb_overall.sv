@@ -130,7 +130,7 @@ module tb;
             bins TwoErr = {2};
         }
 
-        data8bit : cross inter.data_out,cover4codeword_width;
+        data8bit : cross inter.data_out,cover4codeword_width.bit8;
 
 
     endgroup 
