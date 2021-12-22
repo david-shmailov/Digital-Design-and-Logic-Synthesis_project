@@ -11,7 +11,9 @@ module tb;
     checker_chk chk;
     stimulus stm;
     in_monitor in_mon;
+    coverage cov;
     out_monitor out_mon;
+
     event stm_finished;
     event out_mon_finished;
     //covereage cov;
@@ -45,6 +47,7 @@ module tb;
         stm = new(tb.inter.MASTER, stm_finished);
         in_mon = new(tb.inter.MONITOR, in2chk, stm_finished);
         out_mon = new(tb.inter.MONITOR, out2chk, stm_finished, out_mon_finished);
+        cov = new(tb.inter.MONITOR);
     endtask 
 
     task run;
