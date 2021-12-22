@@ -35,29 +35,29 @@ class apb_trans;
     solve ctrl,codeword_width before data_in;
     if(ctrl == 1)
       if(codeword_width == 0)
-        data_in inside{[0:256]};
+        data_in inside{[0:2^8-1]};
     if(ctrl == 1)
       if(codeword_width == 1)
-        data_in inside{[0:65536]};
+        data_in inside{[0:2^16-1]};
     if(ctrl != 1)
       if(codeword_width == 0)
-        data_in inside{[0:16]};
+        data_in inside{[0:2^4-1]};
     if(ctrl != 1)
       if(codeword_width == 1)
-        data_in inside{[0:2048]};
+        data_in inside{[0:2^11-1]};
     if(ctrl != 1)    
       if(codeword_width == 2)
-        data_in inside{[0:67108864]};
+        data_in inside{[0:2^26-1]};
  }
 
     constraint c_noise_1
     {
       solve noise_tri,codeword_width before noise;
       if(codeword_width == 0)
-        noise inside{[0:256]};
+        noise inside{[0:2^8-1]};
 
       if(codeword_width == 1)
-        noise inside{[0:65536]};
+        noise inside{[0:2^16-1]};
     }
     constraint c_noise
     {
