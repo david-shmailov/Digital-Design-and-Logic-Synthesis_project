@@ -38,7 +38,7 @@ class coverage;
         }
 
         cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE) {
-            bins DataIn = {[0:AMBA_WORD]};
+            bins DataIn = {[AMBA_WORD - 1:0]};
             //sizeXdataIn : cross DataIn,cover4codeword_width;
             //modeXDataIn : cross DataIn,cover4ctrl;
         }
@@ -55,14 +55,14 @@ class coverage;
             bins TwoNoise = {0};
         }
 
-        cover4data_out : coverpoint inter.operation_done {
-            bins DataOut = {[0:AMBA_WORD]};
+        cover4data_out : coverpoint inter.data_out {
+            bins DataOut = {[AMBA_WORD - 1:0]};
             //sizeXdataOut : cross DataOut,cover4codeword_width;
             //modeXDataIn : cross DataOut,cover4ctrl;
         }
 
         cover4NumberOfErrors : coverpoint inter.operation_done {
-            bins NumberOfErrors = {[0:2]};
+            bins NumberOfErrors = {[1:0]};
             //noiseErrros : cross NumberOfErrors,cover4ZEROnoise;
         }
 
