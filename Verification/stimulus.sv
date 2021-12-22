@@ -15,7 +15,7 @@ class stimulus;
     virtual intf.MASTER inter;
     event   finished;
     apb_trans trans;
-    localparam num_of_tests = 200;
+    localparam num_of_tests = 1000;
 
     function new(virtual intf.MASTER inter, event finished);
        this.inter = inter;
@@ -26,6 +26,7 @@ class stimulus;
         for (int i = 0 ; i < num_of_tests ; i++ ) begin
             trans = new;
             assert(trans.randomize());
+            trans.test_number = i + 1;
             tests.push_back(trans);
         end
     endtask
@@ -42,46 +43,47 @@ class stimulus;
             trans = tests.pop_front();
             //$display("[STIMULUS] writing to DUT");
             inter.PSEL     <=  1;
-            
-            //Write to DATA_IN
-            @(posedge inter.clk);
-            inter.PWDATA   <=  trans.data_in;
-            inter.PADDR    <=  4'h4;
-            @(posedge inter.clk);
-            inter.PENABLE <= 1;
-            @(posedge inter.clk);
-            inter.PENABLE <= 0;
+            //if(trans.test_number >0) begin // this is a tool to run only a specific test, change to == <test_number>
+                //Write to DATA_IN
+                @(posedge inter.clk);
+                inter.PWDATA   <=  trans.data_in;
+                inter.PADDR    <=  4'h4;
+                @(posedge inter.clk);
+                inter.PENABLE <= 1;
+                @(posedge inter.clk);
+                inter.PENABLE <= 0;
 
-            //Write to CODEWORD_WIDTH
-            @(posedge inter.clk);
-            inter.PWDATA   <=  trans.codeword_width;
-            inter.PADDR    <=  4'h8; 
-            @(posedge inter.clk);
-            inter.PENABLE <= 1;
-            @(posedge inter.clk);
-            inter.PENABLE <= 0;
+                //Write to CODEWORD_WIDTH
+                @(posedge inter.clk);
+                inter.PWDATA   <=  trans.codeword_width;
+                inter.PADDR    <=  4'h8; 
+                @(posedge inter.clk);
+                inter.PENABLE <= 1;
+                @(posedge inter.clk);
+                inter.PENABLE <= 0;
 
-            //Write to NOISE
-            @(posedge inter.clk);
-            inter.PWDATA   <=  trans.noise;
-            inter.PADDR    <=  4'hc; 
-            @(posedge inter.clk);
-            inter.PENABLE <= 1;
-            @(posedge inter.clk);
-            inter.PENABLE <= 0;
+                //Write to NOISE
+                @(posedge inter.clk);
+                inter.PWDATA   <=  trans.noise;
+                inter.PADDR    <=  4'hc; 
+                @(posedge inter.clk);
+                inter.PENABLE <= 1;
+                @(posedge inter.clk);
+                inter.PENABLE <= 0;
 
-            //Write to CTRL
-            @(posedge inter.clk);
-            inter.PWDATA   <=  trans.ctrl;
-            inter.PADDR    <=  4'h0; 
-            @(posedge inter.clk);
-            inter.PENABLE <= 1;
-            @(posedge inter.clk);
-            inter.PENABLE <= 0;
-            
-            inter.PSEL <= 0;
-            //$display("WRITE FINISHED.\nWAITING FOR OPERATION DONE ...");
-            @(posedge inter.operation_done);
+                //Write to CTRL
+                @(posedge inter.clk);
+                inter.PWDATA   <=  trans.ctrl;
+                inter.PADDR    <=  4'h0; 
+                @(posedge inter.clk);
+                inter.PENABLE <= 1;
+                @(posedge inter.clk);
+                inter.PENABLE <= 0;
+                
+                inter.PSEL <= 0;
+                //$display("WRITE FINISHED.\nWAITING FOR OPERATION DONE ...");
+                @(posedge inter.operation_done);
+            //end
         end
     endtask //run_driver
 

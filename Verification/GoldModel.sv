@@ -79,7 +79,7 @@ class golden_model;
         end else begin // now we check if S is equal to any column in the matrix
             automatic int equal_to_col = -1;
             for (int col =0; col < codeword_l; col ++) begin
-              	automatic bit [parity_l:0] temp_col =0;
+              	automatic bit [parity_l -1:0] temp_col =0;
               	for (int row = 0; row < parity_l; row++)begin
                   	temp_col[row]= H1[row][col];
                 end
@@ -119,7 +119,7 @@ class golden_model;
         end else begin // now we check if S is equal to any column in the matrix
             automatic int equal_to_col = -1;
             for (int col =0; col < codeword_l; col ++) begin
-              	automatic bit [parity_l:0] temp_col =0;
+              	automatic bit [parity_l-1:0] temp_col =0;
               	for (int row = 0; row < parity_l; row++)begin
                   	temp_col[row]= H2[row][col];
                 end
@@ -159,7 +159,7 @@ class golden_model;
         end else begin // now we check if S is equal to any column in the matrix
             automatic int equal_to_col = -1;
             for (int col =0; col < codeword_l; col ++) begin
-              	automatic bit [parity_l:0] temp_col =0;
+              	automatic bit [parity_l-1:0] temp_col =0;
               	for (int row = 0; row < parity_l; row++)begin
                   	temp_col[row]= H3[row][col];
                 end

@@ -36,14 +36,16 @@ class out_monitor;
         counter = 1;
         forever begin
             trans = new;
-            @(posedge inter.operation_done);
-            trans.data_out = inter.data_out;
-            trans.operation_done = inter.operation_done;
-            trans.num_of_errors = inter.num_of_errors;
-            trans.test_number = counter;
+            @(posedge inter.clk);
+            if (inter.operation_done == 1) begin
+                trans.data_out = inter.data_out;
+                trans.operation_done = inter.operation_done;
+                trans.num_of_errors = inter.num_of_errors;
+                trans.test_number = counter;
 
-            mon2chk.put(trans);
-            counter = counter +1;
+                mon2chk.put(trans);
+                counter = counter +1;
+            end
         end
     endtask 
 
