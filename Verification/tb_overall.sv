@@ -47,6 +47,9 @@ module tb;
     parameter       AMBA_ADDR_WIDTH = 20;
     parameter       DATA_WIDTH = 32; // codeword width max
 
+    localparam      data_width_by4 = DATA_WIDTH/4;
+
+
     int number_of_tests = 100000;
 
     bit clk, rst;
@@ -108,7 +111,7 @@ module tb;
 
         cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE)
         {
-            bins DataIn[] = {[0:DATA_WIDTH-1]};
+            bins dataIN[data_width_by4] = {[0:DATA_WIDTH]};
         }
 
         cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) 
@@ -135,12 +138,10 @@ module tb;
 
         cover4data_out : coverpoint inter.data_out iff(inter.operation_done)
         {
-            bins DataIn[] = {[0:DATA_WIDTH-1]};
+            bins dataOut[data_width_by4] = {[0:DATA_WIDTH]};
         }
+        
 
-        ctrlXwidth : cross cover4ctrl,cover4codeword_width;
-        ctrlXdata_in: cross cover4ctrl,cover4data_in;
-        widthXdata_in: cross cover4codeword_width,cover4data_in;
     endgroup 
 
     cg cg_inst;
