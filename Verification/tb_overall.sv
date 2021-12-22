@@ -11,12 +11,11 @@ module tb;
     checker_chk chk;
     stimulus stm;
     in_monitor in_mon;
-    coverage cov;
+    //coverage cov;
     out_monitor out_mon;
-
+    cg cg_inst;
     event stm_finished;
     event out_mon_finished;
-    //covereage cov;
 
     intf inter(
         .clk(clk),
@@ -47,7 +46,8 @@ module tb;
         stm = new(tb.inter.MASTER, stm_finished);
         in_mon = new(tb.inter.MONITOR, in2chk, stm_finished);
         out_mon = new(tb.inter.MONITOR, out2chk, stm_finished, out_mon_finished);
-        cov = new(tb.inter.MONITOR);
+        cg_inst = new(tb.inter.MONITOR);
+        //cov = new(tb.inter.MONITOR);
     endtask 
 
     task run;
@@ -76,7 +76,7 @@ module tb;
         $display("Running\n");
         run(); // this shouldnt be a deadlock because stm should run a finite amount of time.
         //wait_for_finish();
-        $display("Coverage = %0.2f %%",cov.inOutDUT.get_inst_coverage());
+        $display("Coverage = %0.2f %%",cg_inst.get_inst_coverage());
         $finish;
     end
     

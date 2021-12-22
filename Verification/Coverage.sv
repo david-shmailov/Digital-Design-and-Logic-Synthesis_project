@@ -1,15 +1,6 @@
-`ifndef apb_trans
-`define apb_trans
-`include "transaction.sv"
-`endif 
-
-`ifndef out_trans
-`define out_trans
-`include "output_transaction.sv"
-`endif
 
 
-class coverage;
+// class coverage;
 
    parameter       AMBA_WORD = 32;
    parameter       AMBA_ADDR_WIDTH = 20;
@@ -17,10 +8,14 @@ class coverage;
 
 
 
-    virtual intf.MONITOR inter;
+
+//     virtual intf.MONITOR inter;
+     
+    
+
 
     //test for inputs and outputs of the DUT
-    covergroup inOutDUT @(posedge inter.clk);
+    covergroup cg (virtual intf.MONITOR inter) @(posedge inter.clk);
 
         cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0 && inter.PENABLE) {
 
@@ -66,15 +61,21 @@ class coverage;
             //noiseErrros : cross NumberOfErrors,cover4ZEROnoise;
         }
 
-    endgroup : inOutDUT
-    
-    
+    endgroup : cg
+   
+//     cg cg_inst; 
 
-    function new(virtual intf.MONITOR inter);
+//     function new(virtual intf.MONITOR inter);
 
-        inOutDUT = new;
-        this.inter = inter;
+//         this.cg_inst = new;
+//         this.inter = inter;
 
-    endfunction //new() func
+//     endfunction //new() func
 
-endclass //className
+//     task print;
+//         $display("Coverage = %0.2f %%",cg_inst.get_inst_coverage());
+
+//     endtask
+
+// endclass //className
+
