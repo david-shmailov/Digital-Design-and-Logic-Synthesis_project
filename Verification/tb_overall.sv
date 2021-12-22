@@ -106,7 +106,10 @@ module tb;
             bins bit32 = {2};
         }
 
-        cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE);
+        cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE)
+        {
+            bins DataIn[] = {[0:DATA_WIDTH]};
+        }
 
         cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) 
         {
@@ -130,7 +133,7 @@ module tb;
             bins TwoErr = {2};
         }
 
-        data8bit : cross inter.data_out,cover4codeword_width.bit8;
+        data8bit : cross inter.data_out,cover4codeword_width;
 
 
     endgroup 
