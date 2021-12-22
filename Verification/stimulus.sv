@@ -15,7 +15,7 @@ class stimulus;
     virtual intf.MASTER inter;
     event   finished;
     apb_trans trans;
-    int num_of_tests = 500000;
+    int num_of_tests = 10000;
 
     function new(virtual intf.MASTER inter, event finished);
        this.inter = inter;

@@ -76,7 +76,7 @@ module tb;
         $display("Running\n");
         run(); // this shouldnt be a deadlock because stm should run a finite amount of time.
         //wait_for_finish();
-
+        $display("Coverage = %0.2f %%",cov.inOutDUT.get_inst_coverage());
         $finish;
     end
     
