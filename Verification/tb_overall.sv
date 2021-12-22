@@ -126,7 +126,7 @@ module tb;
             bins TwoNoise = {0};
         }
 
-        cover4numOfErr : coverpoint inter.num_of_errors 
+        cover4numOfErr : coverpoint inter.num_of_errors iff(inter.operation_done)
         {
             bins ZeroErr = {0};
             bins OneErr = {1};
