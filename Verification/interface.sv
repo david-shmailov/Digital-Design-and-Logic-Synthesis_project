@@ -11,7 +11,7 @@ interface intf (clk,rst);
     logic                             PWRITE;
     logic      [AMBA_WORD-1:0]        PRDATA;
     logic      [DATA_WIDTH-1:0]       data_out;       
-    logic                            operation_done;
+    logic                             operation_done;
     logic      [1:0]                  num_of_errors;
 
     modport DUT(input       clk,
