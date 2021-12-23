@@ -24,7 +24,7 @@ class in_mon #(
     localparam      data_width_by4 = DATA_WIDTH/4;
     param_intf inter;
     event   apb_test_done;
-    bit     last_trans;
+    event   packet_ready;
 
     mailbox mon2chk;
     apb_trans #(.AMBA_WORD(AMBA_WORD),
@@ -40,12 +40,11 @@ class in_mon #(
     int cover_width;
 
 
-    function new(param_intf inter, mailbox mon2chk, event apb_test_done); // maybe you cant tranfer events as arg
-        //cg_input = new;
+    function new(param_intf inter, mailbox mon2chk, event apb_test_done, event packet_ready); 
         this.mon2chk = mon2chk;
         this.apb_test_done = apb_test_done;
         this.inter = inter;
-        this.last_trans = 0;
+        this.packet_ready = packet_ready;
     endfunction //new()
 
 
@@ -63,14 +62,16 @@ class in_mon #(
                     'hc: trans.noise = inter.PWDATA;
                 endcase
                 if(inter.PADDR == 0) begin // if we wrote to ctrl , then the transaction is complete
+                    //change the cover signals for the coverage
                     cover_ctrl     = trans.ctrl;
                     cover_data_in  = trans.data_in;
                     cover_noise    = trans.noise;
                     cover_width    = trans.codeword_width;
 
                     trans.test_number = counter;
-                    mon2chk.put(trans);
-                    trans = new;
+                    ->packet_ready; // notifies input covergroup to sample
+                    mon2chk.put(trans); //send the sampled transaction to the checker
+                    trans = new; 
                     counter = counter +1;
                 end
             end

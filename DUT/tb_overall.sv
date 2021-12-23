@@ -21,7 +21,7 @@
 
 
 `resetall
-`timescale 1ns/100ps
+`timescale 100ps/100ps
 
 module tb;
 
@@ -38,8 +38,8 @@ module tb;
     localparam  mod1 = 1;
     localparam  mod2 = 2;
 
-    int number_of_tests = 1000;
-    int number_of_apb_tests = 4;
+    int number_of_tests = 10000;
+    int number_of_apb_tests = 10;
 
     bit clk, rst;
     mailbox in2chk, out2chk;
@@ -70,36 +70,36 @@ module tb;
     event starting_test;
     event apb_test_done;
     event out_mon_finished;
+    event packet_ready;
 
 
     
     
-    covergroup cg_input @(posedge inter.clk); 
+    covergroup cg_input @(packet_ready); 
         cover_data_in_decode_0 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod0)  {
-            bins data_in_dec_0[2] = {[0:2^8-1]}; // divide data_in for bins of size 4 bits
+            bins data_in_dec_0[2] = {[0:256-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_decode_1 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod1)  {
-            bins data_in_dec_1[4] = {[0:2^16-1]}; // divide data_in for bins of size 4 bits
+            bins data_in_dec_1[4] = {[0:65536-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_decode_2 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod2)  {
-            bins data_in_dec_2[8] = {[0:2^32-1]}; // divide data_in for bins of size 4 bits
+            bins data_in_dec_2[8] = {[0:$]}; // divide data_in for bins of size 4 bits
         }
         //for data_in , on decode mode we need to the full range and on fullchannel/encode we only need to input info range
         cover_data_in_encode_0 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod0)  {
-            bins data_in_enc_0[2] = {[0:2^4-1]}; // divide data_in for bins of size 4 bits
+            bins data_in_enc_0[2] = {[0:16-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_encode_1 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod1)  {
-            bins data_in_enc_1[4] = {[0:2^11-1]}; // divide data_in for bins of size 4 bits
+            bins data_in_enc_1[4] = {[0:2048-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_encode_2 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod2)  {
-            bins data_in_enc_2[8] = {[0:2^26-1]}; // divide data_in for bins of size 4 bits
+            bins data_in_enc_2[8] = {[0:67108864-1]}; // divide data_in for bins of size 4 bits
         }
 
-        
         
         cover_ctrl : coverpoint in_monitor.cover_ctrl{
             bins encoder_mode = {0};
@@ -118,7 +118,7 @@ module tb;
             bins OneBit  = {1};
             bins TwoBits = {0};
         }
-        ctrlXwidth : cross cover_ctrl,cover_codeword_width;
+        ctrlXwidth   : cross cover_ctrl,cover_codeword_width;
         widthXnoise0 : cross cover_codeword_width, cover_noise_0;
         widthXnoise12: cross cover_codeword_width, cover_noise_not_0;
     endgroup   
@@ -133,33 +133,29 @@ module tb;
             bins TwoErr = {2};
         }
 
-        // cover4data_out : coverpoint inter.data_out iff(inter.operation_done)
-        // {
-        //     bins dataOut[data_width_by4] = {[0:DATA_WIDTH-1]};
-        // }
 
         cover_data_out_encode_0 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl == encode && in_monitor.cover_width == mod0)  {
-            bins data_out_dec_0[2] = {[0:2^8-1]}; // divide data_in for bins of size 4 bits
+            bins data_out_dec_0[2] = {[0:256-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_out_encode_1 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl == encode && in_monitor.cover_width == mod1)  {
-            bins data_out_dec_1[4] = {[0:2^16-1]}; // divide data_in for bins of size 4 bits
+            bins data_out_dec_1[4] = {[0:65536-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_out_encode_2 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl == encode && in_monitor.cover_width == mod2)  {
-            bins data_out_dec_2[8] = {[0:2^32-1]}; // divide data_in for bins of size 4 bits
+            bins data_out_dec_2[8] = {[0:$]}; // divide data_in for bins of size 4 bits
         }
         // for data_out, on encode mode it gets the full range and on decode/fullchannel we only get info range
         cover_data_out_decode_0 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl != encode && in_monitor.cover_width == mod0)  {
-            bins data_out_enc_0[2] = {[0:2^4-1]}; // divide data_in for bins of size 4 bits
+            bins data_out_enc_0[2] = {[0:16-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_out_decode_1 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl != encode && in_monitor.cover_width == mod1)  {
-            bins data_out_enc_1[4] = {[0:2^11-1]}; // divide data_in for bins of size 4 bits
+            bins data_out_enc_1[4] = {[0:2048-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_out_decode_2 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl != encode && in_monitor.cover_width == mod2)  {
-            bins data_out_enc_2[8] = {[0:2^26-1]}; // divide data_in for bins of size 4 bits
+            bins data_out_enc_2[8] = {[0:67108864-1]}; // divide data_in for bins of size 4 bits
         }
         
 
@@ -202,7 +198,7 @@ module tb;
         out2chk = new;
         stm = new(tb.inter.MASTER, apb_test_done, starting_test, number_of_tests, number_of_apb_tests);
         chk = new(in2chk, out2chk, apb_test_done);
-        in_monitor = new(tb.inter.MONITOR, in2chk, apb_test_done);
+        in_monitor = new(tb.inter.MONITOR, in2chk, apb_test_done, packet_ready);
         out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
         cg_inst = new;
         cg_in_inst = new;
@@ -219,21 +215,13 @@ module tb;
         join_any
     endtask
 
-    task wait_for_finish;
-        fork
-            stm.wait_for_finish();
-            //in_mon.wait_for_finish(); // no need. they finish together
-            //out_mon.wait_for_finish();
-            //chk.wait_for_finish();
-        join
-    endtask
 
     initial begin
         $display("[TB] Start");
         build();
         $display("[TB] Running");
-        run(); // this shouldnt be a deadlock because stm should run a finite amount of time.
-        //wait_for_finish();
+        run(); 
+
         $display("[TB] Input Coverage  = %0.2f %%",cg_in_inst.get_inst_coverage());
         $display("[TB] Output Coverage = %0.2f %%",cg_inst.get_inst_coverage());
         $finish;

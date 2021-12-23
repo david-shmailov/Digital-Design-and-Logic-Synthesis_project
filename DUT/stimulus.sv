@@ -10,7 +10,7 @@ class stimulus #(
   int       DATA_WIDTH = 32);
 
 
-
+    // in order to pass a parametrized interface as an argument we needed to use this syntax
     typedef virtual intf.MASTER # (     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
@@ -23,17 +23,18 @@ class stimulus #(
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
     ) tests[$]; // a queue of apb_trans
+
     param_intf inter;
-    event   apb_test_done;
-    event   starting_test;
-    event   finished;
+    event   apb_test_done; // notifies the enviorment APB tests are finished
+    event   starting_test; // notifies the enviorment a new test is starting
+
     apb_trans # (     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
     ) trans;
-    int number_of_tests;
-    int number_of_apb_tests;
+    int number_of_tests; // number of standard tests
+    int number_of_apb_tests; // number of APB write_value == read_value tests
 
     
 
@@ -68,11 +69,11 @@ class stimulus #(
         while(tests.size() > 0) begin
             trans = tests.pop_front();
             inter.PSEL     <=  1;
-            if(trans.test_number > 0) begin // this is a tool to run only a specific test, change to == <test_number>
+            if(trans.test_number > 0) begin // this is a debug tool to run only a specific test, change to == <test_number>
                 //variables for coverage monitoring
                 ->starting_test;
                 
-                
+
                 //Write to DATA_IN
                 @(posedge inter.clk);
                 inter.PWDATA   <=  trans.data_in;
@@ -215,20 +216,17 @@ class stimulus #(
 
     endtask
 
-    task wait_for_finish;
-        @(finished);
-        $display("[STIMULUS] finished");
-    endtask
+
 
     task run();
-    
+
         run_gen;
         run_apb_test;
         run_driver;
         @(negedge inter.operation_done); // this was added to insure checker finish processing last test before $finish
         $display("[STIMULUS] Number of tests: %d",number_of_tests);
         $display("[STIMULUS] finished");
-        ->finished;
+
     endtask //driver
 
     

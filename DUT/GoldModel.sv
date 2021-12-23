@@ -12,7 +12,7 @@
 
 class golden_model;
 
-
+    // hardcoded parity matricies
   	bit [0:3][7:0]  H1 = 32'b11111111111001001101001010110001;
     bit [0:4][15:0] H2 = 80'b11111111111111111111111000001000111100011100010011001101101000101010101101100001;
     bit [0:5][31:0] H3 = 192'b111111111111111111111111111111111111111111111110000000000001000011111111000000011111110000001000111100001111000111100011100001001100110011001101100110110100001010101010101010110101011011000001;
@@ -25,24 +25,21 @@ class golden_model;
     localparam width_16 = 1;
     localparam width_32 = 2;
     
-    function new();
-        
-        
-    endfunction
 
     task create_expected( apb_trans trans, out_trans expected);
-        //out_trans expected = new;
+        //main GM function, create the expected output and pack it into the transaction object
         assert(trans.ctrl <=2 && trans.ctrl >=0);
         case (trans.ctrl)
             encoder_only: encode(trans,expected);
             decoder_only: decode(trans,expected);
             full_channel: full(trans,expected);
         endcase
-        //return expected;
+
     endtask
 
 
     task full(apb_trans trans, out_trans expected);
+        //full channel mode
       	int unsigned num_of_errors = $countones(trans.noise);
         assert(num_of_errors <= 2);
         expected.num_of_errors = num_of_errors;
@@ -51,6 +48,7 @@ class golden_model;
 
 
     task decode(apb_trans trans,  out_trans expected);
+        // decode only mode
         assert(trans.codeword_width <=2 && trans.codeword_width >=0);
         case (trans.codeword_width)
           0: decode_0(trans, expected); 
@@ -60,7 +58,7 @@ class golden_model;
     endtask
 
     task decode_0(apb_trans trans, out_trans expected);
-    
+        //decode only with codeword width 8 bit
         localparam int codeword_l = 8;
         localparam int parity_l = 4;
         localparam int info_l = codeword_l - parity_l;
@@ -100,7 +98,7 @@ class golden_model;
     endtask
     
     task decode_1(apb_trans trans, out_trans expected);
-    
+        //decode only with codeword width 16 bit
         localparam int codeword_l = 16;
         localparam int parity_l = 5;
         localparam int info_l = codeword_l - parity_l;
@@ -140,7 +138,7 @@ class golden_model;
     endtask
   
     task decode_2(apb_trans trans, out_trans expected);
-    
+        //decode only with codeword width 32 bit
         localparam int codeword_l = 32;
         localparam int parity_l = 6;
         localparam int info_l = codeword_l - parity_l;
@@ -181,6 +179,7 @@ class golden_model;
 
 
     task encode(apb_trans trans, out_trans expected);
+        //encode only mode
         assert(trans.codeword_width <=2 && trans.codeword_width >=0);
         case (trans.codeword_width)
           0: encode_0(trans, expected);
@@ -191,7 +190,7 @@ class golden_model;
 
               
   	task encode_0(apb_trans trans, out_trans expected);
-    
+        //encode only with codeword width 8 bit
         localparam int codeword_l = 8;
         localparam int parity_l = 4;
         localparam int info_l = codeword_l - parity_l;
@@ -208,7 +207,7 @@ class golden_model;
           
           
     task encode_1(apb_trans trans,  out_trans expected);
-    
+        //encode only with codeword width 16 bit
         localparam int codeword_l = 16;
         localparam int parity_l = 5;
         localparam int info_l = codeword_l - parity_l;
@@ -224,7 +223,7 @@ class golden_model;
     endtask
     
     task encode_2(apb_trans trans,  out_trans expected);
-    
+        //encode only with codeword width 32 bit
         localparam int codeword_l = 32;
         localparam int parity_l = 6;
         localparam int info_l = codeword_l - parity_l;

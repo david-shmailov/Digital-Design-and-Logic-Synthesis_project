@@ -20,14 +20,14 @@ class checker_chk #(
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
-        ) sampled_in;
+        ) sampled_in; // sampled input transaction object
     out_trans #(     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
-    ) expected, sampled_out;
+    ) expected, sampled_out; // 2 output transaction handles one for sample and one for expected from GM
 
-    int num_of_fails;
+    int num_of_fails; // counter for number of failed tests
 
     function new(mailbox inputs, mailbox outputs, event apb_test_done);
         this.inputs = inputs;
@@ -46,7 +46,7 @@ class checker_chk #(
             gm.create_expected(sampled_in,expected);
             compare_assert();
             compare_display();
-            //debug("manual");
+
             ->finished_test;
         end
     endtask
@@ -74,6 +74,7 @@ class checker_chk #(
     endtask
 
     task compare_assert;
+    // compare outputs with asserts
         if (sampled_in.ctrl != 0) begin // if we are in full channel or decode only
             assert (expected.num_of_errors == sampled_out.num_of_errors);
             if (expected.num_of_errors < 2) begin
@@ -85,6 +86,7 @@ class checker_chk #(
     endtask
 
     task compare_display;
+    //compare outputs with If's and print to prompt failures
         if (sampled_in.ctrl != 0) begin // if we are in full channel or decode only
             if (expected.num_of_errors != sampled_out.num_of_errors) debug("num_of_errors");
 
