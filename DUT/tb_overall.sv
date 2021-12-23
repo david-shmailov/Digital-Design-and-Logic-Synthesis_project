@@ -1,5 +1,27 @@
+`ifndef checker_chk
+`define checker_chk
+`include "Checker.sv"
+`endif
+
+`ifndef stimulus
+`define stimulus
+`include "stimulus.sv"
+`endif
+
+`ifndef in_mon
+`define in_mon
+`include "in_monitor.sv"
+`endif
+
+`ifndef out_monitor
+`define out_monitor
+`include "output_monitor.sv"
+`endif
+
+
+
 `resetall
-`timescale 1ns/1ns
+`timescale 1ns/100ps
 
 module tb;
 
@@ -8,9 +30,15 @@ module tb;
     parameter       DATA_WIDTH = 32; // codeword width max
 
     localparam      data_width_by4 = DATA_WIDTH/4;
+    localparam  encode = 0;
+    localparam  decode = 1;
+    localparam  full_channel = 2;
 
+    localparam  mod0 = 0;
+    localparam  mod1 = 1;
+    localparam  mod2 = 2;
 
-    int number_of_tests = 100000;
+    int number_of_tests = 100;
     int number_of_apb_tests = 4;
 
     bit clk, rst;
@@ -27,11 +55,11 @@ module tb;
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
         ) stm;
-    in_monitor #(     
+    in_mon #(     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
-        ) in_mon;
+    ) in_monitor;
     out_monitor #(     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
@@ -53,41 +81,53 @@ module tb;
                 .DATA_WIDTH(DATA_WIDTH)
     ) param_intf;
     
-    // covergroup cg_input @(starting_test);
-    //     cover_data_in : coverpoint stm.cover_data_in iff(stm.cover_ctrl ==1) && {
-    //         bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
-    //     }
+    
+    covergroup cg_input; 
+        cover_data_in_decode_0 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod0)  {
+            bins data_in_dec_0[2] = {[0:2^8-1]}; // divide data_in for bins of size 4 bits
+        }
 
-    //     // cover_data_in : coverpoint stm.cover_data_in{
-    //     //     bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
-    //     // }
+        cover_data_in_decode_1 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod1)  {
+            bins data_in_dec_1[4] = {[0:15]}; // divide data_in for bins of size 4 bits
+        }
 
-    //     // cover_data_in : coverpoint stm.cover_data_in{
-    //     //     bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
-    //     // }
+        cover_data_in_decode_2 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod2)  {
+            bins data_in_dec_2[8] = {[0:31]}; // divide data_in for bins of size 4 bits
+        }
 
-    //     // cover_data_in : coverpoint stm.cover_data_in{
-    //     //     bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
-    //     // }
+        cover_data_in_encode_0 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod0)  {
+            bins data_in_enc_0[2] = {[0:3]}; // divide data_in for bins of size 4 bits
+        }
+
+        cover_data_in_encode_1 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod1)  {
+            bins data_in_enc_1[4] = {[0:10]}; // divide data_in for bins of size 4 bits
+        }
+
+        cover_data_in_encode_2 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod2)  {
+            bins data_in_enc_2[8] = {[0:25]}; // divide data_in for bins of size 4 bits
+        }
+
         
-    //     cover_ctrl : coverpoint stm.cover_ctrl{
-    //         bins encoder_mode = {0};
-    //         bins decoder_mode = {1};
-    //         bins full_channel = {2};
-    //     }
-    //     cover_codeword_width : coverpoint stm.cover_width{
-    //         bins bit8 = {0};
-    //         bins bit16 = {1};
-    //         bins bit32 = {2};
-    //     }
-    //     cover_noise_0 : coverpoint stm.cover_noise iff(stm.cover_ctrl == 2){ //only in full channel noise has meaning
-    //         bins ZeroNoise = {0};
-    //     }
-    //     cover_noise_not_0 : coverpoint ^(stm.cover_noise) iff(stm.cover_ctrl == 2 && stm.cover_noise != 0){ //only in full channel noise has meaning
-    //         bins OneBit  = {1};
-    //         bins TwoBits = {0};
-    //     }
-    // endgroup    
+        
+        cover_ctrl : coverpoint in_monitor.cover_ctrl{
+            bins encoder_mode = {0};
+            bins decoder_mode = {1};
+            bins full_channel = {2};
+        }
+        cover_codeword_width : coverpoint in_monitor.cover_width{
+            bins bit8  = {0};
+            bins bit16 = {1};
+            bins bit32 = {2};
+        }
+        cover_noise_0 : coverpoint in_monitor.cover_noise iff(in_monitor.cover_ctrl == full_channel){ //only in full channel noise has meaning
+            bins ZeroNoise = {0};
+        }
+        cover_noise_not_0 : coverpoint ^(in_monitor.cover_noise) iff(in_monitor.cover_ctrl == full_channel && in_monitor.cover_noise != 0){ //only in full channel noise has meaning
+            bins OneBit  = {1};
+            bins TwoBits = {0};
+        }
+        ctrlXwidth : cross cover_ctrl,cover_codeword_width;
+    endgroup   
 
     covergroup cg_output (param_intf inter) @(posedge inter.clk);
 
@@ -107,7 +147,7 @@ module tb;
     endgroup 
 
     cg_output cg_inst;
-    //cg_input cg_in_inst;
+    cg_input cg_in_inst;
     intf # (     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
@@ -143,11 +183,10 @@ module tb;
         out2chk = new;
         stm = new(tb.inter.MASTER, apb_test_done, starting_test, number_of_tests, number_of_apb_tests);
         chk = new(in2chk, out2chk, apb_test_done);
-        in_mon = new(tb.inter.MONITOR, in2chk, apb_test_done);
+        in_monitor = new(tb.inter.MONITOR, in2chk, apb_test_done);
         out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
         cg_inst = new(tb.inter.MONITOR);
-        //cg_in_inst = new;
-        //cov = new(tb.inter.MONITOR);
+        cg_in_inst = new;
     endtask 
 
     task run;
@@ -155,7 +194,7 @@ module tb;
         #10 rst =1;
         fork
             stm.run();
-            in_mon.run();
+            in_monitor.run();
             out_mon.run();
             chk.run();
         join_any
@@ -176,7 +215,7 @@ module tb;
         $display("[TB] Running");
         run(); // this shouldnt be a deadlock because stm should run a finite amount of time.
         //wait_for_finish();
-        //$display("[TB] Input Coverage  = %0.2f %%",cg_in_inst.get_inst_coverage());
+        $display("[TB] Input Coverage  = %0.2f %%",cg_in_inst.get_inst_coverage());
         $display("[TB] Output Coverage = %0.2f %%",cg_inst.get_inst_coverage());
         $finish;
     end

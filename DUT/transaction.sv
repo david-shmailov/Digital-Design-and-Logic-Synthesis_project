@@ -1,3 +1,5 @@
+//`ifndef apb_trans
+
 class apb_trans #(
   int       AMBA_WORD = 32,
   int       AMBA_ADDR_WIDTH = 20,

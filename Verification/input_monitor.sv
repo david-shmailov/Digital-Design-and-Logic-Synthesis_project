@@ -1,7 +1,7 @@
-`ifndef apb_trans
-`define apb_trans
-`include "transaction.sv"
-`endif 
+// `ifndef apb_trans
+// `define apb_trans
+// `include "transaction.sv"
+// `endif 
 
 
 
@@ -30,7 +30,7 @@ class in_monitor #(
     bit     last_trans;
 
     mailbox mon2chk;
-    apb_trans # (     
+    apb_trans #(     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
@@ -44,7 +44,7 @@ class in_monitor #(
     int cover_width;
 
 
-    covergroup cg_input ; 
+    covergroup cg_input; 
         cover_data_in_decode_0 : coverpoint cover_data_in iff(cover_ctrl == decode && cover_width == mod0)  {
             bins data_in_dec_0[2] = {[0:2^8-1]}; // divide data_in for bins of size 4 bits
         }
