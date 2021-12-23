@@ -38,7 +38,7 @@ module tb;
     localparam  mod1 = 1;
     localparam  mod2 = 2;
 
-    int number_of_tests = 100;
+    int number_of_tests = 1000;
     int number_of_apb_tests = 4;
 
     bit clk, rst;
@@ -65,46 +65,38 @@ module tb;
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
         ) out_mon;
-    // cover_wrap #(     
-    //             .AMBA_WORD(AMBA_WORD),
-    //             .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
-    //             .DATA_WIDTH(DATA_WIDTH)
-    //     ) cg_wrap;
+ 
     
     event starting_test;
     event apb_test_done;
     event out_mon_finished;
 
-    typedef virtual intf.MONITOR # (     
-                .AMBA_WORD(AMBA_WORD),
-                .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
-                .DATA_WIDTH(DATA_WIDTH)
-    ) param_intf;
+
     
     
-    covergroup cg_input; 
+    covergroup cg_input @(posedge inter.clk); 
         cover_data_in_decode_0 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod0)  {
             bins data_in_dec_0[2] = {[0:2^8-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_decode_1 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod1)  {
-            bins data_in_dec_1[4] = {[0:15]}; // divide data_in for bins of size 4 bits
+            bins data_in_dec_1[4] = {[0:2^16-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_decode_2 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl == decode && in_monitor.cover_width == mod2)  {
-            bins data_in_dec_2[8] = {[0:31]}; // divide data_in for bins of size 4 bits
+            bins data_in_dec_2[8] = {[0:2^32-1]}; // divide data_in for bins of size 4 bits
         }
-
+        //for data_in , on decode mode we need to the full range and on fullchannel/encode we only need to input info range
         cover_data_in_encode_0 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod0)  {
-            bins data_in_enc_0[2] = {[0:3]}; // divide data_in for bins of size 4 bits
+            bins data_in_enc_0[2] = {[0:2^4-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_encode_1 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod1)  {
-            bins data_in_enc_1[4] = {[0:10]}; // divide data_in for bins of size 4 bits
+            bins data_in_enc_1[4] = {[0:2^11-1]}; // divide data_in for bins of size 4 bits
         }
 
         cover_data_in_encode_2 : coverpoint in_monitor.cover_data_in iff(in_monitor.cover_ctrl != decode && in_monitor.cover_width == mod2)  {
-            bins data_in_enc_2[8] = {[0:25]}; // divide data_in for bins of size 4 bits
+            bins data_in_enc_2[8] = {[0:2^26-1]}; // divide data_in for bins of size 4 bits
         }
 
         
@@ -127,20 +119,47 @@ module tb;
             bins TwoBits = {0};
         }
         ctrlXwidth : cross cover_ctrl,cover_codeword_width;
+        widthXnoise0 : cross cover_codeword_width, cover_noise_0;
+        widthXnoise12: cross cover_codeword_width, cover_noise_not_0;
     endgroup   
 
-    covergroup cg_output (param_intf inter) @(posedge inter.clk);
+    covergroup cg_output @(posedge inter.clk);
 
-        cover4numOfErr : coverpoint inter.num_of_errors iff(inter.operation_done)
+        //we dont care about num of errors on encode mode work.
+        cover_num_of_error : coverpoint inter.num_of_errors iff(inter.operation_done && in_monitor.cover_ctrl != encode)
         {
             bins ZeroErr = {0};
             bins OneErr = {1};
             bins TwoErr = {2};
         }
 
-        cover4data_out : coverpoint inter.data_out iff(inter.operation_done)
-        {
-            bins dataOut[data_width_by4] = {[0:DATA_WIDTH]};
+        // cover4data_out : coverpoint inter.data_out iff(inter.operation_done)
+        // {
+        //     bins dataOut[data_width_by4] = {[0:DATA_WIDTH-1]};
+        // }
+
+        cover_data_out_encode_0 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl == encode && in_monitor.cover_width == mod0)  {
+            bins data_out_dec_0[2] = {[0:2^8-1]}; // divide data_in for bins of size 4 bits
+        }
+
+        cover_data_out_encode_1 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl == encode && in_monitor.cover_width == mod1)  {
+            bins data_out_dec_1[4] = {[0:2^16-1]}; // divide data_in for bins of size 4 bits
+        }
+
+        cover_data_out_encode_2 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl == encode && in_monitor.cover_width == mod2)  {
+            bins data_out_dec_2[8] = {[0:2^32-1]}; // divide data_in for bins of size 4 bits
+        }
+        // for data_out, on encode mode it gets the full range and on decode/fullchannel we only get info range
+        cover_data_out_decode_0 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl != encode && in_monitor.cover_width == mod0)  {
+            bins data_out_enc_0[2] = {[0:2^4-1]}; // divide data_in for bins of size 4 bits
+        }
+
+        cover_data_out_decode_1 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl != encode && in_monitor.cover_width == mod1)  {
+            bins data_out_enc_1[4] = {[0:2^11-1]}; // divide data_in for bins of size 4 bits
+        }
+
+        cover_data_out_decode_2 : coverpoint inter.data_out iff(inter.operation_done && in_monitor.cover_ctrl != encode && in_monitor.cover_width == mod2)  {
+            bins data_out_enc_2[8] = {[0:2^26-1]}; // divide data_in for bins of size 4 bits
         }
         
 
@@ -185,7 +204,7 @@ module tb;
         chk = new(in2chk, out2chk, apb_test_done);
         in_monitor = new(tb.inter.MONITOR, in2chk, apb_test_done);
         out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
-        cg_inst = new(tb.inter.MONITOR);
+        cg_inst = new;
         cg_in_inst = new;
     endtask 
 

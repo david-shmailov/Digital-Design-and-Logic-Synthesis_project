@@ -68,7 +68,7 @@ class stimulus #(
         while(tests.size() > 0) begin
             trans = tests.pop_front();
             inter.PSEL     <=  1;
-            //if(trans.test_number >0) begin // this is a tool to run only a specific test, change to == <test_number>
+            if(trans.test_number > 0) begin // this is a tool to run only a specific test, change to == <test_number>
                 //variables for coverage monitoring
                 ->starting_test;
                 
@@ -112,7 +112,7 @@ class stimulus #(
                 inter.PSEL <= 0;
                 //$display("WRITE FINISHED.\nWAITING FOR OPERATION DONE ...");
                 @(posedge inter.operation_done);
-            //end
+            end
         end
     endtask //run_driver
 

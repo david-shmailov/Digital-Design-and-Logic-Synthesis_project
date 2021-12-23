@@ -29,6 +29,7 @@ class apb_trans #(
   {
     ctrl >= 0;
     ctrl <= 2; 
+    //ctrl == 0; //debug encode only
   }
 
   constraint c_noise_tri 
@@ -39,6 +40,7 @@ class apb_trans #(
     
   constraint c_codewidth  //not sure to include DATA_WIDTH PARAMETER
   {
+    solve ctrl before codeword_width;
     if (DATA_WIDTH == 8) codeword_width == 0;
     if (DATA_WIDTH == 16) codeword_width inside{[0:1]};
     if (DATA_WIDTH == 32) codeword_width inside{[0:2]};
@@ -53,22 +55,18 @@ class apb_trans #(
 
   constraint c_data_in
  {
-    solve ctrl,codeword_width before data_in;
-    if(ctrl == 1)
-      if(codeword_width == 0)
+    solve codeword_width before data_in;
+    if(ctrl == 1 && codeword_width == 0)
         data_in inside{[0:2^8-1]};
-    if(ctrl == 1)
-      if(codeword_width == 1)
+    if(ctrl == 1 && codeword_width == 1)
         data_in inside{[0:2^16-1]};
-    if(ctrl != 1)
-      if(codeword_width == 0)
+    if(ctrl != 1 && codeword_width == 0)
         data_in inside{[0:2^4-1]};
-    if(ctrl != 1)
-      if(codeword_width == 1)
+    if(ctrl != 1 && codeword_width == 1)
         data_in inside{[0:2^11-1]};
-    if(ctrl != 1)    
-      if(codeword_width == 2)
+    if(ctrl != 1 && codeword_width == 2)    
         data_in inside{[0:2^26-1]};
+
  }
 
     constraint c_noise_1

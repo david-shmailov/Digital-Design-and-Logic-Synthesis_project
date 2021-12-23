@@ -45,7 +45,6 @@ class out_monitor #(
                 trans.operation_done = inter.operation_done;
                 trans.num_of_errors = inter.num_of_errors;
                 trans.test_number = counter;
-
                 mon2chk.put(trans);
                 counter = counter +1;
             end
