@@ -55,6 +55,8 @@ module tb;
 
     bit clk, rst;
     mailbox in2chk, out2chk;
+
+
     checker_chk #(     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
@@ -81,7 +83,7 @@ module tb;
     //             .DATA_WIDTH(DATA_WIDTH)
     //     ) cg_wrap;
     
-
+    event starting_test;
     event apb_test_done;
     event out_mon_finished;
 
@@ -91,46 +93,43 @@ module tb;
                 .DATA_WIDTH(DATA_WIDTH)
     ) param_intf;
     
-    covergroup cg (param_intf inter) @(posedge inter.clk);
+    // covergroup cg_input @(starting_test);
+    //     cover_data_in : coverpoint stm.cover_data_in iff(stm.cover_ctrl ==1) && {
+    //         bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
+    //     }
 
-        //test for inputs and outputs of the DUT
-        // cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0 && inter.PENABLE) 
-        // {
+    //     // cover_data_in : coverpoint stm.cover_data_in{
+    //     //     bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
+    //     // }
 
-        //     bins encoder_mode = {0};
-        //     bins decoder_mode = {1};
-        //     bins full_channel = {2};
-        // }
+    //     // cover_data_in : coverpoint stm.cover_data_in{
+    //     //     bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
+    //     // }
 
-        // cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8 && inter.PENABLE) 
-        // {
-
-        //     bins bit8 = {0};
-        //     bins bit16 = {1};
-        //     bins bit32 = {2};
-        // }
-
-        // cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE)
-        // {
-        //     bins dataIN[data_width_by4] = {[0:DATA_WIDTH]};
-        // }
-
-        // cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) 
-        // {
-        //     bins ZeroNoise = {0};
-        // }
-
-        // cover4ONEnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc && !(inter.PWDATA == 0) && inter.PENABLE) 
-        // {
-        //     bins OneNoise = {1};
-        // }
-
-        // cover4TWOnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc && !(inter.PWDATA == 0) && inter.PENABLE) 
-        // {
-        //     bins TwoNoise = {0};
-        // }
-
+    //     // cover_data_in : coverpoint stm.cover_data_in{
+    //     //     bins data_in[data_width_by4] = {[0:DATA_WIDTH]}; // divide data_in into 4 sections for bins of size 4 bits
+    //     // }
         
+    //     cover_ctrl : coverpoint stm.cover_ctrl{
+    //         bins encoder_mode = {0};
+    //         bins decoder_mode = {1};
+    //         bins full_channel = {2};
+    //     }
+    //     cover_codeword_width : coverpoint stm.cover_width{
+    //         bins bit8 = {0};
+    //         bins bit16 = {1};
+    //         bins bit32 = {2};
+    //     }
+    //     cover_noise_0 : coverpoint stm.cover_noise iff(stm.cover_ctrl == 2){ //only in full channel noise has meaning
+    //         bins ZeroNoise = {0};
+    //     }
+    //     cover_noise_not_0 : coverpoint ^(stm.cover_noise) iff(stm.cover_ctrl == 2 && stm.cover_noise != 0){ //only in full channel noise has meaning
+    //         bins OneBit  = {1};
+    //         bins TwoBits = {0};
+    //     }
+    // endgroup    
+
+    covergroup cg_output (param_intf inter) @(posedge inter.clk);
 
         cover4numOfErr : coverpoint inter.num_of_errors iff(inter.operation_done)
         {
@@ -147,8 +146,8 @@ module tb;
 
     endgroup 
 
-    cg cg_inst;
-
+    cg_output cg_inst;
+    //cg_input cg_in_inst;
     intf # (     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
@@ -182,11 +181,12 @@ module tb;
     task build;
         in2chk = new;
         out2chk = new;
-        stm = new(tb.inter.MASTER, apb_test_done, number_of_tests, number_of_apb_tests);
+        stm = new(tb.inter.MASTER, apb_test_done, starting_test, number_of_tests, number_of_apb_tests);
         chk = new(in2chk, out2chk, apb_test_done);
         in_mon = new(tb.inter.MONITOR, in2chk, apb_test_done);
         out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
         cg_inst = new(tb.inter.MONITOR);
+        //cg_in_inst = new;
         //cov = new(tb.inter.MONITOR);
     endtask 
 
@@ -211,12 +211,13 @@ module tb;
     endtask
 
     initial begin
-        $display("Starting testing\n");
+        $display("[TB] Start");
         build();
-        $display("Running\n");
+        $display("[TB] Running");
         run(); // this shouldnt be a deadlock because stm should run a finite amount of time.
         //wait_for_finish();
-        $display("Coverage = %0.2f %%",cg_inst.get_inst_coverage());
+        //$display("[TB] Input Coverage  = %0.2f %%",cg_in_inst.get_inst_coverage());
+        $display("[TB] Output Coverage = %0.2f %%",cg_inst.get_inst_coverage());
         $finish;
     end
     

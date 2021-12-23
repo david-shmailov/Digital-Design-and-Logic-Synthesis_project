@@ -9,6 +9,8 @@ class stimulus #(
   int       AMBA_ADDR_WIDTH = 20,
   int       DATA_WIDTH = 32);
 
+
+
     typedef virtual intf.MASTER # (     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
@@ -23,6 +25,7 @@ class stimulus #(
     ) tests[$]; // a queue of apb_trans
     param_intf inter;
     event   apb_test_done;
+    event   starting_test;
     event   finished;
     apb_trans # (     
                 .AMBA_WORD(AMBA_WORD),
@@ -32,19 +35,20 @@ class stimulus #(
     int number_of_tests;
     int number_of_apb_tests;
 
-    int cover_data_in;
-    int cover_noise;
-    int cover_ctrl;
-    int cover_width;
+    
 
-    function new(param_intf inter, event apb_test_done, int number_of_tests, int number_of_apb_tests);
+
+
+    function new(param_intf inter, event apb_test_done, event   starting_test, int number_of_tests, int number_of_apb_tests);
        this.inter = inter;
        this.apb_test_done = apb_test_done;
+       this.starting_test = starting_test;
        this.number_of_tests = number_of_tests;
        this.number_of_apb_tests = number_of_apb_tests;
     endfunction
 
-    task run_gen(); 
+    task run_gen();
+    $display("[STIMULUS] generating tests");
         for (int i = 0 ; i < number_of_apb_tests + number_of_tests ; i++ ) begin
             trans = new;
             assert(trans.randomize());
@@ -63,14 +67,11 @@ class stimulus #(
         inter.PWRITE   <=  1;
         while(tests.size() > 0) begin
             trans = tests.pop_front();
-            //$display("[STIMULUS] writing to DUT");
             inter.PSEL     <=  1;
             //if(trans.test_number >0) begin // this is a tool to run only a specific test, change to == <test_number>
-                // this.cover_ctrl     <= trans.ctrl;
-                // this.cover_data_in  <= trans.data_in;
-                // this.cover_noise    <= trans.noise;
-                // this.cover_width    <= trans.cover_width;
-
+                //variables for coverage monitoring
+                ->starting_test;
+                
                 
                 //Write to DATA_IN
                 @(posedge inter.clk);
@@ -115,13 +116,12 @@ class stimulus #(
         end
     endtask //run_driver
 
-
+    
 
     task run_apb_test;
         $display("[STIMULUS] testing APB protocol");
         while(tests.size() > 0 && number_of_apb_tests > 0) begin
             number_of_apb_tests --;
-            $display("apb test: %d",number_of_apb_tests);
             trans = tests.pop_front();
             inter.PSEL     <= 0;
             inter.PENABLE  <= 0;
@@ -174,7 +174,7 @@ class stimulus #(
             inter.PADDR    <=  4'h4;
             @(posedge inter.clk);
             inter.PENABLE <= 1;
-            #1 assert(inter.PRDATA == trans.data_in);
+            #1 assert(inter.PRDATA == trans.data_in); // delay of #1 required for questa to read the new value and not previous
             @(posedge inter.clk);
             inter.PENABLE <= 0;
 
@@ -231,6 +231,6 @@ class stimulus #(
         ->finished;
     endtask //driver
 
- 
+    
 
 endclass //generator & driver
