@@ -44,51 +44,65 @@ module APB_BUS (
   localparam  NOISE_ADDR          = {{AMBA_ADDR_WIDTH-4{1'b0}},4'hC};
 
   //state declaration
-  localparam  [1:0]     SETUP   = 1'b0;
-  localparam  [1:0]     ACCES   = 1'b1;
+  localparam  [1:0]     IDLE    = 1'b0;
+  localparam  [1:0]     ACS   = 1'b1;
 
   //state declaration of present and next 
   logic current_state,next_state;
 
 // APB-Slave FSM
   always @ (posedge clk or negedge rst) begin : state_assign
-    if(!rst) current_state <= SETUP;
+    if(!rst) current_state <= IDLE;
     else
       current_state <= next_state;
   end
 
   always_comb begin : APB_FSM
     case(current_state)     
-      SETUP: begin
-        if (PENABLE && PSEL)
-          next_state = ACCES;
+      IDLE: begin
+        if (PSEL)
+          next_state = ACS;
         else
-          next_state = SETUP;
+          next_state = IDLE;
       end
-      ACCES:
-          next_state = SETUP;
+      ACS: begin
+          if (PSEL)
+            next_state = ACS;
+          else
+            next_state = IDLE;
+      end
       default: 
-        next_state = SETUP;
+        next_state = IDLE;
     endcase
   end
 
 // read from memory
-  always_ff @( posedge clk or negedge rst) begin : read
-    if(!rst) begin
-      PRDATA <= {AMBA_WORD{1'b0}};
-    end else if (current_state == ACCES && PWRITE == 0) begin
+  // always_ff @( posedge clk or negedge rst) begin : read
+  //   if(!rst) begin
+  //     PRDATA <= {AMBA_WORD{1'b0}};
+  //   end else if (current_state == ACS && PENABLE && !PWRITE ) begin
+  //     case (PADDR)
+  //       CTRL_ADDR            :   PRDATA <= CTRL;
+  //       DATA_IN_ADDR         :   PRDATA <= DATA_IN;
+  //       CODEWORD_WIDTH_ADDR  :   PRDATA <= CODEWORD_WIDTH;
+  //       NOISE_ADDR           :   PRDATA <= NOISE;
+  //       default              :   PRDATA <= 0;
+  //     endcase
+  //   end else begin
+  //     PRDATA <= PRDATA;
+  //   end
+  // end
+  always_comb begin : read
+    if (current_state == ACS && PENABLE && !PWRITE ) begin
       case (PADDR)
-        CTRL_ADDR            :   PRDATA <= CTRL;
-        DATA_IN_ADDR         :   PRDATA <= DATA_IN;
-        CODEWORD_WIDTH_ADDR  :   PRDATA <= CODEWORD_WIDTH;
-        NOISE_ADDR           :   PRDATA <= NOISE;
-        default              :   PRDATA <= 0;
+        CTRL_ADDR            :   PRDATA = CTRL;
+        DATA_IN_ADDR         :   PRDATA = DATA_IN;
+        CODEWORD_WIDTH_ADDR  :   PRDATA = CODEWORD_WIDTH;
+        NOISE_ADDR           :   PRDATA = NOISE;
+        default              :   PRDATA = 0;
       endcase
-    end else begin
-      PRDATA <= PRDATA;
-    end
+    end else PRDATA = 0;
   end
-
 
 // writing to memory:
 
@@ -97,7 +111,7 @@ module APB_BUS (
     if(!rst) begin
       CTRL <= {AMBA_WORD{1'b0}};
       start <= 1'b0;
-    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h0) begin
+    end else if(current_state == ACS && PWRITE && PENABLE  && PADDR[3:0] == 4'h0) begin
       CTRL <= PWDATA;
       start <= 1'b1;
     end else if (start) begin
@@ -106,13 +120,14 @@ module APB_BUS (
       CTRL <= CTRL;
     end
   end
+  
 
 
   //DATA_IN register
   always_ff @( posedge clk or negedge rst) begin : data_in_register
     if(!rst) begin
       DATA_IN <= {AMBA_WORD{1'b0}};
-    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h4) begin
+    end else if(current_state == ACS && PWRITE && PENABLE && PADDR[3:0] == 4'h4) begin
       DATA_IN <= PWDATA;
     end else begin
       DATA_IN <= DATA_IN;
@@ -123,7 +138,7 @@ module APB_BUS (
   always_ff @( posedge clk or negedge rst) begin : codeword_width_register
     if(!rst) begin 
       CODEWORD_WIDTH <= {AMBA_WORD{1'b0}};
-    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'h8) begin
+    end else if(current_state == ACS && PWRITE && PENABLE && PADDR[3:0] == 4'h8) begin
       CODEWORD_WIDTH <= PWDATA;
     end else begin
       CODEWORD_WIDTH <= CODEWORD_WIDTH;
@@ -134,7 +149,7 @@ module APB_BUS (
   always_ff @( posedge clk or negedge rst) begin : noise_register
     if(!rst) begin
       NOISE <= {AMBA_WORD{1'b0}};
-    end else if(current_state == ACCES && PWRITE == 1 && PADDR[3:0] == 4'hc) begin
+    end else if(current_state == ACS && PWRITE && PENABLE && PADDR[3:0] == 4'hc) begin
       NOISE <= PWDATA;
     end else begin
       NOISE <= NOISE;
