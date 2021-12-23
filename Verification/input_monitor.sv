@@ -18,9 +18,9 @@ class in_monitor #(
     ) param_intf;
 
     param_intf inter;
-    event   stm_finished;
+    event   apb_test_done;
     bit     last_trans;
-    event   finish;
+
     mailbox mon2chk;
     apb_trans # (     
                 .AMBA_WORD(AMBA_WORD),
@@ -29,20 +29,16 @@ class in_monitor #(
     ) trans;
     int     counter;
 
-    function new(param_intf inter, mailbox mon2chk, event stm_finished); // maybe you cant tranfer events as arg
+    function new(param_intf inter, mailbox mon2chk, event apb_test_done); // maybe you cant tranfer events as arg
         this.mon2chk = mon2chk;
+        this.apb_test_done = apb_test_done;
         this.inter = inter;
-        this.stm_finished = stm_finished;
         this.last_trans = 0;
     endfunction //new()
 
-    task wait_for_finish;
-        @(stm_finished);
-        @(finish);
-        $display("input monitor finished");
-    endtask
 
     task run;
+        @(apb_test_done);
         trans = new; // check that if something is rand can still accept a deterministic value
         counter = 1;
         forever begin
@@ -59,7 +55,6 @@ class in_monitor #(
                     mon2chk.put(trans);
                     trans = new;
                     counter = counter +1;
-                    ->finish; // triggers this event every time a trans is sent
                 end
             end
         end

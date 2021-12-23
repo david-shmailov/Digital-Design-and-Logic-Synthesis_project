@@ -81,7 +81,7 @@ module tb;
     //     ) cg_wrap;
     
 
-    event stm_finished;
+    event apb_test_done;
     event out_mon_finished;
 
     typedef virtual intf.MONITOR # (     
@@ -93,41 +93,43 @@ module tb;
     covergroup cg (param_intf inter) @(posedge inter.clk);
 
         //test for inputs and outputs of the DUT
-        cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0 && inter.PENABLE) 
-        {
+        // cover4ctrl : coverpoint inter.PWDATA iff(inter.PADDR == 0 && inter.PENABLE) 
+        // {
 
-            bins encoder_mode = {0};
-            bins decoder_mode = {1};
-            bins full_channel = {2};
-        }
+        //     bins encoder_mode = {0};
+        //     bins decoder_mode = {1};
+        //     bins full_channel = {2};
+        // }
 
-        cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8 && inter.PENABLE) 
-        {
+        // cover4codeword_width : coverpoint inter.PWDATA iff(inter.PADDR == 'h8 && inter.PENABLE) 
+        // {
 
-            bins bit8 = {0};
-            bins bit16 = {1};
-            bins bit32 = {2};
-        }
+        //     bins bit8 = {0};
+        //     bins bit16 = {1};
+        //     bins bit32 = {2};
+        // }
 
-        cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE)
-        {
-            bins dataIN[data_width_by4] = {[0:DATA_WIDTH]};
-        }
+        // cover4data_in : coverpoint inter.PWDATA iff(inter.PADDR == 'h4 && inter.PENABLE)
+        // {
+        //     bins dataIN[data_width_by4] = {[0:DATA_WIDTH]};
+        // }
 
-        cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) 
-        {
-            bins ZeroNoise = {0};
-        }
+        // cover4ZEROnoise : coverpoint inter.PWDATA iff(inter.PADDR == 'hc && inter.PWDATA == 0 && inter.PENABLE) 
+        // {
+        //     bins ZeroNoise = {0};
+        // }
 
-        cover4ONEnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc && !(inter.PWDATA == 0) && inter.PENABLE) 
-        {
-            bins OneNoise = {1};
-        }
+        // cover4ONEnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc && !(inter.PWDATA == 0) && inter.PENABLE) 
+        // {
+        //     bins OneNoise = {1};
+        // }
 
-        cover4TWOnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc && !(inter.PWDATA == 0) && inter.PENABLE) 
-        {
-            bins TwoNoise = {0};
-        }
+        // cover4TWOnoise : coverpoint (^inter.PWDATA) iff(inter.PADDR == 'hc && !(inter.PWDATA == 0) && inter.PENABLE) 
+        // {
+        //     bins TwoNoise = {0};
+        // }
+
+        
 
         cover4numOfErr : coverpoint inter.num_of_errors iff(inter.operation_done)
         {
@@ -179,10 +181,10 @@ module tb;
     task build;
         in2chk = new;
         out2chk = new;
-        chk = new(in2chk, out2chk, out_mon_finished);
-        stm = new(tb.inter.MASTER, stm_finished, number_of_tests);
-        in_mon = new(tb.inter.MONITOR, in2chk, stm_finished);
-        out_mon = new(tb.inter.MONITOR, out2chk, stm_finished, out_mon_finished);
+        stm = new(tb.inter.MASTER, apb_test_done, number_of_tests);
+        chk = new(in2chk, out2chk, apb_test_done);
+        in_mon = new(tb.inter.MONITOR, in2chk, apb_test_done);
+        out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
         cg_inst = new(tb.inter.MONITOR);
         //cov = new(tb.inter.MONITOR);
     endtask 
@@ -203,7 +205,7 @@ module tb;
             stm.wait_for_finish();
             //in_mon.wait_for_finish(); // no need. they finish together
             //out_mon.wait_for_finish();
-            chk.wait_for_finish();
+            //chk.wait_for_finish();
         join
     endtask
 

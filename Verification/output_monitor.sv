@@ -16,7 +16,7 @@ class out_monitor #(
     ) param_intf;
 
     param_intf inter;
-    event stm_finished , out_mon_finished;
+    event  apb_test_done;
     mailbox mon2chk;
     out_trans # (     
                 .AMBA_WORD(AMBA_WORD),
@@ -25,22 +25,17 @@ class out_monitor #(
     ) trans;
     int counter;
 
-    function new(param_intf inter, mailbox mon2chk, event stm_finished, event out_mon_finished);
+    function new(param_intf inter, mailbox mon2chk,  event apb_test_done);
         this.mon2chk = mon2chk;
         this.inter = inter;
-        this.stm_finished = stm_finished;
-        this.out_mon_finished = out_mon_finished;
+        this.apb_test_done = apb_test_done;
     endfunction //new()
 
-    task wait_for_finish;
-        @(stm_finished);
-        //@(posedge inter.operation_done);
-        ->out_mon_finished;
-        $display("output monitor finished");
-    endtask
+ 
 
 
     task run;
+        @(apb_test_done);
         counter = 1;
         forever begin
             trans = new;

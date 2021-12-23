@@ -14,7 +14,7 @@ class checker_chk #(
     mailbox outputs;
 
     golden_model  gm;
-    event out_mon_finished;
+    event apb_test_done;
     event finished_test;
     apb_trans #(     
                 .AMBA_WORD(AMBA_WORD),
@@ -29,15 +29,16 @@ class checker_chk #(
 
     int num_of_fails;
 
-    function new(mailbox inputs, mailbox outputs, event out_mon_finished);
+    function new(mailbox inputs, mailbox outputs, event apb_test_done);
         this.inputs = inputs;
         this.outputs = outputs;
         this.gm = new;
-        this.out_mon_finished = out_mon_finished;
+        this.apb_test_done = apb_test_done;
     endfunction 
 
     task run;
-        num_of_fails =0;
+        @(apb_test_done); //wait for APB test to be over
+        num_of_fails = 0;
         forever begin
             expected = new;
             inputs.get(sampled_in);
@@ -49,10 +50,6 @@ class checker_chk #(
         end
     endtask
 
-    task wait_for_finish;
-        @(out_mon_finished);
-        @(finished_test);
-    endtask
 
     task debug(string fail);
         num_of_fails = num_of_fails +1;
