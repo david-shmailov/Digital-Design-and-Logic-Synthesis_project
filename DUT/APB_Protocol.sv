@@ -76,22 +76,6 @@ module APB_BUS (
     endcase
   end
 
-// read from memory
-  // always_ff @( posedge clk or negedge rst) begin : read
-  //   if(!rst) begin
-  //     PRDATA <= {AMBA_WORD{1'b0}};
-  //   end else if (current_state == ACS && PENABLE && !PWRITE ) begin
-  //     case (PADDR)
-  //       CTRL_ADDR            :   PRDATA <= CTRL;
-  //       DATA_IN_ADDR         :   PRDATA <= DATA_IN;
-  //       CODEWORD_WIDTH_ADDR  :   PRDATA <= CODEWORD_WIDTH;
-  //       NOISE_ADDR           :   PRDATA <= NOISE;
-  //       default              :   PRDATA <= 0;
-  //     endcase
-  //   end else begin
-  //     PRDATA <= PRDATA;
-  //   end
-  // end
   always_comb begin : read
     if (current_state == ACS && PENABLE && !PWRITE ) begin
       case (PADDR)

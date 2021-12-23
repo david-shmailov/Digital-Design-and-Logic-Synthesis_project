@@ -37,14 +37,15 @@ class stimulus #(
     int cover_ctrl;
     int cover_width;
 
-    function new(param_intf inter, event apb_test_done, int number_of_tests);
+    function new(param_intf inter, event apb_test_done, int number_of_tests, int number_of_apb_tests);
        this.inter = inter;
        this.apb_test_done = apb_test_done;
        this.number_of_tests = number_of_tests;
+       this.number_of_apb_tests = number_of_apb_tests;
     endfunction
 
     task run_gen(); 
-        for (int i = 0 ; i < number_of_tests ; i++ ) begin
+        for (int i = 0 ; i < number_of_apb_tests + number_of_tests ; i++ ) begin
             trans = new;
             assert(trans.randomize());
             trans.test_number = i + 1;
@@ -120,6 +121,7 @@ class stimulus #(
         $display("[STIMULUS] testing APB protocol");
         while(tests.size() > 0 && number_of_apb_tests > 0) begin
             number_of_apb_tests --;
+            $display("apb test: %d",number_of_apb_tests);
             trans = tests.pop_front();
             inter.PSEL     <= 0;
             inter.PENABLE  <= 0;
@@ -172,16 +174,16 @@ class stimulus #(
             inter.PADDR    <=  4'h4;
             @(posedge inter.clk);
             inter.PENABLE <= 1;
-            assert(inter.PRDATA == trans.data_in);
+            #1 assert(inter.PRDATA == trans.data_in);
             @(posedge inter.clk);
             inter.PENABLE <= 0;
 
             //Read from CODEWORD_WIDTH
             @(posedge inter.clk);
-            inter.PADDR    <=  4'h8; 
+            inter.PADDR    <=  4'h8;
             @(posedge inter.clk);
             inter.PENABLE <= 1;
-            assert(inter.PRDATA == trans.codeword_width);
+            #1 assert(inter.PRDATA == trans.codeword_width);
             @(posedge inter.clk);
             inter.PENABLE <= 0;
 
@@ -190,7 +192,8 @@ class stimulus #(
             inter.PADDR    <=  4'hc; 
             @(posedge inter.clk);
             inter.PENABLE <= 1;
-            assert(inter.PRDATA == trans.noise);
+            
+            #1 assert(inter.PRDATA == trans.noise);
             @(posedge inter.clk);
             inter.PENABLE <= 0;
 
@@ -199,7 +202,8 @@ class stimulus #(
             inter.PADDR    <=  4'h0; 
             @(posedge inter.clk);
             inter.PENABLE <= 1;
-            assert(inter.PRDATA == trans.ctrl);
+            
+            #1 assert(inter.PRDATA == trans.ctrl);
             @(posedge inter.clk);
 
             inter.PENABLE <= 0;

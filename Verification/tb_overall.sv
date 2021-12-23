@@ -51,6 +51,7 @@ module tb;
 
 
     int number_of_tests = 100000;
+    int number_of_apb_tests = 4;
 
     bit clk, rst;
     mailbox in2chk, out2chk;
@@ -181,7 +182,7 @@ module tb;
     task build;
         in2chk = new;
         out2chk = new;
-        stm = new(tb.inter.MASTER, apb_test_done, number_of_tests);
+        stm = new(tb.inter.MASTER, apb_test_done, number_of_tests, number_of_apb_tests);
         chk = new(in2chk, out2chk, apb_test_done);
         in_mon = new(tb.inter.MONITOR, in2chk, apb_test_done);
         out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
