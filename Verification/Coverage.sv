@@ -54,7 +54,7 @@ class cover_wrap #(
             bins TwoErr = {2};
         }
 
-        data8bit : cross inter.data_out,cover4codeword_width;
+        databit : cross inter.data_out,cover4codeword_width;
 
 
     endgroup : cg
