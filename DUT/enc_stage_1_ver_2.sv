@@ -55,12 +55,12 @@ module ENC_STAGE_1 (
 
 
     generate
-        if (MAX_CODEWORD_WIDTH == 8) begin
-            assign  H1_stage1_1D_mat = 16'hEDB;// we want the first rows to be padded zeros.
-            assign  H2_stage1_1D_mat = 16'h0;
-            assign  H3_stage1_1D_mat = 16'h0;
+        always_comb begin : output_mux
+            if (MAX_CODEWORD_WIDTH == 8) begin
 
-            always_comb begin : output_mux
+                H1_stage1_1D_mat = 16'hEDB;// we want the first rows to be padded zeros.
+                H2_stage1_1D_mat = 16'h0;
+                H3_stage1_1D_mat = 16'h0;
                 case(work_mod)
                     mod_1   :   final_temp =    {data_in,
                                                 parity_bits};
@@ -69,15 +69,11 @@ module ENC_STAGE_1 (
 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
                 endcase
-            end
+            end else if (MAX_CODEWORD_WIDTH == 16) begin
 
-
-        end else if (MAX_CODEWORD_WIDTH == 16) begin
-            assign  H1_stage1_1D_mat = 55'h380_680B;// we want the first rows to be padded zeros.
-            assign  H2_stage1_1D_mat = 55'hFE1_E3B3_6D5B;
-            assign  H3_stage1_1D_mat = 55'h0;
-
-            always_comb begin : output_mux
+                H1_stage1_1D_mat = 55'h380_680B;// we want the first rows to be padded zeros.
+                H2_stage1_1D_mat = 55'hFE1_E3B3_6D5B;
+                H3_stage1_1D_mat = 55'h0;
                 case(work_mod)
                     mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
                                                 data_in[info_mod_1-1:0],
@@ -90,16 +86,12 @@ module ENC_STAGE_1 (
 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
                 endcase
-            end
 
+            end else if (MAX_CODEWORD_WIDTH == 32) begin
 
-
-        end else if (MAX_CODEWORD_WIDTH == 32) begin
-            assign  H1_stage1_1D_mat = 156'hE0_0000_3400_000B; // we want the first rows to be padded zeros.
-            assign  H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
-            assign  H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
-
-            always_comb begin : output_mux
+                H1_stage1_1D_mat = 156'hE0_0000_3400_000B; // we want the first rows to be padded zeros.
+                H2_stage1_1D_mat = 156'h1FC_0000_78E0_0019_B400_055B;
+                H3_stage1_1D_mat = 156'h3_FFF8_00FF_01FC_3C3C_78EC_CCD9_B6AA_AD5B;
                 case(work_mod)
                     mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
                                                 data_in[info_mod_1-1:0],

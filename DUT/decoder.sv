@@ -70,23 +70,19 @@ module DEC (
     // dec_check has registered output , so no need to add a register output here as well.
 
     generate
-    if (MAX_CODEWORD_WIDTH == 8) begin
-        always_comb begin  : DataOut_mode
+    always_comb begin  : DataOut_mode
+        if (MAX_CODEWORD_WIDTH == 8) begin
             case (work_mod)
                 mod_1   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
                 default :   data_out = {{MAX_CODEWORD_WIDTH - 4{1'b0}},data_out_with_parity[3:0]}; // clean when sythsizer
             endcase
-        end
-    end else if (MAX_CODEWORD_WIDTH == 16) begin
-        always_comb begin  : DataOut_mode
+        end else if (MAX_CODEWORD_WIDTH == 16) begin
             case (work_mod)
                 mod_1   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
                 mod_2   :   data_out = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};
                 default :   data_out = {{MAX_CODEWORD_WIDTH - 4{1'b0}},data_out_with_parity[3:0]}; // clean when sythsizer
             endcase
-        end
-    end else if (MAX_CODEWORD_WIDTH == 32) begin
-        always_comb begin  : DataOut_mode
+        end else if (MAX_CODEWORD_WIDTH == 32) begin
             case (work_mod)
                 mod_1   :   data_out = {{pad_zero_1{1'b0}},data_out_with_parity[full_length_mod_1-1 : parity_mod_1]};
                 mod_2   :   data_out = {{pad_zero_2{1'b0}},data_out_with_parity[full_length_mod_2-1 : parity_mod_2]};

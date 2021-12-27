@@ -49,8 +49,8 @@ module ENC_STAGE_2 (
                 .C_data_out(temp));
     
     generate
-        if (MAX_CODEWORD_WIDTH == 8) begin
-            always_comb begin : output_mux
+        always_comb begin : output_mux
+            if (MAX_CODEWORD_WIDTH == 8) begin
                 case(work_mod)
                     mod_1   :   final_temp =    {data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1 : MAX_PARITY_WIDTH],
                                                 temp,  // index parity_mod_1 -1
@@ -58,9 +58,7 @@ module ENC_STAGE_2 (
 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
                 endcase
-            end;
-        end else if (MAX_CODEWORD_WIDTH == 16) begin
-            always_comb begin : output_mux
+            end else if (MAX_CODEWORD_WIDTH == 16) begin
                 case(work_mod)
                     mod_1   :   final_temp =    {{8{1'b0}},
                                                 data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
@@ -73,9 +71,7 @@ module ENC_STAGE_2 (
                                                 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
                 endcase
-            end
-        end else if (MAX_CODEWORD_WIDTH == 32) begin
-            always_comb begin : output_mux
+            end else if (MAX_CODEWORD_WIDTH == 32) begin
                 case(work_mod)
                     mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
                                                 data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
