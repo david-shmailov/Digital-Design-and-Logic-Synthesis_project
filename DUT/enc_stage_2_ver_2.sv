@@ -44,7 +44,7 @@ module ENC_STAGE_2 (
                     .A_COLS(MAX_CODEWORD_WIDTH),
                     .B_COLS(1)) m1
                 (
-                .A_data_in(one_vec), //todo test that this is the correct selection
+                .A_data_in(one_vec), 
                 .B_data_in(data_in),
                 .C_data_out(temp));
     
