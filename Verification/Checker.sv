@@ -20,14 +20,14 @@ class checker_chk #(
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
-        ) sampled_in;
+        ) sampled_in; // sampled input transaction object
     out_trans #(     
                 .AMBA_WORD(AMBA_WORD),
                 .AMBA_ADDR_WIDTH(AMBA_ADDR_WIDTH),
                 .DATA_WIDTH(DATA_WIDTH)
-    ) expected, sampled_out;
+    ) expected, sampled_out; // 2 output transaction handles one for sample and one for expected from GM
 
-    int num_of_fails;
+    int num_of_fails; // counter for number of failed tests
 
     function new(mailbox inputs, mailbox outputs, event apb_test_done);
         this.inputs = inputs;
@@ -44,8 +44,9 @@ class checker_chk #(
             inputs.get(sampled_in);
             outputs.get(sampled_out);
             gm.create_expected(sampled_in,expected);
-            compare;
-            //debug;
+            compare_assert();
+            compare_display();
+
             ->finished_test;
         end
     endtask
@@ -72,18 +73,20 @@ class checker_chk #(
     
     endtask
 
-    // task compare(out_trans sampled_out, expected, apb_trans sampled_in);
-    //     if (sampled_in.ctrl != 0) begin // if we are in full channel or decode only
-    //         assert (expected.num_of_errors == sampled_out.num_of_errors);
-    //         if (expected.num_of_errors != 2) begin
-    //             assert (expected.data_out == sampled_out.data_out); // we only care about data_out value if num of errors is <2
-    //         end 
-    //     end else begin // we are in encode mode, we dont care about num_of_errors
-    //         assert (expected.data_out == sampled_out.data_out);
-    //     end
-    // endtask
+    task compare_assert;
+    // compare outputs with asserts
+        if (sampled_in.ctrl != 0) begin // if we are in full channel or decode only
+            assert (expected.num_of_errors == sampled_out.num_of_errors);
+            if (expected.num_of_errors < 2) begin
+                assert (expected.data_out == sampled_out.data_out); // we care about data_out value only if num of errors is <2
+            end 
+        end else begin // we are in encode mode, we dont care about num_of_errors
+            assert (expected.data_out == sampled_out.data_out);
+        end
+    endtask
 
-    task compare;
+    task compare_display;
+    //compare outputs with If's and print to prompt failures
         if (sampled_in.ctrl != 0) begin // if we are in full channel or decode only
             if (expected.num_of_errors != sampled_out.num_of_errors) debug("num_of_errors");
 
