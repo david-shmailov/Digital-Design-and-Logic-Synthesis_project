@@ -61,7 +61,7 @@ class stimulus #(
 
 
     task run_driver();
-        $display("[STIMULUS] starting regression");
+        $display("[STIMULUS] starting main test");
         @(posedge inter.clk);
         inter.PSEL <= 0;
         inter.PENABLE <= 0;
