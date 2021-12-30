@@ -8,9 +8,9 @@ module ENC_STAGE_1 (
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
 
-    localparam mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
-    localparam mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
-    localparam mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
+    localparam mod_1 = 2'b00;
+    localparam mod_2 = 2'b01;
+    localparam mod_3 = 2'b10;
 
     // parameters for various widths:
     localparam MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;
@@ -27,7 +27,7 @@ module ENC_STAGE_1 (
     // I/O
     input logic     rst,clk,enable;
     input logic     [MAX_INFO_WIDTH-1:0]        data_in;
-    input logic     [AMBA_WORD -1:0]            work_mod;
+    input logic     [1:0]            work_mod;
     output logic    [MAX_CODEWORD_WIDTH-1:0]    data_out;
 
     // signals

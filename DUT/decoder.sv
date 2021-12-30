@@ -10,9 +10,9 @@ module DEC (
     parameter   MAX_CODEWORD_WIDTH = 32;
     parameter   MAX_INFO_WIDTH=26;
     parameter   AMBA_WORD = 32;
-    localparam mod_1 = {{AMBA_WORD-2{1'b0}}, 2'b00};
-    localparam mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
-    localparam mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
+    localparam mod_1 = 2'b00;
+    localparam mod_2 = 2'b01;
+    localparam mod_3 = 2'b10;
 
 
     localparam  MAX_PARITY_WIDTH = MAX_CODEWORD_WIDTH - MAX_INFO_WIDTH;

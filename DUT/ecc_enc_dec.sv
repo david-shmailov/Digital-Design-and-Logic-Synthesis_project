@@ -52,6 +52,9 @@ module ECC_ENC_DEC //top
         logic     [2:0]                  counter;
         logic                            enable_enc;
         logic                            enable_dec;
+
+
+        logic     [1:0]                  gated_codeword_width;
         logic     [DATA_WIDTH-1:0]       gated_data_in;
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
@@ -100,8 +103,8 @@ module ECC_ENC_DEC //top
                 .rst(rst),
                 .clk(clk),
                 .enable(enable_enc),
-                .data_in(DATA_IN[MAX_INFO_WIDTH-1:0]),
-                .work_mod(CODEWORD_WIDTH), 
+                .data_in(gated_data_in[MAX_INFO_WIDTH-1:0]),
+                .work_mod(gated_codeword_width), 
                 //output
                 .data_out(data_out_enc)
         );
@@ -119,7 +122,7 @@ module ECC_ENC_DEC //top
                 .clk(clk),
                 .enable(enable_dec),
                 .data_in(DATA_IN_DEC),
-                .work_mod(CODEWORD_WIDTH), 
+                .work_mod(gated_codeword_width), 
                 //output  
                 .data_out(data_out_dec),
                 .num_of_errors(num_of_errors) 
@@ -128,7 +131,9 @@ module ECC_ENC_DEC //top
         // adding noise to the data in Full channel mode.
         assign  data_with_noise = data_out_enc ^ NOISE ;
         assign  online = enable_dec || enable_enc;
-        // gated data in to prevent information toggle
+        // gated inputs to prevent information toggle
+        assign  gated_codeword_width[0] = online && CODEWORD_WIDTH[0];
+        assign  gated_codeword_width[1] = online && CODEWORD_WIDTH[1];
         genvar index;
         generate
                 for ( index = 0; index< DATA_WIDTH; index = index + 1) begin
@@ -147,7 +152,7 @@ module ECC_ENC_DEC //top
         // a mux that determines the input of a decoder according to the mode.
         always_comb begin : decoder_input_mux
                 case(CTRL) 
-                        DECODER_ONLY  :   DATA_IN_DEC = DATA_IN[DATA_WIDTH-1:0];
+                        DECODER_ONLY  :   DATA_IN_DEC = gated_data_in;
                         FULL_CHANNEL  :   DATA_IN_DEC = data_with_noise;    
                         default : DATA_IN_DEC = 0;
                 endcase
