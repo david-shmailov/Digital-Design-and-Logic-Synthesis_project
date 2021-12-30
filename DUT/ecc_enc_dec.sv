@@ -52,7 +52,7 @@ module ECC_ENC_DEC //top
         logic     [2:0]                  counter;
         logic                            enable_enc;
         logic                            enable_dec;
-
+        logic     [DATA_WIDTH-1:0]       gated_data_in;
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
         logic     [DATA_WIDTH-1:0]       data_with_noise;
@@ -64,7 +64,7 @@ module ECC_ENC_DEC //top
         logic     [AMBA_WORD - 1:0]      NOISE;          
         logic     [DATA_WIDTH - 1:0]     DATA_IN_DEC;
   
-
+        
 
         APB_BUS  #(
                  //defparam       
@@ -128,7 +128,13 @@ module ECC_ENC_DEC //top
         // adding noise to the data in Full channel mode.
         assign  data_with_noise = data_out_enc ^ NOISE ;
         assign  online = enable_dec || enable_enc;
-
+        // gated data in to prevent information toggle
+        genvar index;
+        generate
+                for ( index = 0; index< DATA_WIDTH; index = index + 1) begin
+                        assign gated_data_in[index] = online && DATA_IN[index];
+                end
+        endgenerate
         // a mux that determines the output of the design according to the mode.
         always_comb begin : output_mux
                 case (CTRL)
@@ -172,7 +178,7 @@ module ECC_ENC_DEC //top
         end
                         
 
-        // this register purpose is to switch to working status, because the start signal from APB is lowered after 1 cycle.
+        //this register purpose is to switch to working status, because the start signal from APB is lowered after 1 cycle.
         // always_ff @(posedge clk or negedge rst) begin : status_reg
         //         if (!rst)
         //                 online <= 1'b0;
@@ -220,10 +226,10 @@ module ECC_ENC_DEC //top
                 end else if (counter == ENC_DEC_DELAY && (CTRL == ENCODER_ONLY || CTRL == DECODER_ONLY)) begin
                         operation_done <= 1'b1;
                         counter <=0;
+                end else if (operation_done) begin
+                        operation_done <= 1'b0; // lowers operation done after 1 cycle
                 end else if (online) begin
                         counter <= counter +1;
-                end else begin
-                        operation_done <= 1'b0; // lowers operation done after 1 cycle
                 end
         end
 

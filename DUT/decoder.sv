@@ -33,7 +33,7 @@ module DEC (
 
     input logic    rst,clk,enable;
     input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
-    input logic    [AMBA_WORD-1:0]             work_mod;
+    input logic    [1:0]             work_mod;
     output logic   [MAX_CODEWORD_WIDTH-1 :0]   data_out;
     output logic   [1:0]                       num_of_errors;
     
