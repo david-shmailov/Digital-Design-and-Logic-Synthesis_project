@@ -1,6 +1,7 @@
 module ENC (
             rst,
             clk,
+            enable,
             data_in,
             work_mod,
             data_out
@@ -28,7 +29,7 @@ module ENC (
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3 - parity_mod_3;
 
 
-    input logic   rst,clk;
+    input logic   rst,clk,enable;
     input logic   [MAX_INFO_WIDTH-1:0]          data_in;
     output logic  [MAX_CODEWORD_WIDTH-1:0]      data_out;
     input logic   [AMBA_WORD-1 :0]              work_mod;
@@ -46,6 +47,7 @@ module ENC (
     ) stage1  (
                     .clk(clk),
                     .rst(rst),
+                    .enable(enable),
                     .data_in(data_in),
                     .work_mod(work_mod),
                     .data_out(c_vector_stage1)
@@ -60,6 +62,7 @@ module ENC (
     ) stage2  (
                     .clk(clk),
                     .rst(rst),
+                    .enable(enable),
                     .data_in(c_vector_stage1),
                     .work_mod(work_mod),
                     .data_out(data_out)

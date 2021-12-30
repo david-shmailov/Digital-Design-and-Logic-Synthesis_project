@@ -1,6 +1,7 @@
 module DEC_CHK (
             rst,
             clk,
+            enable,
             data_in,
             s_vector,
             work_mod,
@@ -30,7 +31,7 @@ module DEC_CHK (
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - full_length_mod_2;
     
     // I/O
-    input   logic                               rst,clk;
+    input   logic                               rst,clk,enable;
     input   logic   [MAX_CODEWORD_WIDTH-1:0]    data_in;
     input   logic   [MAX_PARITY_WIDTH-1:0]      s_vector;
     input   logic   [AMBA_WORD-1:0]             work_mod;
@@ -187,7 +188,7 @@ module DEC_CHK (
             num_of_errors <= 2'b00;
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
         end 
-        else begin //"priority if" is required here. do not change to case
+        else if (enable) begin //"priority if" is required here. do not change to case
             data_out <= temp_out;
             if (s_vector == {MAX_PARITY_WIDTH{1'b0}}) 
                 num_of_errors <= 2'b00;

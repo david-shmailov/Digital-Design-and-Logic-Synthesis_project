@@ -1,5 +1,5 @@
 module ENC_STAGE_1 (
-                clk,rst,
+                clk,rst,enable,
                 data_in,
                 work_mod,
                 data_out
@@ -25,7 +25,7 @@ module ENC_STAGE_1 (
     localparam pad_zero_2 = MAX_CODEWORD_WIDTH - info_mod_2 - parity_mod_2;
     
     // I/O
-    input logic     rst,clk;
+    input logic     rst,clk,enable;
     input logic     [MAX_INFO_WIDTH-1:0]        data_in;
     input logic     [AMBA_WORD -1:0]            work_mod;
     output logic    [MAX_CODEWORD_WIDTH-1:0]    data_out;
@@ -130,7 +130,7 @@ module ENC_STAGE_1 (
     always_ff @( posedge clk or negedge rst) begin : output_reg
         if (!rst) begin
             data_out <= 0;
-        end else begin
+        end else if (enable) begin
             data_out <= final_temp;
         end
     end

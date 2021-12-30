@@ -192,10 +192,10 @@ module tb_post;
     task build;
         in2chk = new;
         out2chk = new;
-        stm = new(tb.inter.MASTER, apb_test_done, starting_test, number_of_tests, number_of_apb_tests);
+        stm = new(tb_post.inter.MASTER, apb_test_done, starting_test, number_of_tests, number_of_apb_tests);
         chk = new(in2chk, out2chk, apb_test_done);
-        in_monitor = new(tb.inter.MONITOR, in2chk, apb_test_done, packet_ready);
-        out_mon = new(tb.inter.MONITOR, out2chk, apb_test_done);
+        in_monitor = new(tb_post.inter.MONITOR, in2chk, apb_test_done, packet_ready);
+        out_mon = new(tb_post.inter.MONITOR, out2chk, apb_test_done);
         cg_inst = new;
         cg_in_inst = new;
     endtask 

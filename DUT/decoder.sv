@@ -1,6 +1,7 @@
 module DEC (
             rst,
             clk,
+            enable,
             data_in,
             work_mod,
             data_out,
@@ -30,7 +31,7 @@ module DEC (
     localparam pad_zero_3 = MAX_CODEWORD_WIDTH - info_mod_3;
 
 
-    input logic    rst,clk;
+    input logic    rst,clk,enable;
     input logic    [MAX_CODEWORD_WIDTH-1:0]    data_in;
     input logic    [AMBA_WORD-1:0]             work_mod;
     output logic   [MAX_CODEWORD_WIDTH-1 :0]   data_out;
@@ -49,6 +50,7 @@ module DEC (
     )mult (
         .rst(rst),
         .clk(clk),
+        .enable(enable),
         .data_in(data_in),
         .work_mod(work_mod),
         .data_out(mult_result)
@@ -61,6 +63,7 @@ module DEC (
     ) check (
         .rst(rst),
         .clk(clk),
+        .enable(enable),
         .data_in(data_in),
         .s_vector(mult_result),
         .work_mod(work_mod),

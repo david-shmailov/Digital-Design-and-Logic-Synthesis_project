@@ -21,8 +21,8 @@ module ECC_ENC_DEC //top
         localparam  DECODER_ONLY = {{AMBA_WORD-2{1'b0}}, 2'b01}; //Decoder Only
         localparam  FULL_CHANNEL = {{AMBA_WORD-2{1'b0}}, 2'b10}; //Full Channel
 
-        localparam  ENC_DEC_DELAY = 0;
-        localparam  FULL_CHAN_DELAY = 1;
+        localparam  ENC_DEC_DELAY = 2;
+        localparam  FULL_CHAN_DELAY = 4;
         
         // for given parameters, those are the MAX various widths in all operating codeword widths modes.
         localparam      MAX_CODEWORD_WIDTH = DATA_WIDTH; 
@@ -49,7 +49,9 @@ module ECC_ENC_DEC //top
         // signals
         logic                            online;
         logic                            start; 
-        logic                            counter;
+        logic     [2:0]                  counter;
+        logic                            enable_enc;
+        logic                            enable_dec;
 
         logic     [DATA_WIDTH-1:0]       data_out_enc;
         logic     [DATA_WIDTH-1:0]       data_out_dec;    
@@ -94,9 +96,10 @@ module ECC_ENC_DEC //top
                 .MAX_INFO_WIDTH(MAX_INFO_WIDTH),
                 .AMBA_WORD(AMBA_WORD)
         ) encoder (
-                //input                       
+                //input                  
                 .rst(rst),
                 .clk(clk),
+                .enable(enable_enc),
                 .data_in(DATA_IN[MAX_INFO_WIDTH-1:0]),
                 .work_mod(CODEWORD_WIDTH), 
                 //output
@@ -114,6 +117,7 @@ module ECC_ENC_DEC //top
                 //input   
                 .rst(rst),
                 .clk(clk),
+                .enable(enable_dec),
                 .data_in(DATA_IN_DEC),
                 .work_mod(CODEWORD_WIDTH), 
                 //output  
@@ -123,7 +127,7 @@ module ECC_ENC_DEC //top
         
         // adding noise to the data in Full channel mode.
         assign  data_with_noise = data_out_enc ^ NOISE ;
-
+        assign  online = enable_dec || enable_enc;
 
         // a mux that determines the output of the design according to the mode.
         always_comb begin : output_mux
@@ -142,40 +146,86 @@ module ECC_ENC_DEC //top
                         default : DATA_IN_DEC = 0;
                 endcase
         end
-        // this register purpose is to switch to working status, because the start signal from APB is lowered after 1 cycle.
-        always_ff @(posedge clk or negedge rst) begin : status_reg
-                if (!rst)
-                        online <= 1'b0;
-                else if (start)
-                        online <= 1'b1;
-                else if (operation_done == 1)
-                        online <= 1'b0;
-                else
-                        online <= online;
 
+        // this enables the correct module into working status
+        always_ff @(posedge clk or negedge rst) begin : module_enabler
+                if (!rst) begin
+                        enable_enc <= 1'b0;
+                        enable_dec <= 1'b0;
+                end else if (start) begin
+                        case(CTRL)
+                                DECODER_ONLY:  enable_dec <= 1'b1;
+                                ENCODER_ONLY:  enable_enc <= 1'b1;
+                                FULL_CHANNEL:  begin
+                                        enable_dec <= 1'b1;
+                                        enable_enc <= 1'b1;
+                                end
+                                default: begin
+                                        enable_dec <= 1'b0;
+                                        enable_enc <= 1'b0;  
+                                end
+                        endcase
+                end else if (operation_done) begin
+                        enable_enc <= 1'b0;
+                        enable_dec <= 1'b0;
+                end
         end
+                        
+
+        // this register purpose is to switch to working status, because the start signal from APB is lowered after 1 cycle.
+        // always_ff @(posedge clk or negedge rst) begin : status_reg
+        //         if (!rst)
+        //                 online <= 1'b0;
+        //         else if (start)
+        //                 online <= 1'b1;
+        //         else if (operation_done == 1)
+        //                 online <= 1'b0;
+        //         else
+        //                 online <= online;
+
+        // end
         //this is a delay counter that raises operation_done signal according to the operating mode.
-        always_ff @( posedge clk or negedge rst ) begin : delay_counter 
+        // always_ff @( posedge clk or negedge rst ) begin : delay_counter 
+        //         if(!rst) begin
+        //                 operation_done <= 1'b0;
+        //                 counter <= 0;
+        //         end
+        //         else if (online && counter == ENC_DEC_DELAY && (CTRL == ENCODER_ONLY || CTRL == DECODER_ONLY) ) begin
+        //                 operation_done <= 1'b1;
+        //         end
+        //         else if (online && counter == FULL_CHAN_DELAY && CTRL == FULL_CHANNEL ) begin
+        //                 operation_done <= 1'b1;
+        //         end
+        //         else if (online) begin
+        //                 counter <= counter + 1;
+        //         end
+        //         else if(operation_done ) begin 
+        //                 operation_done <= 1'b0;         // lowers operation done after 1 cycle
+        //                 counter <= 0;                   // counter resets to 0.
+        //         end
+        //         // else begin
+        //         //         counter <= 0;
+        //         //         operation_done <= 1'b0;
+        //         // end
+        // end
+
+
+        always_ff @(posedge clk or negedge rst) begin : delay_counter
                 if(!rst) begin
                         operation_done <= 1'b0;
                         counter <= 0;
-                end
-                else if(online && operation_done ) begin // online is here only to prevent checker warning this is reset
-                        operation_done <= 1'b0;         // lowers operation done after 1 cycle
-                        counter <= 0;                   // counter resets to 0.
-                end
-                else if (online && counter == ENC_DEC_DELAY && (CTRL == ENCODER_ONLY || CTRL == DECODER_ONLY) ) begin
+                end else if (counter == FULL_CHAN_DELAY && CTRL == FULL_CHANNEL) begin
                         operation_done <= 1'b1;
-                end
-                else if (online && counter == FULL_CHAN_DELAY && CTRL == FULL_CHANNEL ) begin
+                        counter <=0;
+                end else if (counter == ENC_DEC_DELAY && (CTRL == ENCODER_ONLY || CTRL == DECODER_ONLY)) begin
                         operation_done <= 1'b1;
-                end
-                else if (online) begin
-                        counter <= counter + 1;
+                        counter <=0;
+                end else if (online) begin
+                        counter <= counter +1;
                 end else begin
-                        counter <= 0;
-                        operation_done <= 1'b0;
+                        operation_done <= 1'b0; // lowers operation done after 1 cycle
                 end
         end
+
 
 endmodule

@@ -1,5 +1,5 @@
 module ENC_STAGE_2 (
-                clk,rst,
+                clk,rst,enable,
                 data_in,
                 work_mod,
                 data_out
@@ -28,12 +28,12 @@ module ENC_STAGE_2 (
 
 
 
-    input   logic   rst,clk;
+    input   logic       rst,clk,enable;
     input   logic       [MAX_CODEWORD_WIDTH-1:0]   data_in;
     input   logic       [AMBA_WORD-1:0]            work_mod;
     output  logic       [MAX_CODEWORD_WIDTH-1:0]   data_out;
-    logic   temp;
-    
+
+    logic       parity_bit;
     logic       [MAX_CODEWORD_WIDTH-1:0]    one_vec;
     logic       [MAX_CODEWORD_WIDTH-1:0]    final_temp;
 
@@ -46,14 +46,14 @@ module ENC_STAGE_2 (
                 (
                 .A_data_in(one_vec), 
                 .B_data_in(data_in),
-                .C_data_out(temp));
+                .C_data_out(parity_bit));
     
     generate
         always_comb begin : output_mux
             if (MAX_CODEWORD_WIDTH == 8) begin
                 case(work_mod)
                     mod_1   :   final_temp =    {data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1 : MAX_PARITY_WIDTH],
-                                                temp,  // index parity_mod_1 -1
+                                                parity_bit,  // index parity_mod_1 -1
                                                 data_in[MAX_PARITY_WIDTH-2:0]};
 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
@@ -62,11 +62,11 @@ module ENC_STAGE_2 (
                 case(work_mod)
                     mod_1   :   final_temp =    {{8{1'b0}},
                                                 data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
-                                                temp,  // index parity_mod_1 -1
+                                                parity_bit,  // index parity_mod_1 -1
                                                 data_in[parity_mod_1-2:0]};
                                                       
                     mod_2   :   final_temp =    {data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1:MAX_PARITY_WIDTH],
-                                                temp,  // index parity_mod_2 -1
+                                                parity_bit,  // index parity_mod_2 -1
                                                 data_in[MAX_PARITY_WIDTH-2:0]};
                                                 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
@@ -75,17 +75,17 @@ module ENC_STAGE_2 (
                 case(work_mod)
                     mod_1   :   final_temp =    {{pad_zero_1{1'b0}},
                                                 data_in[info_mod_1+parity_mod_1-1:parity_mod_1],
-                                                temp,  // index parity_mod_1 -1
+                                                parity_bit,  // index parity_mod_1 -1
                                                 data_in[parity_mod_1-2:0]};
                                                       
                     mod_2   :   final_temp =    {{pad_zero_2{1'b0}},
                                                 data_in[info_mod_2+ parity_mod_2-1:parity_mod_2],
-                                                temp,  // index parity_mod_2 -1
+                                                parity_bit,  // index parity_mod_2 -1
                                                 data_in[parity_mod_2-2:0]};
 
                     mod_3   :   final_temp =    {                              
                                                 data_in[MAX_INFO_WIDTH+MAX_PARITY_WIDTH-1 : parity_mod_3],     
-                                                temp,  // index parity_mod_3 -1                         
+                                                parity_bit,  // index parity_mod_3 -1                         
                                                 data_in[parity_mod_3-2:0]};                             
                                                 
                     default :   final_temp =    {MAX_CODEWORD_WIDTH{1'b0}};
@@ -97,7 +97,7 @@ module ENC_STAGE_2 (
     always_ff @( posedge clk or negedge rst) begin : DataOut_stage2
         if (!rst) begin
             data_out <= {MAX_CODEWORD_WIDTH{1'b0}};
-        end else begin
+        end else if (enable) begin
             data_out <= final_temp;
         end
     end

@@ -1,6 +1,7 @@
 module DEC_MULT (
             rst,
             clk,
+            enable,
             data_in,
             work_mod,
             data_out
@@ -13,7 +14,7 @@ module DEC_MULT (
     localparam  mod_2 = {{AMBA_WORD-2{1'b0}}, 2'b01};
     localparam  mod_3 = {{AMBA_WORD-2{1'b0}}, 2'b10};
 
-    input   logic   rst,clk;
+    input   logic   rst,clk,enable;
     input   logic   [MAX_CODEWORD_WIDTH-1:0]    data_in;
     input   logic   [AMBA_WORD-1:0]             work_mod;
     output  logic   [MAX_PARITY_WIDTH-1:0]      data_out;
@@ -65,7 +66,7 @@ module DEC_MULT (
     always_ff @( posedge clk or negedge rst) begin : output_reg
         if (!rst) begin
             data_out <= {MAX_PARITY_WIDTH{1'b0}};
-        end else begin
+        end else if (enable) begin
             data_out <= mult_result;
         end
     end
